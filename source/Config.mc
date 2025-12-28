@@ -108,7 +108,7 @@ public static function init() as Void{
             if (Config.get_18_LeftBottomDF() == null) { Config.set_18_LeftBottomDF(23);} //small length data field 1
             if (Config.get_14_RightBottomDF() == null) { Config.set_14_RightBottomDF(23);} //small length data field 2
             if (Config.get_15_RightTopDF() == null) { Config.set_15_RightTopDF(23);} //small length data field 3
-            if (Config.get_25_DateFontSize() == null or Config.get_25_DateFontSize() instanceof Array) { Storage.deleteValue(Config.mDateFontSize); Config.set_25_DateFontSize(true);} //date font size
+            if (Config.get_25_DateFontSize() == null or Config.get_25_DateFontSize() instanceof Array) { Storage.deleteValue(Config.KEY_DATE_FONT_SIZE); Config.set_25_DateFontSize(true);} //date font size
         }        
 }
 
