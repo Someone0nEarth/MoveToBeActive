@@ -14,7 +14,6 @@ import Toybox.Lang;
 //import Toybox.Complications;
 
 //var partialUpdatesAllowed = false;
-var config as Array = [Storage.getValue(1),Storage.getValue(2),Storage.getValue(18),Storage.getValue(32),Storage.getValue(3),Storage.getValue(5),Storage.getValue(25),Storage.getValue(6),Storage.getValue(7),Storage.getValue(26),Storage.getValue(14),Storage.getValue(8),Storage.getValue(4),Storage.getValue(13),Storage.getValue(12),Storage.getValue(17),Storage.getValue(9),Storage.getValue(10),Storage.getValue(11),Storage.getValue(19),Storage.getValue(22),Storage.getValue(24),Storage.getValue(16),Storage.getValue(27),Storage.getValue(28),Storage.getValue(21)];
 //var fullScreenRefresh;
 //var accentColor;
 var inLowPower as Boolean = false;
@@ -36,9 +35,6 @@ class AnalogView extends WatchUi.WatchFace {
         WatchFace.initialize();
         //_fullScreenRefresh = true;
         //_partialUpdatesAllowed = (WatchUi.WatchFace has :onPartialUpdate);
-
-        //           0=accent color  ,  1=accent index   ,  2=tickmark color  , 3=Dark/Light theme ,  4=garmin logo    ,   5=hour labels   , 6=Weather condition, 7=Temperature type,  8=Location name  ,   9=Battery Icon   ,     10=Font size   ,  11=Alarm toggle  ,12=Bluetooth toggle, 13=Hands Thickness , 14=Right bottom DF ,  15=Right top DF   ,   16=Left top DF  ,  17=Left middle DF ,  18=Left bottom DF , 19=Batt. Est. flag , 20=AOD color minute ,   21=Date Format  , 22=temperature unit,   23=Hour Labels   ,24=Gray Battery Icon, 25=Date Font Size
-        //$.config = [Storage.getValue(1),Storage.getValue(2),Storage.getValue(18),Storage.getValue(32),Storage.getValue(3),Storage.getValue(5),Storage.getValue(25),Storage.getValue(6),Storage.getValue(7),Storage.getValue(26),Storage.getValue(14),Storage.getValue(8),Storage.getValue(4),Storage.getValue(13),Storage.getValue(12),Storage.getValue(17),Storage.getValue(9),Storage.getValue(10),Storage.getValue(11),Storage.getValue(19),Storage.getValue(22),Storage.getValue(24),Storage.getValue(16),Storage.getValue(27),Storage.getValue(28),Storage.getValue(21)];
 
         Config.init();
 
@@ -217,7 +213,7 @@ class AnalogView extends WatchUi.WatchFace {
                                 $.MtbA.drawWeatherIcon(dc, position[18], position[20], position[19], width, Weather.getCurrentConditions().condition, System.getClockTime().hour);
                             //}
                             //Draw Temperature Text
-                            $.MtbA.drawTemperature(dc, position[21], (System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20], config[7], width, config[22]);
+                            $.MtbA.drawTemperature(dc, position[21], (System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20], Config.get_7_TemperatureType(), width, Config.get_22_TemperatureUnit());
                         }
                         if (width!=208){
                             //Draw Location Name
@@ -230,8 +226,8 @@ class AnalogView extends WatchUi.WatchFace {
             
             // Draw Battery
             if (Config.get_9_BatteryIcon()!=false){ // Show Battery Icon
-                $.MtbA.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, config[24]);
-                $.MtbA.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, config[19]);
+                $.MtbA.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.get_24_GrayBatteryIcon());
+                $.MtbA.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.get_19_BatteryEstFlag());
             }
 
             //Data Points
