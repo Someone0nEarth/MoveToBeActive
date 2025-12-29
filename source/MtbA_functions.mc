@@ -17,8 +17,8 @@ class MtbA_functions {
 	
   const IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 	const screenShape = System.getDeviceSettings().screenShape;
-	var fontSize = (Storage.getValue(14) == true ? 1 : 0);
-	var fontColor = (Storage.getValue(32) == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE);
+	var fontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
+	var fontColor = (Config.getDarkLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
 	var condName as String = "";
 	var lowPower as Boolean;
 
@@ -58,22 +58,23 @@ class MtbA_functions {
 			var innerRad = outerRad - 10;
 			//var showBoolean = hourLabel;		
 
+        //TODO Move this block to Config initialization (so it is done only one time)?
         if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
             var mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
             if(mColors[accIndex] != accentColor){
-                Storage.setValue(1, mColors[accIndex]);
+                Config.setAccentColor(mColors[accIndex]);
                 accentColor = mColors[accIndex];
             }
         } else { // Light Theme
             var mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
             if(mColors[accIndex] != accentColor){
-                Storage.setValue(1, mColors[accIndex]);
+                Config.setAccentColor(mColors[accIndex]);
                 accentColor = mColors[accIndex];
             }
         }	
 		
 			// Draw hashmarks differently depending on screen geometry.
-			if (System.SCREEN_SHAPE_ROUND == screenShape) { //check if round display					
+			if (System.SCREEN_SHAPE_ROUND == screenShape) { //check if round display		//TODO is this redundant with :round tag? (also retangle)			
 				var increment = (aod==true) ? 5 : 1;
 
 				// Loop through each minute and draw tick marks
@@ -170,7 +171,6 @@ class MtbA_functions {
 			var outerRad = width / 2;
 			//var innerRad = outerRad - 10;			
 			var innerRad = outerRad - 10;
-			//var showBoolean = Storage.getValue(5);			
 			var height = dc.getHeight();
 		
 			// Draw hashmarks differently depending on screen geometry.
@@ -455,7 +455,6 @@ class MtbA_functions {
 							condName="Partly Cloudy";
 						} else {
 							dc.drawText(x2, y-2, WeatherFont, "G", Graphics.TEXT_JUSTIFY_RIGHT); // Partly Cloudy Day
-							//Storage.setValue(34, "Mostly Sunny");
 							condName="Mostly Sunny";
 						}
 			} else if (cond == 2 or cond == 22) { // Mostly Cloudy or Partly Clear
@@ -894,10 +893,9 @@ class MtbA_functions {
 		// Draw Battery Text (separate because of "too many arguments" error)
 	function drawBatteryText(dc, xText, yText, width, estimateFlag) {	
 	
-		//var estimateFlag = Storage.getValue(19);
 		var battery = Math.ceil(System.getSystemStats().battery);
 		var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
-		var maxCharge = Storage.getValue(30);
+		var maxCharge = Status.getMaxPercentageWhenCharging();
 		var check = dc.getFontHeight(0);
 
 		if (System.getSystemStats().charging==true or (maxCharge!=null and battery>maxCharge or (battery==maxCharge and battery==100))){
@@ -909,7 +907,7 @@ class MtbA_functions {
         today.year
     	];
 			Storage.setValue(29, test); // last time seen charging
-			Storage.setValue(30, battery); // max percentage when charging
+			Status.setMaxPercentageWhenCharging(battery);
 			//Storage.setValue(20, null); // reset last battery estimate
 			Storage.setValue(31, null); // reset last estimated consumption data field
 			//Storage.setValue(22, null); // reset last hourDiff calculation
@@ -1473,7 +1471,7 @@ class MtbA_functions {
 				}
 			}
 			dc.fillRectangle( 0, 0 , width, 1); // Using Font
-		} else if(Storage.getValue(33)==true){ // seconds hand true
+		} else if(Config.getSecondsHand()==true){
 			if (BurnIn==true or lowPower==false){ // AMOLED or MIP not in low-power mode
 				// Seconds hand
 				var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
