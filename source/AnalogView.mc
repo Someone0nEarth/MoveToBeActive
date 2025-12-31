@@ -179,9 +179,9 @@ class AnalogView extends WatchUi.WatchFace {
             }
 
             // Garmin Logo check
-            var logo=Config.getGarminlogo();
+            var showGarminLogo=Config.getGarminlogo();
             var position = Application.loadResource(Rez.JsonData.mPosition) as Array;
-            if (logo == null or logo == true) {
+            if (showGarminLogo == null or showGarminLogo == true) {
                 $.MtbA.drawGarminLogo(dc, position[4], position[5], Config.getDarkLightTheme()); 
             }
 
@@ -190,37 +190,46 @@ class AnalogView extends WatchUi.WatchFace {
                 $.MtbA.drawHourLabels(dc, width, height, accentColor, Config.getHourLabelAccentColor()); 
             }
 
-            //Draw Weather Icon (dc, x, y, x2, width)
-            //if (Toybox has :Weather and Weather has :getCurrentConditions) {
-            if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions) {
+            if (Config.showWeather()) {
                 var weatherConditions= Weather.getCurrentConditions();
                 if(weatherConditions != null) {
-                    //var cond = Toybox.Weather.getCurrentConditions();
-                    if (!logo){ // Hide Garmin Logo
-                        if (Config.getWeatherCondition()){ // Show current weather condition and temperature
-                            //if (cond.condition!=null and cond.condition instanceof Number){
-                                $.MtbA.drawWeatherIcon(dc, position[18], position[22], position[19], width, weatherConditions.condition, System.getClockTime().hour);
-                            //}
-                            //Draw Temperature Text
-                            $.MtbA.drawTemperature(dc, position[21], position[7],  Config.getTemperatureType(), width, Config.getTemperatureUnit());
+                    var xIcon, x2Icon, yIcon;
+                    var xTemp, yTemp;
+                    var xName, yName;
+                    
+                    if (showGarminLogo) {
+                        xIcon=position[18];
+                        x2Icon=position[19];
+                        yIcon=position[20];
+
+                        xTemp=position[21];
+                        yTemp=(System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20]; //TODO make it understandable
+
+                        xName=width/2;
+                        yName=position[23];
+
+                        if(width==260){ //TODO Figuring out what the meaning of the magic number "260" is
+                          yName = yName+6;
                         }
-                        if (width!=208){
-                            //Draw Location Name
-                            $.MtbA.drawLocation(dc, width/2, position[6], Config.getLocationName(), Config.getGarminlogo());
-                        }
-                    } else { // Show Garmin Logo
-                        if (Config.getWeatherCondition()){ // Show current weather condition and temperature
-                            //if (cond.condition!=null and cond.condition instanceof Number){
-                                $.MtbA.drawWeatherIcon(dc, position[18], position[20], position[19], width, weatherConditions.condition, System.getClockTime().hour);
-                            //}
-                            //Draw Temperature Text
-                            $.MtbA.drawTemperature(dc, position[21], (System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20], Config.getTemperatureType(), width, Config.getTemperatureUnit());
-                        }
-                        if (width!=208){
-                            //Draw Location Name
-                            //System.println(dc.getFontHeight(Graphics.FONT_TINY));
-                            $.MtbA.drawLocation(dc, width/2, position[23], Config.getLocationName(), Config.getGarminlogo());
-                        }                        
+                    } else {
+                        xIcon=position[18];
+                        x2Icon=position[19];
+                        yIcon=position[22];
+
+                        xTemp=position[21];
+                        yTemp=position[7];
+
+                        xName=width/2;
+                        yName=position[6];
+                    }
+
+                    if (Config.showWeatherCondition()){
+                        $.MtbA.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions.condition, System.getClockTime().hour);
+                        $.MtbA.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
+                    }
+                    
+                    if(Config.showWeatherConditionName()){
+                        $.MtbA.drawLocation(dc, xName, yName);
                     }
                 }
             }
@@ -335,7 +344,7 @@ class AnalogView extends WatchUi.WatchFace {
             }
 
             //Draw the date string
-            if (logo == null or logo == true) { // Garmin Logo check
+            if (showGarminLogo == null or showGarminLogo == true) { // Garmin Logo check
                 $.MtbA.drawDateString( dc, width / 2, position[6], Config.getDateFormat(), Config.getDateFontSize()); 
             } else { // No Garmin Logo
                 $.MtbA.drawDateString( dc, width / 2, position[5] + (width<=240 ? 5 : 0 ) + (width==218 ? 3 : 0 ), Config.getDateFormat(), Config.getDateFontSize()); // offsets needed because of size of Garmin Logo compared to Date Font

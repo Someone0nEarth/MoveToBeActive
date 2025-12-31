@@ -9,7 +9,7 @@ class AppStorage {
   public static const KEY_4_CFG_BLUETOOTH_TOGGLE = 4;
   public static const KEY_5_CFG_HOUR_LABELS = 5;
   public static const KEY_6_CFG_TEMPERATURE_TYPE = 6;
-  public static const KEY_7_CFG_LOCATION_NAME = 7;
+  public static const KEY_7_CFG_WEATHER_CONDITION_NAME = 7;
   public static const KEY_8_CFG_ALARM_TOGGLE = 8;
   public static const KEY_9_CFG_LEFT_TOP_DF = 9;
   public static const KEY_10_CFG_LEFT_MIDDLE_DF = 10;

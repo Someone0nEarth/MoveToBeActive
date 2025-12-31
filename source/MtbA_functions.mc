@@ -19,7 +19,7 @@ class MtbA_functions {
 	const screenShape = System.getDeviceSettings().screenShape;
 	var fontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
 	var fontColor = (Config.getDarkLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
-	var condName as String = "";
+	var mWeatherConditionName as String = "";
 	var lowPower as Boolean;
 
 	function initialize(inLowPower) {
@@ -437,49 +437,49 @@ class MtbA_functions {
 			if (cond == 20) { // Cloudy
 				dc.drawText(x2-1, y-1, WeatherFont, "I", Graphics.TEXT_JUSTIFY_RIGHT); // Cloudy
 				if (clockTime >= sunset or clockTime < sunrise) { 
-					condName="Cloudy Night";
+					mWeatherConditionName="Cloudy Night";
 				} else {
-					condName="Cloudy Day";
+					mWeatherConditionName="Cloudy Day";
 				}
 			} else if (cond == 0 or cond == 5) { // Clear or Windy
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2-2, y-1, WeatherFont, "f", Graphics.TEXT_JUSTIFY_RIGHT); // Clear Night	
-							condName="Starry Night";
+							mWeatherConditionName="Starry Night";
 						} else {
 							dc.drawText(x2, y-2, WeatherFont, "H", Graphics.TEXT_JUSTIFY_RIGHT); // Clear Day
-							condName="Sunny Day";
+							mWeatherConditionName="Sunny Day";
 						}
 			} else if (cond == 1 or cond == 23 or cond == 40 or cond == 52) { // Partly Cloudy or Mostly Clear or fair or thin clouds
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2-1, y-2, WeatherFont, "g", Graphics.TEXT_JUSTIFY_RIGHT); // Partly Cloudy Night
-							condName="Partly Cloudy";
+							mWeatherConditionName="Partly Cloudy";
 						} else {
 							dc.drawText(x2, y-2, WeatherFont, "G", Graphics.TEXT_JUSTIFY_RIGHT); // Partly Cloudy Day
-							condName="Mostly Sunny";
+							mWeatherConditionName="Mostly Sunny";
 						}
 			} else if (cond == 2 or cond == 22) { // Mostly Cloudy or Partly Clear
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2, y, WeatherFont, "h", Graphics.TEXT_JUSTIFY_RIGHT); // Mostly Cloudy Night
-							condName="Overcast Night";
+							mWeatherConditionName="Overcast Night";
 						} else {
 							dc.drawText(x, y, WeatherFont, "B", Graphics.TEXT_JUSTIFY_RIGHT); // Mostly Cloudy Day
-							condName="Mostly Cloudy";
+							mWeatherConditionName="Mostly Cloudy";
 						}
 			} else if (cond == 3 or cond == 14 or cond == 15 or cond == 11 or cond == 13 or cond == 24 or cond == 25 or cond == 26 or cond == 27 or cond == 45) { // Rain or Light Rain or heavy rain or showers or unkown or chance  
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2, y, WeatherFont, "c", Graphics.TEXT_JUSTIFY_RIGHT); // Rain Night
-							condName="Rainy Night";
+							mWeatherConditionName="Rainy Night";
 						} else {
 							dc.drawText(x, y, WeatherFont, "D", Graphics.TEXT_JUSTIFY_RIGHT); // Rain Day
-							condName="Rainy Day";
+							mWeatherConditionName="Rainy Day";
 						}
 			} else if (cond == 4 or cond == 10 or cond == 16 or cond == 17 or cond == 34 or cond == 43 or cond == 46 or cond == 48 or cond == 51) { // Snow or Hail or light or heavy snow or ice or chance or cloudy chance or flurries or ice snow
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2, y, WeatherFont, "e", Graphics.TEXT_JUSTIFY_RIGHT); // Snow Night
-							condName="Snowy Night";
+							mWeatherConditionName="Snowy Night";
 						} else {
 							dc.drawText(x, y, WeatherFont, "F", Graphics.TEXT_JUSTIFY_RIGHT); // Snow Day
-							condName="Snowy Day";
+							mWeatherConditionName="Snowy Day";
 						}
 			} else if (cond == 6 or cond == 12 or cond == 28 or cond == 32 or cond == 36 or cond == 41 or cond == 42) { // Thunder or scattered or chance or tornado or squall or hurricane or tropical storm
 				if (clockTime >= sunset or clockTime < sunrise) { 
@@ -487,22 +487,22 @@ class MtbA_functions {
 						} else {
 							dc.drawText(x, y, WeatherFont, "C", Graphics.TEXT_JUSTIFY_RIGHT); // Thunder Day
 						}
-						condName="Thunderstorms";
+						mWeatherConditionName="Thunderstorms";
 			} else if (cond == 7 or cond == 18 or cond == 19 or cond == 21 or cond == 44 or cond == 47 or cond == 49 or cond == 50) { // Wintry Mix (Snow and Rain) or chance or cloudy chance or freezing rain or sleet
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2, y, WeatherFont, "d", Graphics.TEXT_JUSTIFY_RIGHT); // Snow+Rain Night
-							condName="Wintry Mix Night";
+							mWeatherConditionName="Wintry Mix Night";
 						} else {
 							dc.drawText(x, y, WeatherFont, "E", Graphics.TEXT_JUSTIFY_RIGHT); // Snow+Rain Day
-							condName="Wintry Mix Day";
+							mWeatherConditionName="Wintry Mix Day";
 						}
 			} else if (cond == 8 or cond == 9 or cond == 29 or cond == 30 or cond == 31 or cond == 33 or cond == 35 or cond == 37 or cond == 38 or cond == 39) { // Fog or Hazy or Mist or Dust or Drizzle or Smoke or Sand or sandstorm or ash or haze
 				if (clockTime >= sunset or clockTime < sunrise) { 
 							dc.drawText(x2, y, WeatherFont, "a", Graphics.TEXT_JUSTIFY_RIGHT); // Fog Night
-							condName="Foggy Night";
+							mWeatherConditionName="Foggy Night";
 				} else {
 					dc.drawText(x, y, WeatherFont, "A", Graphics.TEXT_JUSTIFY_RIGHT); // Fog Day
-					condName="Foggy Day";
+					mWeatherConditionName="Foggy Day";
 				}       		
 			}
 			return true;
@@ -585,21 +585,10 @@ class MtbA_functions {
 		}
 	}
 	
-	/* ------------------------ */
-	
-	// Weather Location Name
-	function drawLocation(dc, x, y, showBoolean, logo) {
-
-			if(x*2==260 and logo){
-				y = y+6;
-			}
-
+	function drawLocation(dc, x, y) {
 			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
-			//dc.fitTextToArea(text, font, width, height, truncate)
-			dc.drawText(x, y, Graphics.FONT_XTINY, showBoolean ? condName : "", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(x, y, Graphics.FONT_XTINY, mWeatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
-	
-	/* ------------------------ */
 	
 	// Notification Icon and Count
 	function drawNotification(dc, xIcon, yIcon, xText, yText, accentColor, width) {

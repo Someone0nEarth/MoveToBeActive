@@ -19,7 +19,7 @@ class Config {
   private static var mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
   private static var mWeatherCondition = loadOrSetDefault(AppStorage.KEY_25_CFG_WEATHER_CONDITION, true);
   private static var mTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, true);
-  private static var mLocationName = loadOrSetDefault(AppStorage.KEY_7_CFG_LOCATION_NAME, true);
+  private static var mShowWeatherConditionName = loadOrSetDefault(AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, true);
   private static var mBatteryIcon = loadOrSetDefault(AppStorage.KEY_26_CFG_BATTERY_ICON, true);
   // prettier-ignore
   private static var mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
@@ -82,7 +82,7 @@ class Config {
     AppStorage.persist(AppStorage.KEY_5_CFG_HOUR_LABELS, value);
   }
 
-  public static function setWeatherCondition(value) {
+  public static function setShowWeatherCondition(value) {
     mWeatherCondition = value;
     AppStorage.persist(AppStorage.KEY_25_CFG_WEATHER_CONDITION, value);
   }
@@ -92,9 +92,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, value);
   }
 
-  public static function setLocationName(value) {
-    mLocationName = value;
-    AppStorage.persist(AppStorage.KEY_7_CFG_LOCATION_NAME, value);
+  public static function setShowWeatherConditionName(value as Boolean) {
+    mShowWeatherConditionName = value;
+    AppStorage.persist(AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, value);
   }
 
   public static function setBatteryIcon(value) {
@@ -216,7 +216,7 @@ class Config {
     return mHourLabels;
   }
 
-  public static function getWeatherCondition() {
+  public static function showWeatherCondition() {
     return mWeatherCondition;
   }
 
@@ -224,8 +224,8 @@ class Config {
     return mTemperatureType;
   }
 
-  public static function getLocationName() {
-    return mLocationName;
+  public static function showWeatherConditionName() {
+    return mShowWeatherConditionName;
   }
 
   public static function getBatteryIcon() {
@@ -299,6 +299,16 @@ class Config {
   public static function getSecondsHand() {
     return mSecondsHand;
   }
+
+  public static function showWeather() as Boolean {
+    if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions){
+        if(showWeatherCondition() || showWeatherConditionName()){
+            return true;
+        } 
+    }
+    return false;
+  }
+
 
   private static function getCurrentVersion() as Numeric {
     return CURRENT_APP_VERSION;
