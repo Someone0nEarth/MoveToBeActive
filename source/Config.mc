@@ -10,39 +10,39 @@ class Config {
   private static const COLOR_BRIGHT_LIME_GREEN = 0x55ff00;
   private static const COLOR_SATURATEDLIME_GREEN = 0xaaff000;
 
-  private static var mAccentColor = AppStorage.load(AppStorage.KEY_CFG_ACCENT_COLOR);
-  private static var mAccentIndex = AppStorage.load(AppStorage.KEY_CFG_ACCENT_INDEX);
-  private static var mTickmarkColor = loadOrSetDefault(AppStorage.KEY_CFG_TICKMARK_COLOR, false);
-  private static var mDarkLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_CFG_DARK_LIGHT_THEME, false);
-  private static var mGarminlogo = loadOrSetDefault(AppStorage.KEY_CFG_GARMINLOGO, true);
+  private static var mAccentColor = AppStorage.load(AppStorage.KEY_1_CFG_ACCENT_COLOR);
+  private static var mAccentIndex = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_INDEX);
+  private static var mTickmarkAccentColor = loadOrSetDefault(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, false);
+  private static var mDarkLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_32_CFG_DARK_LIGHT_THEME, false);
+  private static var mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
   // prettier-ignore
-  private static var mHourLabels = loadOrSetDefault(AppStorage.KEY_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
-  private static var mWeatherCondition = loadOrSetDefault(AppStorage.KEY_CFG_WEATHER_CONDITION, true);
-  private static var mTemperatureType = loadOrSetDefault(AppStorage.KEY_CFG_TEMPERATURE_TYPE, true);
-  private static var mLocationName = loadOrSetDefault(AppStorage.KEY_CFG_LOCATION_NAME, true);
-  private static var mBatteryIcon = loadOrSetDefault(AppStorage.KEY_CFG_BATTERY_ICON, true);
+  private static var mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
+  private static var mWeatherCondition = loadOrSetDefault(AppStorage.KEY_25_CFG_WEATHER_CONDITION, true);
+  private static var mTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, true);
+  private static var mLocationName = loadOrSetDefault(AppStorage.KEY_7_CFG_LOCATION_NAME, true);
+  private static var mBatteryIcon = loadOrSetDefault(AppStorage.KEY_26_CFG_BATTERY_ICON, true);
   // prettier-ignore
-  private static var mFontSize = loadOrSetDefault(AppStorage.KEY_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mAlarmToggle = loadOrSetDefault(AppStorage.KEY_CFG_ALARM_TOGGLE, true);
-  private static var mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_CFG_BLUETOOTH_TOGGLE, true);
-  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_CFG_HANDS_THICKNESS, 2);
-  private static var mRightBottomDF = loadOrSetDefault(AppStorage.KEY_CFG_RIGHT_BOTTOM_DF, 23);
-  private static var mRightTopDF = loadOrSetDefault(AppStorage.KEY_CFG_RIGHT_TOP_DF, 23);
-  private static var mLeftTopDF = loadOrSetDefault(AppStorage.KEY_CFG_LEFT_TOP_DF, 27);
-  private static var mLeftMiddleDF = loadOrSetDefault(AppStorage.KEY_CFG_LEFT_MIDDLE_DF, 27);
-  private static var mLeftBottomDF = loadOrSetDefault(AppStorage.KEY_CFG_LEFT_BOTTOM_DF, 23);
-  private static var mBatteryEstFlag = loadOrSetDefault(AppStorage.KEY_CFG_BATTERY_EST_FLAG, false);
-  private static var mPressuretype = loadOrSetDefault(AppStorage.KEY_CFG_PRESSURE_TYPE, false);
-  private static var mAODColorMinute = loadOrSetDefault(AppStorage.KEY_CFG_AOD_COLOR_MINUTE, false);
-  private static var mDateFormat = loadOrSetDefault(AppStorage.KEY_CFG_DATE_FORMAT, false);
-  private static var mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_CFG_TEMPERATURE_UNIT, false);
+  private static var mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
+  private static var mAlarmToggle = loadOrSetDefault(AppStorage.KEY_8_CFG_ALARM_TOGGLE, true);
+  private static var mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, true);
+  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, 2);
+  private static var mRightBottomDF = loadOrSetDefault(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, 23);
+  private static var mRightTopDF = loadOrSetDefault(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, 23);
+  private static var mLeftTopDF = loadOrSetDefault(AppStorage.KEY_9_CFG_LEFT_TOP_DF, 27);
+  private static var mLeftMiddleDF = loadOrSetDefault(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, 27);
+  private static var mLeftBottomDF = loadOrSetDefault(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, 23);
+  private static var mBatteryEstFlag = loadOrSetDefault(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, false);
+  private static var mPressuretype = loadOrSetDefault(AppStorage.KEY_20_CFG_PRESSURE_TYPE, false);
+  private static var mAODColorMinute = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_COLOR_MINUTE, false);
+  private static var mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
+  private static var mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
   // prettier-ignore
-  private static var mHourLabels2 = loadOrSetDefault(AppStorage.KEY_CFG_HOUR_LABELS2, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mGrayBatteryIcon = loadOrSetDefault(AppStorage.KEY_CFG_GRAY_BATTERY_ICON, true);
-  private static var mDateFontSize = loadOrSetDefault(AppStorage.KEY_CFG_DATE_FONT_SIZE, true);
+  private static var mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true);
+  private static var mConditionalBatteryIconColor = loadOrSetDefault(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, true);
+  private static var mDateFontSize = loadOrSetDefault(AppStorage.KEY_21_CFG_DATE_FONT_SIZE, true);
   // prettier-ignore
-  private static var mSecondsHand as Boolean = loadOrSetDefault(AppStorage.KEY_CFG_SECONDS_HAND, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mAppStorageConfigVersion = loadOrSetDefault(AppStorage.KEY_CFG_CURRENT_VERSION, 0);
+  private static var mSecondsHand as Boolean = loadOrSetDefault(AppStorage.KEY_33_CFG_SECONDS_HAND, SCREEN_IS_ROUND_SHAPED ? false : true);
+  private static var mAppStorageConfigVersion = loadOrSetDefault(AppStorage.KEY_23_CFG_CURRENT_VERSION, 0);
 
   public static function init() as Void {
     setAccentColorsIfNeeded();
@@ -54,142 +54,142 @@ class Config {
 
   public static function setAccentColor(value) {
     mAccentColor = value;
-    AppStorage.persist(AppStorage.KEY_CFG_ACCENT_COLOR, value);
+    AppStorage.persist(AppStorage.KEY_1_CFG_ACCENT_COLOR, value);
   }
 
   public static function setAccentIndex(value) {
     mAccentIndex = value;
-    AppStorage.persist(AppStorage.KEY_CFG_ACCENT_INDEX, value);
+    AppStorage.persist(AppStorage.KEY_2_CFG_ACCENT_INDEX, value);
   }
 
-  public static function setTickmarkColor(value) {
-    mTickmarkColor = value;
-    AppStorage.persist(AppStorage.KEY_CFG_TICKMARK_COLOR, value);
+  public static function setTickmarkAccentColor(value) {
+    mTickmarkAccentColor = value;
+    AppStorage.persist(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, value);
   }
 
   public static function setDarkLightTheme(value) {
     mDarkLightTheme = value;
-    AppStorage.persist(AppStorage.KEY_CFG_DARK_LIGHT_THEME, value);
+    AppStorage.persist(AppStorage.KEY_32_CFG_DARK_LIGHT_THEME, value);
   }
 
   public static function setGarminlogo(value) {
     mGarminlogo = value;
-    AppStorage.persist(AppStorage.KEY_CFG_GARMINLOGO, value);
+    AppStorage.persist(AppStorage.KEY_3_CFG_GARMINLOGO, value);
   }
 
   public static function setHourLabels(value) {
     mHourLabels = value;
-    AppStorage.persist(AppStorage.KEY_CFG_HOUR_LABELS, value);
+    AppStorage.persist(AppStorage.KEY_5_CFG_HOUR_LABELS, value);
   }
 
   public static function setWeatherCondition(value) {
     mWeatherCondition = value;
-    AppStorage.persist(AppStorage.KEY_CFG_WEATHER_CONDITION, value);
+    AppStorage.persist(AppStorage.KEY_25_CFG_WEATHER_CONDITION, value);
   }
 
   public static function setTemperatureType(value) {
     mTemperatureType = value;
-    AppStorage.persist(AppStorage.KEY_CFG_TEMPERATURE_TYPE, value);
+    AppStorage.persist(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, value);
   }
 
   public static function setLocationName(value) {
     mLocationName = value;
-    AppStorage.persist(AppStorage.KEY_CFG_LOCATION_NAME, value);
+    AppStorage.persist(AppStorage.KEY_7_CFG_LOCATION_NAME, value);
   }
 
   public static function setBatteryIcon(value) {
     mBatteryIcon = value;
-    AppStorage.persist(AppStorage.KEY_CFG_BATTERY_ICON, value);
+    AppStorage.persist(AppStorage.KEY_26_CFG_BATTERY_ICON, value);
   }
 
   public static function setFontSize(value) {
     mFontSize = value;
-    AppStorage.persist(AppStorage.KEY_CFG_FONT_SIZE, value);
+    AppStorage.persist(AppStorage.KEY_14_CFG_FONT_SIZE, value);
   }
 
   public static function setAlarmToggle(value) {
     mAlarmToggle = value;
-    AppStorage.persist(AppStorage.KEY_CFG_ALARM_TOGGLE, value);
+    AppStorage.persist(AppStorage.KEY_8_CFG_ALARM_TOGGLE, value);
   }
 
   public static function setBluetoothToggle(value) {
     mBluetoothToggle = value;
-    AppStorage.persist(AppStorage.KEY_CFG_BLUETOOTH_TOGGLE, value);
+    AppStorage.persist(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, value);
   }
 
   public static function setHandsThickness(value) {
     mHandsThickness = value;
-    AppStorage.persist(AppStorage.KEY_CFG_HANDS_THICKNESS, value);
+    AppStorage.persist(AppStorage.KEY_13_CFG_HANDS_THICKNESS, value);
   }
 
   public static function setRightBottomDF(value) {
     mRightBottomDF = value;
-    AppStorage.persist(AppStorage.KEY_CFG_RIGHT_BOTTOM_DF, value);
+    AppStorage.persist(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, value);
   }
 
   public static function setRightTopDF(value) {
     mRightTopDF = value;
-    AppStorage.persist(AppStorage.KEY_CFG_RIGHT_TOP_DF, value);
+    AppStorage.persist(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, value);
   }
 
   public static function setLeftTopDF(value) {
     mLeftTopDF = value;
-    AppStorage.persist(AppStorage.KEY_CFG_LEFT_TOP_DF, value);
+    AppStorage.persist(AppStorage.KEY_9_CFG_LEFT_TOP_DF, value);
   }
 
   public static function setLeftMiddleDF(value) {
     mLeftMiddleDF = value;
-    AppStorage.persist(AppStorage.KEY_CFG_LEFT_MIDDLE_DF, value);
+    AppStorage.persist(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, value);
   }
 
   public static function setLeftBottomDF(value) {
     mLeftBottomDF = value;
-    AppStorage.persist(AppStorage.KEY_CFG_LEFT_BOTTOM_DF, value);
+    AppStorage.persist(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, value);
   }
 
   public static function setBatteryEstFlag(value) {
     mBatteryEstFlag = value;
-    AppStorage.persist(AppStorage.KEY_CFG_BATTERY_EST_FLAG, value);
+    AppStorage.persist(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, value);
   }
 
   public static function setAODColorMinute(value) {
     mAODColorMinute = value;
-    AppStorage.persist(AppStorage.KEY_CFG_AOD_COLOR_MINUTE, value);
+    AppStorage.persist(AppStorage.KEY_22_CFG_AOD_COLOR_MINUTE, value);
   }
 
   public static function setDateFormat(value) {
     mDateFormat = value;
-    AppStorage.persist(AppStorage.KEY_CFG_DATE_FORMAT, value);
+    AppStorage.persist(AppStorage.KEY_24_CFG_DATE_FORMAT, value);
   }
 
   public static function setTemperatureUnit(value) {
     mTemperatureUnit = value;
-    AppStorage.persist(AppStorage.KEY_CFG_TEMPERATURE_UNIT, value);
+    AppStorage.persist(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, value);
   }
 
-  public static function setHourLabels2(value) {
-    mHourLabels2 = value;
-    AppStorage.persist(AppStorage.KEY_CFG_HOUR_LABELS2, value);
+  public static function setHourLabelAccentColor(value) {
+    mHourLabelAccentColor = value;
+    AppStorage.persist(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, value);
   }
 
-  public static function setGrayBatteryIcon(value) {
-    mGrayBatteryIcon = value;
-    AppStorage.persist(AppStorage.KEY_CFG_GRAY_BATTERY_ICON, value);
+  public static function setConditionalBatteryIconColor(value) {
+    mConditionalBatteryIconColor = value;
+    AppStorage.persist(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, value);
   }
 
   public static function setDateFontSize(value) {
     mDateFontSize = value;
-    AppStorage.persist(AppStorage.KEY_CFG_DATE_FONT_SIZE, value);
+    AppStorage.persist(AppStorage.KEY_21_CFG_DATE_FONT_SIZE, value);
   }
 
   public static function setSecondsHand(value) {
     mSecondsHand = value;
-    AppStorage.persist(AppStorage.KEY_CFG_SECONDS_HAND, value);
+    AppStorage.persist(AppStorage.KEY_33_CFG_SECONDS_HAND, value);
   }
 
   private static function setPressureType(value as Boolean) {
     mPressuretype = value;
-    AppStorage.persist(AppStorage.KEY_CFG_PRESSURE_TYPE, value);
+    AppStorage.persist(AppStorage.KEY_20_CFG_PRESSURE_TYPE, value);
   }
 
   public static function getAccentColor() {
@@ -200,8 +200,8 @@ class Config {
     return mAccentIndex;
   }
 
-  public static function getTickmarkColor() {
-    return mTickmarkColor;
+  public static function getTickmarkAccentColor() {
+    return mTickmarkAccentColor;
   }
 
   public static function getDarkLightTheme() {
@@ -284,12 +284,12 @@ class Config {
     return mTemperatureUnit;
   }
 
-  public static function getHourLabels2() {
-    return mHourLabels2;
+  public static function getHourLabelAccentColor() {
+    return mHourLabelAccentColor;
   }
 
-  public static function getGrayBatteryIcon() {
-    return mGrayBatteryIcon;
+  public static function getConditionalBatteryIconColor() {
+    return mConditionalBatteryIconColor;
   }
 
   public static function getDateFontSize() {
@@ -319,7 +319,7 @@ class Config {
 
   private static function migrateStoredConfigIfNeeded() as Void {
     if (getDateFontSize() instanceof Array) {
-      Storage.deleteValue(AppStorage.KEY_CFG_DATE_FONT_SIZE);
+      Storage.deleteValue(AppStorage.KEY_21_CFG_DATE_FONT_SIZE);
       setDateFontSize(true);
     }
   }
@@ -327,7 +327,7 @@ class Config {
   private static function updateAppVersionNumberIfNeeded() as Void {
     if (CURRENT_APP_VERSION != mAppStorageConfigVersion) {
       mAppStorageConfigVersion = CURRENT_APP_VERSION;
-      AppStorage.persist(AppStorage.KEY_CFG_CURRENT_VERSION, mAppStorageConfigVersion);
+      AppStorage.persist(AppStorage.KEY_23_CFG_CURRENT_VERSION, mAppStorageConfigVersion);
     }
   }
 

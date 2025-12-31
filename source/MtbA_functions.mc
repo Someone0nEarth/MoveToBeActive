@@ -596,7 +596,7 @@ class MtbA_functions {
 
 			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			//dc.fitTextToArea(text, font, width, height, truncate)
-			dc.drawText(x, y, Graphics.FONT_XTINY, showBoolean != false ? condName : "", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(x, y, Graphics.FONT_XTINY, showBoolean ? condName : "", Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
 	/* ------------------------ */

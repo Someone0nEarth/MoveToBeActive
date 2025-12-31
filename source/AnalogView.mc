@@ -108,7 +108,7 @@ class AnalogView extends WatchUi.WatchFace {
         var canBurnIn=System.getDeviceSettings().requiresBurnInProtection;
         //var accentColor = config[0];
         var accentColor = Config.getAccentColor();
-        var tickmarkColor = Config.getTickmarkColor();
+        var tickmarkColor = Config.getTickmarkAccentColor();
 
         // We always want to refresh the full screen when we get a regular onUpdate call.
         //_fullScreenRefresh = true;
@@ -187,18 +187,19 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the 3, 6, 9, and 12 hour labels.
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape and Config.getHourLabels() != false) {
-                $.MtbA.drawHourLabels(dc, width, height, accentColor, Config.getHourLabels2()); 
+                $.MtbA.drawHourLabels(dc, width, height, accentColor, Config.getHourLabelAccentColor()); 
             }
 
             //Draw Weather Icon (dc, x, y, x2, width)
             //if (Toybox has :Weather and Weather has :getCurrentConditions) {
             if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions) {
-                if(Weather.getCurrentConditions() != null) {
+                var weatherConditions= Weather.getCurrentConditions();
+                if(weatherConditions != null) {
                     //var cond = Toybox.Weather.getCurrentConditions();
-                    if (logo==false){ // Hide Garmin Logo
-                        if (Config.getWeatherCondition()!=false){ // Show current weather condition and temperature
+                    if (!logo){ // Hide Garmin Logo
+                        if (Config.getWeatherCondition()){ // Show current weather condition and temperature
                             //if (cond.condition!=null and cond.condition instanceof Number){
-                                $.MtbA.drawWeatherIcon(dc, position[18], position[22], position[19], width, Weather.getCurrentConditions().condition, System.getClockTime().hour);
+                                $.MtbA.drawWeatherIcon(dc, position[18], position[22], position[19], width, weatherConditions.condition, System.getClockTime().hour);
                             //}
                             //Draw Temperature Text
                             $.MtbA.drawTemperature(dc, position[21], position[7],  Config.getTemperatureType(), width, Config.getTemperatureUnit());
@@ -208,9 +209,9 @@ class AnalogView extends WatchUi.WatchFace {
                             $.MtbA.drawLocation(dc, width/2, position[6], Config.getLocationName(), Config.getGarminlogo());
                         }
                     } else { // Show Garmin Logo
-                        if (Config.getWeatherCondition()!=false){ // Show current weather condition and temperature
+                        if (Config.getWeatherCondition()){ // Show current weather condition and temperature
                             //if (cond.condition!=null and cond.condition instanceof Number){
-                                $.MtbA.drawWeatherIcon(dc, position[18], position[20], position[19], width, Weather.getCurrentConditions().condition, System.getClockTime().hour);
+                                $.MtbA.drawWeatherIcon(dc, position[18], position[20], position[19], width, weatherConditions.condition, System.getClockTime().hour);
                             //}
                             //Draw Temperature Text
                             $.MtbA.drawTemperature(dc, position[21], (System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20], Config.getTemperatureType(), width, Config.getTemperatureUnit());
@@ -218,7 +219,7 @@ class AnalogView extends WatchUi.WatchFace {
                         if (width!=208){
                             //Draw Location Name
                             //System.println(dc.getFontHeight(Graphics.FONT_TINY));
-                            $.MtbA.drawLocation(dc, width/2, position[23], Config.getLocationName, Config.getGarminlogo());
+                            $.MtbA.drawLocation(dc, width/2, position[23], Config.getLocationName(), Config.getGarminlogo());
                         }                        
                     }
                 }
@@ -226,7 +227,7 @@ class AnalogView extends WatchUi.WatchFace {
             
             // Draw Battery
             if (Config.getBatteryIcon()!=false){ // Show Battery Icon
-                $.MtbA.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.getGrayBatteryIcon());
+                $.MtbA.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.getConditionalBatteryIconColor());
                 $.MtbA.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.getBatteryEstFlag());
             }
 
