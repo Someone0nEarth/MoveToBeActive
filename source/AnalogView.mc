@@ -52,7 +52,6 @@ class AnalogView extends WatchUi.WatchFace {
                     Graphics.COLOR_LT_GRAY,
                     Graphics.COLOR_BLACK,
                     Graphics.COLOR_WHITE
-                    //,Storage.getValue(1)
                 ]
             };
 

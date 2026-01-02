@@ -179,10 +179,10 @@ class DrawableMenuTitle extends WatchUi.Drawable {
     function draw(dc) {
         var mIndex, width=dc.getWidth();
         
-        if (Storage.getValue(2) == false or Storage.getValue(2) == null){ 
+        if (Config.getAccentIndex() == false or Config.getAccentIndex() == null){ 
         	mIndex = 0;
         } else {
-        	mIndex=Storage.getValue(2);
+        	mIndex=Config.getAccentIndex();
         }        
 
         var appIcon = Application.loadResource(Rez.Drawables.LauncherIcon);        
@@ -201,9 +201,6 @@ class DrawableMenuTitle extends WatchUi.Drawable {
         var labelX = bitmapX + bitmapWidth + 2; // 2 = spacing between logo and text
         var labelY = dc.getHeight() / 2;
 
-		//var color = mColors[mIndex];
-        //dc.setColor(color, color);
-        //System.println(labelWidth);
         var mColors;
         if (Storage.getValue(32) == null or Storage.getValue(32) == false){
             mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
@@ -232,12 +229,8 @@ class DrawableMenuTitle extends WatchUi.Drawable {
             dc.drawBitmap(bitmapX, bitmapY, appIcon);
         }
 
-        dc.setColor(mColors[mIndex], Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Config.getAccentColor(), Graphics.COLOR_TRANSPARENT);
         dc.drawText(labelX, labelY, Graphics.FONT_SMALL, "Config", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        if(mColors[mIndex] != Storage.getValue(1)){
-            Storage.setValue(2, mIndex);
-            Storage.setValue(1, mColors[mIndex]);
-        }
     }
 }
 
@@ -254,10 +247,10 @@ class CustomAccent extends WatchUi.Drawable {
 
     public function initialize() {
         Drawable.initialize({});
-        if (Storage.getValue(2) == false or Storage.getValue(2) == null){ 
+        if (Config.getAccentIndex() == false or Config.getAccentIndex() == null){ 
         	mIndex = 0;
         } else {
-        	mIndex=Storage.getValue(2);
+        	mIndex=Config.getAccentIndex();
         }
     }
 
@@ -289,8 +282,8 @@ class CustomAccent extends WatchUi.Drawable {
         if(mIndex >= mColors.size()) {
             mIndex = 0;
         }
-		Storage.setValue(1, mColors[mIndex]);
-		Storage.setValue(2, mIndex);
+		Config.setAccentColor( mColors[mIndex]);
+		Config.setAccentIndex( mIndex);
 
         //return mColorStrings[mIndex];
         return getString();
@@ -366,8 +359,8 @@ class CustomDataPoint extends WatchUi.Drawable {
         }
         var iColor=0x55FF00;
 
-        if (Storage.getValue(1) != null) {
-			iColor = Storage.getValue(1);
+        if (Config.getAccentColor() != null) {
+			iColor = Config.getAccentColor();
             if (iColor==Graphics.COLOR_WHITE){ iColor=Graphics.COLOR_LT_GRAY; }
         }
 		
