@@ -18,7 +18,7 @@ class MtbA_functions {
   const IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 	const screenShape = System.getDeviceSettings().screenShape;
 	var fontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
-	var fontColor = (Config.getDarkLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
+	var fontColor = (Config.getLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
 	var mWeatherConditionName as String = "";
 	var lowPower as Boolean;
 
@@ -51,7 +51,7 @@ class MtbA_functions {
     /* ------------------------ */
 	
 	// Draws the clock tick marks around the outside edges of the screen.
-(:round) function drawHashMarks(dc, width, aod, colorFlag, accIndex, showBoolean) { // 2, 5
+(:round) function drawHashMarks(dc, width, aod, colorFlag, showBoolean) { // 2, 5
 			var sX, sY;
 			var eX, eY;
 			var outerRad = width / 2;
@@ -60,21 +60,7 @@ class MtbA_functions {
             var AODColor= Config.getAodUseAccentColor();
 			//var showBoolean = hourLabel;		
 
-        //TODO Move this block to Config initialization (so it is done only one time)?
-        if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
-            var colors = Application.loadResource(Rez.JsonData.mColors) as Array;
-            if(colors[accIndex] != accentColor){
-                Config.setAccentColor(colors[accIndex]);
-                accentColor = colors[accIndex];
-            }
-        } else { // Light Theme
-            var mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
-            if(mColors[accIndex] != accentColor){
-                Config.setAccentColor(mColors[accIndex]);
-                accentColor = mColors[accIndex];
-            }
-        }	
-		
+      
 			// Draw hashmarks differently depending on screen geometry.
 			if (System.SCREEN_SHAPE_ROUND == screenShape) { //check if round display		//TODO is this redundant with :round tag? (also retangle)			
 				var increment = (aod==true) ? 5 : 1;

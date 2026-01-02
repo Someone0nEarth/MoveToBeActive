@@ -23,7 +23,7 @@ class AnalogSettingsViewTest extends WatchUi.Menu2 {
 
         var drawable1 = new CustomAccent();
         Menu2.addItem(new WatchUi.IconMenuItem("Accent Color", drawable1.getString(), AppStorage.KEY_1_CFG_ACCENT_COLOR, drawable1, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-        Menu2.addItem(new WatchUi.ToggleMenuItem("Theme", {:enabled=>"Light", :disabled=>"Dark"}, AppStorage.KEY_32_CFG_DARK_LIGHT_THEME, Config.getDarkLightTheme(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+        Menu2.addItem(new WatchUi.ToggleMenuItem("Theme", {:enabled=>"Light", :disabled=>"Dark"}, AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
         Menu2.addItem(new WatchUi.MenuItem("Layout", null, "design", null));
         Menu2.addItem(new WatchUi.MenuItem("Data Fields", null, "datapoints", null));
         if (Toybox has :Weather or System.getSystemStats() has :batteryInDays){ // 

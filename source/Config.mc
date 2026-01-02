@@ -1,6 +1,7 @@
 import Toybox.Application;
 import Toybox.Lang;
 import Toybox.System;
+import Toybox.Graphics;
 
 class Config {
 
@@ -13,7 +14,7 @@ class Config {
   private static var mAccentColor = AppStorage.load(AppStorage.KEY_1_CFG_ACCENT_COLOR);
   private static var mAccentIndex = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_INDEX);
   private static var mTickmarkAccentColor = loadOrSetDefault(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, false);
-  private static var mDarkLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_32_CFG_DARK_LIGHT_THEME, false);
+  private static var mLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_32_CFG_LIGHT_THEME, false);
   private static var mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
   // prettier-ignore
   private static var mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
@@ -67,9 +68,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, value);
   }
 
-  public static function setDarkLightTheme(value) {
-    mDarkLightTheme = value;
-    AppStorage.persist(AppStorage.KEY_32_CFG_DARK_LIGHT_THEME, value);
+  public static function setLightTheme(value) {
+    mLightTheme = value;
+    AppStorage.persist(AppStorage.KEY_32_CFG_LIGHT_THEME, value);
   }
 
   public static function setGarminlogo(value) {
@@ -204,8 +205,8 @@ class Config {
     return mTickmarkAccentColor;
   }
 
-  public static function getDarkLightTheme() {
-    return mDarkLightTheme;
+  public static function getLightTheme() {
+    return mLightTheme;
   }
 
   public static function getGarminlogo() {
@@ -352,6 +353,25 @@ class Config {
         setAccentColor(COLOR_BRIGHT_LIME_GREEN); // Bright Green
       }
     }
+  }
+
+  private static function adjustAccentColorForThemesLegacy(){
+        var accentColor = getAccentColor();
+        var accIndex = getAccentIndex();
+
+        if(getLightTheme()){
+            var colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
+            if(colors[accIndex] != accentColor){
+                Config.setAccentColor(colors[accIndex]);
+                accentColor = colors[accIndex];
+            }
+        } else {
+            var colors = Application.loadResource(Rez.JsonData.mColors) as Array;
+            if(colors[accIndex] != accentColor){
+                Config.setAccentColor(colors[accIndex]);
+                accentColor = colors[accIndex];
+            }
+        }
   }
 
   private static function isAMOLEDDisplay() as Boolean {

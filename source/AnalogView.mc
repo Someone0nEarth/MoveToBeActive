@@ -141,9 +141,9 @@ class AnalogView extends WatchUi.WatchFace {
 
             if(tickmarkColor){ //tickmark color toggle
                 drawBackground(dc);
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
             } else {
-                $.MtbA.drawHashMarks(targetDc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc
+                $.MtbA.drawHashMarks(targetDc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
                 drawBackground(dc);
             }
 
@@ -154,7 +154,7 @@ class AnalogView extends WatchUi.WatchFace {
         } else {
 
             // Fill the entire background
-            if (Config.getDarkLightTheme()){ // Light Theme
+            if (Config.getLightTheme()){ // Light Theme
                 targetDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
             } else { // Dark Theme
                 targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
@@ -166,7 +166,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc        
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
             }
 
             if (dc has :setAntiAlias) {
@@ -175,14 +175,14 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width<360){ // With anti-alias for MIP displays
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc         
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
             }
 
             // Garmin Logo check
             var showGarminLogo=Config.getGarminlogo();
             var position = Application.loadResource(Rez.JsonData.mPosition) as Array;
             if (showGarminLogo == null or showGarminLogo == true) {
-                $.MtbA.drawGarminLogo(dc, position[4], position[5], Config.getDarkLightTheme()); 
+                $.MtbA.drawGarminLogo(dc, position[4], position[5], Config.getLightTheme()); 
             }
 
             // Draw the 3, 6, 9, and 12 hour labels.

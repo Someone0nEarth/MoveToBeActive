@@ -31,7 +31,7 @@ class AppStorage {
   public static const KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR = 27;
   public static const KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR = 28;
   public static const KEY_30_STAT_MAX_PERCENTAGE_WHEN_CHARGING = 30;
-  public static const KEY_32_CFG_DARK_LIGHT_THEME = 32;
+  public static const KEY_32_CFG_LIGHT_THEME = 32;
   public static const KEY_33_CFG_SECONDS_HAND = 33;
 
   public static function load(key as Integer) {
