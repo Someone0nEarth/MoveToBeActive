@@ -25,7 +25,7 @@ class Config {
   private static var mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
   private static var mAlarmToggle = loadOrSetDefault(AppStorage.KEY_8_CFG_ALARM_TOGGLE, true);
   private static var mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, true);
-  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, 2);
+  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, HandThicknessSettings.STANDARD);
   private static var mRightBottomDF = loadOrSetDefault(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, 23);
   private static var mRightTopDF = loadOrSetDefault(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, 23);
   private static var mLeftTopDF = loadOrSetDefault(AppStorage.KEY_9_CFG_LEFT_TOP_DF, 27);
@@ -33,7 +33,7 @@ class Config {
   private static var mLeftBottomDF = loadOrSetDefault(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, 23);
   private static var mBatteryEstFlag = loadOrSetDefault(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, false);
   private static var mPressuretype = loadOrSetDefault(AppStorage.KEY_20_CFG_PRESSURE_TYPE, false);
-  private static var mAODColorMinute = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_COLOR_MINUTE, false);
+  private static var mAodUseAccentColor = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, false);
   private static var mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
   private static var mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
   // prettier-ignore
@@ -117,7 +117,7 @@ class Config {
     AppStorage.persist(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, value);
   }
 
-  public static function setHandsThickness(value) {
+  public static function setHandsThickness(value as HandThicknessSettings.HandsThicknessLevel) {
     mHandsThickness = value;
     AppStorage.persist(AppStorage.KEY_13_CFG_HANDS_THICKNESS, value);
   }
@@ -152,9 +152,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, value);
   }
 
-  public static function setAODColorMinute(value) {
-    mAODColorMinute = value;
-    AppStorage.persist(AppStorage.KEY_22_CFG_AOD_COLOR_MINUTE, value);
+  public static function setAodUseAccentColor(value as Boolean) {
+    mAodUseAccentColor = value;
+    AppStorage.persist(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, value);
   }
 
   public static function setDateFormat(value) {
@@ -244,7 +244,7 @@ class Config {
     return mBluetoothToggle;
   }
 
-  public static function getHandsThickness() {
+  public static function getHandsThickness() as HandThicknessSettings.HandsThicknessLevel{
     return mHandsThickness;
   }
 
@@ -272,8 +272,8 @@ class Config {
     return mBatteryEstFlag;
   }
 
-  public static function getAODColorMinute() {
-    return mAODColorMinute;
+  public static function getAodUseAccentColor() as Boolean {
+    return mAodUseAccentColor;
   }
 
   public static function getDateFormat() {
@@ -355,6 +355,6 @@ class Config {
   }
 
   private static function isAMOLEDDisplay() as Boolean {
-    return System.getDeviceSettings().screenWidth >= 360;
+    return System.getDeviceSettings().screenWidth >= 360; //TODO get rid of magic number here and use a proper method to detect AMOLED displays (also reeplace it in the rest of the code)
   }
 }

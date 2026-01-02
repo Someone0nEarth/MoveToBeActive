@@ -141,9 +141,9 @@ class AnalogView extends WatchUi.WatchFace {
 
             if(tickmarkColor){ //tickmark color toggle
                 drawBackground(dc);
-                $.MtbA.drawHashMarks(dc, accentColor, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels(), Config.getAODColorMinute()); //dc
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc
             } else {
-                $.MtbA.drawHashMarks(targetDc, accentColor, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels(), Config.getAODColorMinute()); //dc
+                $.MtbA.drawHashMarks(targetDc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc
                 drawBackground(dc);
             }
 
@@ -166,7 +166,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                $.MtbA.drawHashMarks(dc, accentColor, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels(), Config.getAODColorMinute()); //dc        
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc        
             }
 
             if (dc has :setAntiAlias) {
@@ -175,7 +175,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width<360){ // With anti-alias for MIP displays
-                $.MtbA.drawHashMarks(dc, accentColor, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels(), Config.getAODColorMinute()); //dc         
+                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getAccentIndex(), Config.getHourLabels()); //dc         
             }
 
             // Garmin Logo check
@@ -353,13 +353,7 @@ class AnalogView extends WatchUi.WatchFace {
         } 
         
 		//Draw Hour and Minute hands
-        if (Config.getHandsThickness == 1){ // thicker
-			$.MtbA.drawHands(dc, width, height, accentColor, 1, $.inLowPower, $.upTop, Config.getAODColorMinute);
-		} else if (Config.getHandsThickness() == 0) { // standard //or Storage.getValue(13) == null
-			$.MtbA.drawHands(dc, width, height, accentColor, 0, $.inLowPower, $.upTop, Config.getAODColorMinute());
-		} else { // thinner
-            $.MtbA.drawHands(dc, width.toFloat(), height, accentColor, 2, $.inLowPower, $.upTop, Config.getAODColorMinute);
-        }            
+		$.MtbA.drawHands(dc, width, height, accentColor, Config.getHandsThickness(), $.inLowPower, $.upTop, Config.getAodUseAccentColor());
 
         /*
         if (_partialUpdatesAllowed) {

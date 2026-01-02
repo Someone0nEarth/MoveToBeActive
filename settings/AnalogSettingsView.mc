@@ -66,10 +66,11 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
                 } else {
                     item.setSubLabel((item.getIcon() as CustomDataPoint).nextState(item.getId(),2)); //small //TODO get rid of magic number
                 }
-                //item.setSubLabel(item.getIcon().nextState(item.getId()));
-            } else if (item.getIcon() instanceof CustomThickness){ // Custom Thickness
-                item.setSubLabel((item.getIcon() as CustomThickness).nextState(item.getId()));
-            } else if (item.getIcon() instanceof CustomWindSpeed){ // Custom Thickness
+            } else if (item.getIcon() instanceof HandThicknessSettings){ 
+                var cycle=item.getIcon() as HandThicknessSettings;
+                cycle.setNextSetting();
+                item.setSubLabel(cycle.currentSettingLabel());
+            } else if (item.getIcon() instanceof CustomWindSpeed){ 
                 item.setSubLabel((item.getIcon() as CustomWindSpeed).nextState(item.getId()));
             }
         } else if (item instanceof WatchUi.ToggleMenuItem and item.getId() instanceof Number) {
@@ -79,13 +80,9 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
         WatchUi.requestUpdate(); // really needed?
 
         if( item.getId().equals("design") ) {
-		    // Generate a new Menu with a Text Title
 		    
 		    var iconMenu = new WatchUi.Menu2({:title=>"Layout"});
-		    //var drawable1 = new CustomAccent();
-		    //iconMenu.addItem(new WatchUi.IconMenuItem("Accent Color", drawable1.getString(), 1, drawable1, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		    
-		    //ToggleMenuItem(label, subLabel, identifier, enabled, options)
 		    iconMenu.addItem(new WatchUi.ToggleMenuItem("Garmin Logo", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_3_CFG_GARMINLOGO, Config.getGarminlogo(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		    iconMenu.addItem(new WatchUi.ToggleMenuItem("Bluetooth Logo", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE , Config.getBluetoothToggle(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		    iconMenu.addItem(new WatchUi.ToggleMenuItem("Alarm Icon", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_8_CFG_ALARM_TOGGLE, Config.getAlarmToggle(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));    
@@ -99,17 +96,17 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
             if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions){ // has weather, doesn't show these for Fenix 5 Plus series
                 iconMenu.addItem(new WatchUi.ToggleMenuItem("Weather Condition", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_25_CFG_WEATHER_CONDITION, Config.showWeatherCondition(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
                 iconMenu.addItem(new WatchUi.ToggleMenuItem("Condition Name", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, Config.showWeatherConditionName(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-                //iconMenu.addItem(new WatchUi.ToggleMenuItem("Location Name", {:enabled=>"ON", :disabled=>"OFF"}, 7, Storage.getValue(7), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));                
             }
+
             // allow these extra features only for LCD and AMOLED devices
             if(System.getDeviceSettings().requiresBurnInProtection){
-                iconMenu.addItem(new WatchUi.ToggleMenuItem("AOD Colors", {:enabled=>"Accent", :disabled=>"Grayscale"}, 22, Storage.getValue(22), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                iconMenu.addItem(new WatchUi.ToggleMenuItem("AOD Colors", {:enabled=>"Accent", :disabled=>"Grayscale"}, AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, Config.getAodUseAccentColor(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
                 iconMenu.addItem(new WatchUi.ToggleMenuItem("Seconds Hand", {:enabled=>"On", :disabled=>"Off"}, 33, Storage.getValue(33), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
-            var drawableT = new CustomThickness();
-		    iconMenu.addItem(new WatchUi.IconMenuItem("Hands Thickness", drawableT.nextState(-1), 13, drawableT, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+            var drawableT = new HandThicknessSettings();
+		    iconMenu.addItem(new WatchUi.IconMenuItem("Hands Thickness", drawableT.currentSettingLabel(), AppStorage.KEY_13_CFG_HANDS_THICKNESS, drawableT, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		    //WatchUi.pushView(iconMenu, new AnalogSettingsViewTest(), WatchUi.SLIDE_BLINK );
             WatchUi.pushView(iconMenu, new Menu2TestMenu2Delegate(), WatchUi.SLIDE_UP );
         } else if( item.getId().equals("datapoints") ) {
@@ -384,45 +381,32 @@ class CustomDataPoint extends WatchUi.Drawable {
     }
 }
 
+class HandThicknessSettings extends WatchUi.Drawable {
+    public static enum HandsThicknessLevel {
+      STANDARD = 0,
+      THICKER = 1,
+      THINNER = 2
+    }
 
-// This is the custom Icon drawable. It fills the icon space with a color to
-// to demonstrate its extents. It changes color each time the next state is
-// triggered, which is done when the item is selected in this application.
-class CustomThickness extends WatchUi.Drawable {
-
-    // This constant data stores the thickness state list.
-    var mIndex; // thickInd --> 0 = Standard, 1 = Thicker , 2 = Thinner
+    private static const HAND_THICKNESS_LEVEL_LABELS = ["Standard", "Thicker", "Thinner"];
 	
     function initialize() {
         Drawable.initialize({});
-        /*if (Storage.getValue(13) == false or Storage.getValue(13) == null){ 
-        	mIndex = 0;
-        } else if (Storage.getValue(13) == true) {
-            mIndex = 1;
-        } else {*/
-        	mIndex=Storage.getValue(13); 
-        //}        
-    }    
-
-    // Advance to the next color state for the drawable
-    function nextState(id) {
-        var mHandStrings = ["Standard", "Thicker", "Thinner"];
-        if (id!=-1){ // -1 means to return only the name, while any other value means skip to next step
-            mIndex++;
-            if(mIndex >= mHandStrings.size()) {
-                mIndex = 0;
-            }
-            Storage.setValue(id, mIndex);
-        }
-        return mHandStrings[mIndex];
     }
 
+    function currentSettingLabel() as String{
+        return HAND_THICKNESS_LEVEL_LABELS[Config.getHandsThickness()];
+    }    
+
+    function setNextSetting() as Void{
+        var nextState=Config.getHandsThickness()+1;
+        if(nextState >= HAND_THICKNESS_LEVEL_LABELS.size()) {
+            nextState = HandThicknessSettings.STANDARD;
+        }
+        Config.setHandsThickness(nextState);
+    }
 }
 
-
-// This is the custom Icon drawable. It fills the icon space with a color to
-// to demonstrate its extents. It changes color each time the next state is
-// triggered, which is done when the item is selected in this application.
 (:weather) class CustomWindSpeed extends WatchUi.Drawable {
 
     // This constant data stores the thickness state list.

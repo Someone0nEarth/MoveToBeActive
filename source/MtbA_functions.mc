@@ -51,19 +51,21 @@ class MtbA_functions {
     /* ------------------------ */
 	
 	// Draws the clock tick marks around the outside edges of the screen.
-(:round) function drawHashMarks(dc, accentColor, width, aod, colorFlag, accIndex, showBoolean, AODColor) { // 2, 5
+(:round) function drawHashMarks(dc, width, aod, colorFlag, accIndex, showBoolean) { // 2, 5
 			var sX, sY;
 			var eX, eY;
 			var outerRad = width / 2;
 			var innerRad = outerRad - 10;
+            var accentColor= Config.getAccentColor();
+            var AODColor= Config.getAodUseAccentColor();
 			//var showBoolean = hourLabel;		
 
         //TODO Move this block to Config initialization (so it is done only one time)?
         if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
-            var mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
-            if(mColors[accIndex] != accentColor){
-                Config.setAccentColor(mColors[accIndex]);
-                accentColor = mColors[accIndex];
+            var colors = Application.loadResource(Rez.JsonData.mColors) as Array;
+            if(colors[accIndex] != accentColor){
+                Config.setAccentColor(colors[accIndex]);
+                accentColor = colors[accIndex];
             }
         } else { // Light Theme
             var mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
@@ -100,18 +102,18 @@ class MtbA_functions {
 							if (colorFlag == true and (i % 5 == 0)){
 								dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 							} else{
-								if ((showBoolean == false) and (i == 0 or i == 30)) {
+								if ((!showBoolean) and (i == 0 or i == 30)) {
 										dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 								} else {
-						      if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
-										if (width < 360){
+						          if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+										if (width < 360){ //TODO magic number
 											dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT); // Using lighter tone for MIP displays
 										} else {
 											dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT); // Darker tone for AMOLED
 										}
-									}	else { // Light Theme
+								  }	else { // Light Theme
 										dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-									}
+								  }
 								}
 							}       
 						}   
@@ -123,12 +125,12 @@ class MtbA_functions {
 					} else {
 							dc.setPenWidth(1);            
 					}
-					if(aod==true) { // AOD for AMOLED is ON, so only small hashmarks are going to be displayed at each 15 min
+					if(aod) { // AOD for AMOLED is ON, so only small hashmarks are going to be displayed at each 15 min
 						sY = innerRad * Math.sin(angle);
 						eY = outerRad * Math.sin(angle);
 						sX = innerRad * Math.cos(angle);
 						eX = outerRad * Math.cos(angle);							
-					} else if (showBoolean == false) { // AOD for AMOLED is OFF and NOT showing hour labels, then all 5 minute marks will have same length
+					} else if (!showBoolean) { // AOD for AMOLED is OFF and NOT showing hour labels, then all 5 minute marks will have same length
 						// longer lines at intermediate 5 min marks
 						if ((i % 5) == 0) {               		
 							sY = (innerRad-10) * Math.sin(angle);
@@ -165,16 +167,17 @@ class MtbA_functions {
 
     }
 
-(:square) function drawHashMarks(dc, accentColor, width, aod, colorFlag, accIndex, showBoolean, AODColor) {
+(:square) function drawHashMarks(dc, width, aod, colorFlag, accIndex, showBoolean) {
 			var sX, sY;
 			var eX, eY;
 			var outerRad = width / 2;
-			//var innerRad = outerRad - 10;			
 			var innerRad = outerRad - 10;
 			var height = dc.getHeight();
+            var accentColor= Config.getAccentColor();
+            var AODColor= Config.getAODColorMinute();
 		
 			// Draw hashmarks differently depending on screen geometry.
-			if (System.SCREEN_SHAPE_ROUND != screenShape) { //check if square display			
+			if (System.SCREEN_SHAPE_ROUND != screenShape) { //check if square display		//TODO remove redundant check with :square tag?	
 				var coords = [0, width / 4, (3 * width) / 4, width];
 				if(aod==true and AODColor!=true) {	// AOD ON and AOD colors OFF
 					dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
@@ -1334,14 +1337,10 @@ class MtbA_functions {
 	/* ------------------------ */
 	
 	// Draw Hour and Minute Hands
-	function drawHands(dc, width, height, accentColor, thickInd, aod, upTop, AODColor) {	
+	function drawHands(dc, width, height, accentColor, thickInd as HandThicknessSettings.HandsThicknessLevel, aod, upTop, AODColor) {	
 		var clockTime = System.getClockTime();
 		var screenCenterPoint = [width/2, height/2];
 
-		// Calculate the hour hand. Convert it to minutes and compute the angle.
-		//var hourHandAngle = (((clockTime.hour % 12) * 60) + clockTime.min);
-		//hourHandAngle = hourHandAngle / (12 * 60.0);
-		//hourHandAngle = hourHandAngle * Math.PI * 2;
 		var hourHandAngle = Math.PI/6*(1.0*clockTime.hour+clockTime.min/60.0);
 		
 		// Correct widths and lengths depending on resolution
@@ -1349,76 +1348,70 @@ class MtbA_functions {
 		var offsetOuterCircle = 0;
 		var triangle = 1.09;
 
-		// thickInd = 0 --> Standard
-		// thickInd = 1 --> Thicker
-		// thickInd = 2 --> Thinner
-
 		var handWidth = width as Float;
 		if (handWidth==260){
 			handWidth=10;
 			offsetOuterCircle=-1;			
-			if (thickInd == true or thickInd == 1) { // remove redundancies on later versions, true/false was used previously instead of 0,1,2
+			if (thickInd == HandThicknessSettings.THICKER) { // remove redundancies on later versions, true/false was used previously instead of 0,1,2
 				handWidth = handWidth+3;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-2;
 			}
 		} else if (handWidth==240){
 			handWidth=10;
 			offsetOuterCircle = -1;			
-			if (thickInd == true or thickInd == 1) {
+			if (thickInd == HandThicknessSettings.THICKER) {
 				handWidth = handWidth+2;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-2;
 			}
 		} else if (handWidth==280){
 			handWidth=11;
 			offsetInnerCircle = 1;
-			if (thickInd == true or thickInd == 1) {
-				//offsetInnerCircle = 1;
+			if (thickInd == HandThicknessSettings.THICKER) {
 				offsetOuterCircle = -0.5;
 				handWidth = handWidth+4;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-3;
 			}
 		} else if (handWidth<=218){ // Vivoactive 4S
 			handWidth=8;
-			//offsetInnerCircle = 1;
 			offsetOuterCircle = -1;
-			if (thickInd == true or thickInd == 1) {
+			if (thickInd == HandThicknessSettings.THICKER) {
 				handWidth = handWidth+3;
-				//offsetInnerCircle = 1;
-				//offsetOuterCircle = 1;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-1;
 			}
 		} else if (handWidth==360 or handWidth==320){ // Venu 2s and Sq2
 			handWidth=15;
 			offsetInnerCircle = 1;
 			offsetOuterCircle = -1;
-			if (thickInd == true or thickInd == 1) {
+			if (thickInd == HandThicknessSettings.THICKER) {
 				handWidth = handWidth+5;
 				offsetInnerCircle = 2;
 				offsetOuterCircle = 0;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-5;
 			}
 		} else if (handWidth>=390){ // Venu 1 & 2
 			handWidth=14;
 			offsetInnerCircle = 1;
 			offsetOuterCircle = -1;
-			if (thickInd == true or thickInd == 1) {
+			if (thickInd == HandThicknessSettings.THICKER) {
 				handWidth = handWidth+5;
 				offsetInnerCircle = 2;
-				//offsetOuterCircle = 1;
-			} else if (thickInd == 2) {
+			} else if (thickInd == HandThicknessSettings.THINNER) {
 				handWidth = handWidth-4;
 			}
 		}
 		
 		var borderColor=Graphics.COLOR_BLACK, arborColor=Graphics.COLOR_LT_GRAY; // colors for not AOD mode
 		var BurnIn = System.getDeviceSettings().requiresBurnInProtection;
-		if (aod==true and BurnIn==true and AODColor != true) { //AOD mode ON
-			accentColor=Graphics.COLOR_LT_GRAY;
+		if (aod==true and BurnIn==true) { //AOD mode ON
+            if(!AODColor) {
+                accentColor=Graphics.COLOR_LT_GRAY;
+            } 
+			
 			//arborColor=Graphics.COLOR_LT_GRAY;
 			//borderColor=Graphics.COLOR_BLACK;
 		}
@@ -1435,7 +1428,6 @@ class MtbA_functions {
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.54 , 0, handWidth, triangle-0.01)); // hour hand
 		
 		// Draw the minute hand.
-		//var minuteHandAngle = (clockTime.min / 60.0) * Math.PI * 2;
 		var minuteHandAngle = (clockTime.min / 30.0) * Math.PI;
 		
 		//generateHandCoordinates(centerPoint, angle, handLength, tailLength, width) -- width / (higher means smaller)
@@ -1465,10 +1457,8 @@ class MtbA_functions {
 				// Seconds hand
 				var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
 				dc.setColor(borderColor,Graphics.COLOR_BLACK);
-				//dc.fillPolygon(generateHandCoordinates(screenCenterPoint, seicondHandAngle, width / 2.225, 22, Math.ceil(handWidth+(width*0.02))/3, triangle)); //pointed triangle
 				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, (width/15)+2, Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //tip rectangle
 				dc.setColor(accentColor, Graphics.COLOR_WHITE);
-				//dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.25, 20, handWidth/3, triangle-0.01)); //pointed triangle
 				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
 				// tip in different color
 				if (fontColor == Graphics.COLOR_WHITE) { // Dark Theme

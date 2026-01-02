@@ -23,7 +23,7 @@ class AppStorage {
   public static const KEY_19_CFG_BATTERY_EST_FLAG = 19;
   public static const KEY_20_CFG_PRESSURE_TYPE = 20;
   public static const KEY_21_CFG_DATE_FONT_SIZE = 21;
-  public static const KEY_22_CFG_AOD_COLOR_MINUTE = 22;
+  public static const KEY_22_CFG_AOD_USE_ACCENT_COLOR = 22;
   public static const KEY_23_CFG_CURRENT_VERSION = 23;
   public static const KEY_24_CFG_DATE_FORMAT = 24;
   public static const KEY_25_CFG_WEATHER_CONDITION = 25;
