@@ -17,6 +17,7 @@ class AppStorage {
   public static const KEY_12_CFG_RIGHT_BOTTOM_DF = 12;
   public static const KEY_13_CFG_HANDS_THICKNESS = 13;
   public static const KEY_14_CFG_FONT_SIZE = 14;
+  public static const KEY_15_CFG_WINDSPEED_UNIT = 15;
   public static const KEY_16_CFG_TEMPERATURE_UNIT = 16;
   public static const KEY_17_CFG_RIGHT_TOP_DF = 17;
   public static const KEY_18_CFG_TICKMARK_ACCENT_COLOR = 18;
@@ -30,7 +31,9 @@ class AppStorage {
   public static const KEY_26_CFG_BATTERY_ICON = 26;
   public static const KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR = 27;
   public static const KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR = 28;
+  public static const KEY_29_STAT_LAST_TIME_CAHRGING = 29;
   public static const KEY_30_STAT_MAX_PERCENTAGE_WHEN_CHARGING = 30;
+  public static const KEY_31_STAT_CHARGE_TEXT = 31;
   public static const KEY_32_CFG_LIGHT_THEME = 32;
   public static const KEY_33_CFG_SECONDS_HAND = 33;
 
@@ -40,5 +43,9 @@ class AppStorage {
 
   public static function persist(key as Integer, value) {
     Storage.setValue(key, value);
+  }
+
+  public static function delete(key as Integer) {
+    Storage.deleteValue(key);
   }
 }

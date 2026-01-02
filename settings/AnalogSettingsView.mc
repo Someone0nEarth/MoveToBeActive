@@ -70,8 +70,10 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
                 var cycle=item.getIcon() as HandThicknessSettings;
                 cycle.setNextSetting();
                 item.setSubLabel(cycle.currentSettingLabel());
-            } else if (item.getIcon() instanceof CustomWindSpeed){ 
-                item.setSubLabel((item.getIcon() as CustomWindSpeed).nextState(item.getId()));
+            } else if (item.getIcon() instanceof WindSpeedUnitSettings){ 
+                var cycle=item.getIcon() as WindSpeedUnitSettings;
+                cycle.setNextSetting();
+                item.setSubLabel(cycle.currentSettingLabel());
             }
         } else if (item instanceof WatchUi.ToggleMenuItem and item.getId() instanceof Number) {
             Storage.setValue(item.getId() as Number, item.isEnabled());
@@ -103,7 +105,7 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
                 iconMenu.addItem(new WatchUi.ToggleMenuItem("AOD Colors", {:enabled=>"Accent", :disabled=>"Grayscale"}, AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, Config.getAodUseAccentColor(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
-                iconMenu.addItem(new WatchUi.ToggleMenuItem("Seconds Hand", {:enabled=>"On", :disabled=>"Off"}, 33, Storage.getValue(33), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                iconMenu.addItem(new WatchUi.ToggleMenuItem("Seconds Hand", {:enabled=>"On", :disabled=>"Off"}, AppStorage.KEY_33_CFG_SECONDS_HAND, Config.getSecondsHand(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
             var drawableT = new HandThicknessSettings();
 		    iconMenu.addItem(new WatchUi.IconMenuItem("Hands Thickness", drawableT.currentSettingLabel(), AppStorage.KEY_13_CFG_HANDS_THICKNESS, drawableT, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
@@ -118,36 +120,36 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
 		    var drawable4 = new CustomDataPoint(2); // Small
 		    var drawable5 = new CustomDataPoint(2); // Small
             var drawable6 = new CustomDataPoint(2); // Small
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Top", drawable2.nextState(-1,1/*big*/), 9, drawable2, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Middle", drawable3.nextState(-1,1/*big*/), 10, drawable3, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Bottom", drawable4.nextState(-1,2/*small*/), 11, drawable4, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-            dataMenu.addItem(new WatchUi.IconMenuItem("Right Top", drawable6.nextState(-1,2/*small*/), 17, drawable6, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Right Bottom", drawable5.nextState(-1,2/*small*/), 12, drawable5, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Top", drawable2.nextState(-1,1/*big*/), AppStorage.KEY_9_CFG_LEFT_TOP_DF, drawable2, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Middle", drawable3.nextState(-1,1/*big*/), AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, drawable3, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Bottom", drawable4.nextState(-1,2/*small*/), AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, drawable4, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+            dataMenu.addItem(new WatchUi.IconMenuItem("Right Top", drawable6.nextState(-1,2/*small*/), AppStorage.KEY_17_CFG_RIGHT_TOP_DF, drawable6, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Right Bottom", drawable5.nextState(-1,2/*small*/), AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, drawable5, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		   	if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
-                dataMenu.addItem(new WatchUi.ToggleMenuItem("Font Size", {:enabled=>"Bigger", :disabled=>"Standard"}, 14, Storage.getValue(14), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                dataMenu.addItem(new WatchUi.ToggleMenuItem("Font Size", {:enabled=>"Bigger", :disabled=>"Standard"}, AppStorage.KEY_14_CFG_FONT_SIZE, Config.getFontSize(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
 		    //WatchUi.pushView(dataMenu, new AnalogSettingsViewTest(), WatchUi.SLIDE_BLINK );
             WatchUi.pushView(dataMenu, new Menu2TestMenu2Delegate(), WatchUi.SLIDE_UP );
         } else if( item.getId().equals("units") ) { 
-            //var checkWeather=Storage.getValue(21)[1]; // has :Weather
+            //var checkWeather=Config.getDateFontSize()[1]; // has :Weather
             var unitsMenu = new WatchUi.Menu2({:title=>"Units"});
             if (System.getSystemStats() has :batteryInDays){
-                unitsMenu.addItem(new WatchUi.ToggleMenuItem("Battery Estimate", {:enabled=>"ON", :disabled=>"OFF"}, 19, Storage.getValue(19), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                unitsMenu.addItem(new WatchUi.ToggleMenuItem("Battery Estimate", {:enabled=>"ON", :disabled=>"OFF"}, AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, Config.getBatteryEstFlag(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
             var info = Time.Gregorian.info(Time.now(), Time.FORMAT_LONG);
-            unitsMenu.addItem(new WatchUi.ToggleMenuItem("Date Format", {:enabled=>Lang.format("$2$ $1$", [info.month, info.day]), :disabled=>Lang.format("$1$ $2$", [info.month, info.day])}, 24, Storage.getValue(24), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-            unitsMenu.addItem(new WatchUi.ToggleMenuItem("Date Size", {:enabled=>"Standard", :disabled=>"Small"}, 21, Storage.getValue(21), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));    
+            unitsMenu.addItem(new WatchUi.ToggleMenuItem("Date Format", {:enabled=>Lang.format("$2$ $1$", [info.month, info.day]), :disabled=>Lang.format("$1$ $2$", [info.month, info.day])}, AppStorage.KEY_24_CFG_DATE_FORMAT, Config.getDateFormat(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+            unitsMenu.addItem(new WatchUi.ToggleMenuItem("Date Size", {:enabled=>"Standard", :disabled=>"Small"}, AppStorage.KEY_21_CFG_DATE_FONT_SIZE, Config.getDateFontSize(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));    
             if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions and Toybox.Weather.getCurrentConditions()!=null){
                 if (Activity.getActivityInfo() has :rawAmbientPressure){
-                    unitsMenu.addItem(new WatchUi.ToggleMenuItem("Atm. Pres. Type", {:enabled=>"Mean Sea Level", :disabled=>"Local Pressure"}, 20, Storage.getValue(20), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                    unitsMenu.addItem(new WatchUi.ToggleMenuItem("Atm. Pres. Type", {:enabled=>"Mean Sea Level", :disabled=>"Local Pressure"}, AppStorage.KEY_20_CFG_PRESSURE_TYPE, Config.getPressureType(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
                 }
                 //if (Toybox.Weather.getCurrentConditions().feelsLikeTemperature!=null and Toybox.Weather.getCurrentConditions().feelsLikeTemperature instanceof Number){
-                    unitsMenu.addItem(new WatchUi.ToggleMenuItem("Temp. Type", {:enabled=>"Real Temperature", :disabled=>"Feels Like"}, 6, Storage.getValue(6), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                    unitsMenu.addItem(new WatchUi.ToggleMenuItem("Temp. Type", {:enabled=>"Real Temperature", :disabled=>"Feels Like"}, AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, Config.getTemperatureType(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
                 //}
-                unitsMenu.addItem(new WatchUi.ToggleMenuItem("Temp. Unit", {:enabled=>"Always Celsius", :disabled=>"User Settings"}, 16, Storage.getValue(16), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));		    
-                //unitsMenu.addItem(new WatchUi.ToggleMenuItem("Wind Speed Unit", {:enabled=>"km/h or mph", :disabled=>"m/s"}, 15, Storage.getValue(15), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-                var drawableW = new CustomWindSpeed();
-                unitsMenu.addItem(new WatchUi.IconMenuItem("Wind Speed Unit", drawableW.nextState(-1), 15, drawableW, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                unitsMenu.addItem(new WatchUi.ToggleMenuItem("Temp. Unit", {:enabled=>"Always Celsius", :disabled=>"User Settings"}, AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, Config.getTemperatureUnit(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));		    
+                //unitsMenu.addItem(new WatchUi.ToggleMenuItem("Wind Speed Unit", {:enabled=>"km/h or mph", :disabled=>"m/s"}, 15, Config.getWindSpeedUnit(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+                var drawableW = new WindSpeedUnitSettings();
+                unitsMenu.addItem(new WatchUi.IconMenuItem("Wind Speed Unit", drawableW.currentSettingLabel(), AppStorage.KEY_15_CFG_WINDSPEED_UNIT, drawableW, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
             //WatchUi.pushView(unitsMenu, new AnalogSettingsViewTest(), WatchUi.SLIDE_BLINK );	
             WatchUi.pushView(unitsMenu, new Menu2TestMenu2Delegate(), WatchUi.SLIDE_UP );	
@@ -202,7 +204,7 @@ class DrawableMenuTitle extends WatchUi.Drawable {
         var labelY = dc.getHeight() / 2;
 
         var mColors;
-        if (Storage.getValue(32) == null or Storage.getValue(32) == false){
+        if (Config.getLightTheme() == null or Config.getLightTheme() == false){
             mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
         } else {
             mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
@@ -213,7 +215,7 @@ class DrawableMenuTitle extends WatchUi.Drawable {
 
         //dc.clearClip(); //clear instead?
         var Color;
-        if (Storage.getValue(32) == null or Storage.getValue(32) == false){ // Dark
+        if (Config.getLightTheme() == null or Config.getLightTheme() == false){ // Dark
             Color = Graphics.COLOR_BLACK;
         } else { // Light
             Color = Graphics.COLOR_WHITE;
@@ -257,8 +259,8 @@ class CustomAccent extends WatchUi.Drawable {
     // Return the color string for the menu to use as it's sublabel
     public function getString() {
         var mColorStrings;
-        //if (Storage.getValue(32) == null or Storage.getValue(32) == false){
-        if (Storage.getValue(32) == true){
+        //if (Config.gettLightTheme() == null or Config.gettLightTheme() == false){
+        if (Config.getLightTheme() == true){
             mColorStrings = Application.loadResource(Rez.JsonData.mColorStringsWhite) as Array;
         } else {
             mColorStrings = Application.loadResource(Rez.JsonData.mColorStrings) as Array;
@@ -272,7 +274,7 @@ class CustomAccent extends WatchUi.Drawable {
         //var mColorStrings = Application.loadResource(Rez.JsonData.mColorStrings);
         
         var mColors;
-        if (Storage.getValue(32) == true){
+        if (Config.getLightTheme() == true){
             mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
         } else {
             mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
@@ -293,7 +295,7 @@ class CustomAccent extends WatchUi.Drawable {
     // the drawable area with that color
     public function draw(dc) {
         var mColors;
-        if (Storage.getValue(32) == true){
+        if (Config.getLightTheme() == true){
             mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
         } else {
             mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
@@ -320,7 +322,7 @@ class CustomDataPoint extends WatchUi.Drawable {
     function initialize(size) {
         Drawable.initialize({});
         type=size;
-        var mArray=[Storage.getValue(9), Storage.getValue(10), Storage.getValue(11), Storage.getValue(12), Storage.getValue(17)]; // if values are null, then "none"
+        var mArray=[Config.getLeftTopDF(), Config.getLeftMiddleDF(), Config.getLeftBottomDF(), Storage.getValue(12), Config.getRightTopDF()]; // if values are null, then "none"
         mIndex=mArray[$.count];   
         $.count++;
     }
@@ -328,7 +330,7 @@ class CustomDataPoint extends WatchUi.Drawable {
 
     // Advance to the next color state for the drawable, or return the icon string for the menu to use as its label if id=-1
     function nextState(id, size) {
-        //var checkWeather = Storage.getValue(21)[2];
+        //var checkWeather = Config.getDateFontSize()[2];
         var mIconStrings;
 
         if (size==2){ // Data field locations with length limitation = "small"
@@ -400,38 +402,28 @@ class HandThicknessSettings extends WatchUi.Drawable {
     }
 }
 
-(:weather) class CustomWindSpeed extends WatchUi.Drawable {
+(:weather) class WindSpeedUnitSettings extends WatchUi.Drawable {
+    public static enum WindSpeedUnit {
+        KPH_OR_MPH = 0,
+        METER_PER_SECONDS = 1,
+        KNOTS = 2
+    }
 
-    // This constant data stores the thickness state list.
-    var mIndex; // WindSpeedUnit --> 0 = Standard (kph or mph), 1 = m/s , 2 = knots
+    private static const WIND_SPEED_LABELS = ["km/h or mph", "m/s", "knots"];
 	
     function initialize() {
         Drawable.initialize({});
-        /*if (Storage.getValue(13) == false or Storage.getValue(13) == null){ 
-        	mIndex = 0;
-        } else if (Storage.getValue(13) == true) {
-            mIndex = 1;
-        } else {*/
-        	mIndex=Storage.getValue(15); 
-
-            //TODO this is a temporarly fix to ensure settings are not crashing
-            if(mIndex==null){
-              mIndex=0;
-            }   
-        //}        
+    }    
+    
+    function currentSettingLabel() as String{
+        return WIND_SPEED_LABELS[Config.getWindSpeedUnit()];
     }    
 
-    // Advance to the next color state for the drawable
-    function nextState(id) {
-        var mWindUnit = ["km/h or mph", "m/s", "knots"];
-        if (id!=-1){ // -1 means to return only the name, while any other value means skip to next step
-            mIndex++;
-            if(mIndex >= mWindUnit.size()) {
-                mIndex = 0;
-            }
-            Storage.setValue(id, mIndex);
+    function setNextSetting() as Void{
+        var nextState=Config.getWindSpeedUnit()+1;
+        if(nextState >= WIND_SPEED_LABELS.size()) {
+            nextState = WindSpeedUnitSettings.KPH_OR_MPH;
         }
-        return mWindUnit[mIndex]; //TODO <-- this breaks: mIndex is null. Passiert auch in der original version. aber geht auf meiner uhr...
+        Config.setWindSpeedUnit(nextState);
     }
-
 }

@@ -36,6 +36,7 @@ class Config {
   private static var mPressuretype = loadOrSetDefault(AppStorage.KEY_20_CFG_PRESSURE_TYPE, false);
   private static var mAodUseAccentColor = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, false);
   private static var mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
+  private static var mWindSpeedUnit = loadOrSetDefault(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, WindSpeedUnitSettings.KPH_OR_MPH);
   private static var mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
   // prettier-ignore
   private static var mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true);
@@ -193,6 +194,11 @@ class Config {
     AppStorage.persist(AppStorage.KEY_20_CFG_PRESSURE_TYPE, value);
   }
 
+  public static function setWindSpeedUnit(value as WindSpeedUnitSettings.WindSpeedUnit) as Void{
+    mWindSpeedUnit = value;
+    AppStorage.persist(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, value);
+  }
+
   public static function getAccentColor() {
     return mAccentColor;
   }
@@ -301,6 +307,10 @@ class Config {
     return mSecondsHand;
   }
 
+  public static function getWindSpeedUnit() as WindSpeedUnitSettings.WindSpeedUnit{
+    return mWindSpeedUnit;
+  }
+
   public static function showWeather() as Boolean {
     if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions){
         if(showWeatherCondition() || showWeatherConditionName()){
@@ -315,7 +325,7 @@ class Config {
     return CURRENT_APP_VERSION;
   }
 
-  private static function getPressureType() as Boolean {
+  public static function getPressureType() as Boolean {
     return mPressuretype;
   }
 

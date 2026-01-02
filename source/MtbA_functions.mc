@@ -884,10 +884,10 @@ class MtbA_functions {
         today.month,
         today.year
     	];
-			Storage.setValue(29, test); // last time seen charging
+			Status.setLastTimeCharging(test); 
 			Status.setMaxPercentageWhenCharging(battery);
 			//Storage.setValue(20, null); // reset last battery estimate
-			Storage.setValue(31, null); // reset last estimated consumption data field
+			Status.resetChargeText(); // reset last estimated consumption data field
 			//Storage.setValue(22, null); // reset last hourDiff calculation
 		}
 
@@ -959,7 +959,8 @@ class MtbA_functions {
 	/* ------------------------ */
 
 	function calcHourDiff(today) { // calculate hourDiff
-		var lastCharge=Storage.getValue(29) as Array;
+	    //TODO use Toybox.Time for calculation and also for persistance?
+	    var lastCharge=Status.getLastTimeCharging();
 		var hourDiff = 0;
 		
 		hourDiff = (((today.hour - lastCharge[0])*60 + ((today.min - lastCharge[1])))/60d); 
@@ -993,7 +994,6 @@ class MtbA_functions {
 			}
 			hourDiff = ((today.year-lastCharge[4])*year_days*24)+hourDiff;
 		}
-		//Storage.setValue(32,hourDiff);
 		return hourDiff;
 	}
 
@@ -1005,17 +1005,17 @@ class MtbA_functions {
 		var battery = Math.ceil(System.getSystemStats().battery);
 		var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 		var text = null;
-		var maxCharge = Storage.getValue(30);
+		var maxCharge = Status.getMaxPercentageWhenCharging();
 
 		if (System.getSystemStats().charging==true){
 			text = "chrng.";
 		} else if (System.getSystemStats().charging==false and ((width >=360 and today.sec % 30 == 0) or (width <360 and today.sec == 0))){ // 3 times per minute for AMOLED and 1 time per minute for MIP // or every 15 minutes -> and today.sec==0 and (today.min % 15 == 0)
 			if (maxCharge==null){ // need to charge for the first time
 				text = "charge"; // show percentage?
-				Storage.setValue(31, "charge");
+				Status.setChargeText( "charge");
 			}	else if (battery==maxCharge or maxCharge-battery<=1){ // still waiting for battery percentage to drop in order to calculate estimation
 				text = "estim."; //text = "calc"; // show percentage?
-				Storage.setValue(31, "estim.");
+				Status.setChargeText( "estim.");
 			} else{ // battery has dropped, so estimate is going to be calculated here
 				// calculate hourDiff
 				var hourDiff;
@@ -1034,11 +1034,11 @@ class MtbA_functions {
 				} else{
 					text = text.format("%.0f") ; // + "%/d"
 				}
-				Storage.setValue(31, text);
+				Status.setChargeText( text);
 				// text = Lang.format("$1$", [text.format("%.1f")] )  + "d";
 			}
 		} else {
-			text = Storage.getValue(31);
+			text = Status.getChargeText();
 			if (text == null and maxCharge == null){
 				text = "charge"; // never charged
 			} else if (text == null and maxCharge != null) {
