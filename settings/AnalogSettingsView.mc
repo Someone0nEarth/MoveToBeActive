@@ -18,8 +18,7 @@ class AnalogSettingsViewTest extends WatchUi.Menu2 {
     function initialize() {
         Menu2.initialize(null);
 
-        // Generate a new Menu with a drawable Title
-        Menu2.setTitle(new DrawableMenuTitle());
+        Menu2.setTitle(new SettingsMenuTitle());
 
         var drawable1 = new CustomAccent();
         Menu2.addItem(new WatchUi.IconMenuItem("Accent Color", drawable1.getString(), AppStorage.KEY_1_CFG_ACCENT_COLOR, drawable1, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
@@ -160,74 +159,59 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
     }  
 
 }
-
-
-// This is the custom drawable we will use for our main menu title
-class DrawableMenuTitle extends WatchUi.Drawable {
-
-    // This constant data stores the color state list.
-    //const mColors = [0x55FF00, 0xAAFF00, 0xFFFF00, 0x00AAFF, 0x00FFFF, 0xAA55FF, 0xFFAA00, 0xFF0000, 0xFF55FF, 0xFFFFFF];
+class SettingsMenuTitle extends WatchUi.Drawable {
 
     function initialize() {
         Drawable.initialize({});
     }
 
     // Draw the application icon and main menu title
+    //TODO reduce/remove magic number usage
     function draw(dc) {
-        var mIndex, width=dc.getWidth();
-        
-        if (Config.getAccentIndex() == false or Config.getAccentIndex() == null){ 
-        	mIndex = 0;
-        } else {
-        	mIndex=Config.getAccentIndex();
-        }        
+        var title="Config";
+
+        width=dc.getWidth();  
 
         var appIcon = Application.loadResource(Rez.Drawables.LauncherIcon);        
-        var bitmapWidth = appIcon.getWidth();
-        var labelWidth = dc.getTextWidthInPixels("Config", Graphics.FONT_SMALL);
+        var iconWidth = appIcon.getWidth();
+        var titleWidth = dc.getTextWidthInPixels(title, Graphics.FONT_SMALL);
 
-        if(labelWidth==117 and dc has :drawScaledBitmap){ // Venu 3s
-            bitmapWidth=55;
+        if(titleWidth==117 and dc has :drawScaledBitmap){ // Venu 3s
+            iconWidth=55;
         }
     	
         if (width>=390) { // Venu 3 watch allows full width to menu header, as opposed to all other watches which is half width. This condition corrects it.
             width = width*1.25;
         } 
-        var bitmapX = (width - (bitmapWidth + 2 + labelWidth)) / 3; // 2 = spacing between logo and text
-        var bitmapY = (dc.getHeight() - appIcon.getHeight()) / 2;
-        var labelX = bitmapX + bitmapWidth + 2; // 2 = spacing between logo and text
-        var labelY = dc.getHeight() / 2;
-
-        var mColors;
-        if (Config.getLightTheme() == null or Config.getLightTheme() == false){
-            mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
-        } else {
-            mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
-        }
+        var iconX = (width - (iconWidth + 2 + titleWidth)) / 3;
+        var iconY = (dc.getHeight() - appIcon.getHeight()) / 2;
+        var titleX = iconX + iconWidth + 2;
+        var titleY = dc.getHeight() / 2;
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();               
 
-        //dc.clearClip(); //clear instead?
-        var Color;
-        if (Config.getLightTheme() == null or Config.getLightTheme() == false){ // Dark
-            Color = Graphics.COLOR_BLACK;
-        } else { // Light
-            Color = Graphics.COLOR_WHITE;
+        var color;
+        if (Config.getLightTheme()){
+            color = Graphics.COLOR_WHITE;
+        } else {
+            color = Graphics.COLOR_BLACK;
         }
-        dc.setColor(Color, Color); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
+        dc.setColor(color, color); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
         dc.fillRectangle(0, 0, width, dc.getHeight()); //width & height?
         
-        if(labelWidth==117 and dc has :drawScaledBitmap){ // Venu 3s
-            dc.drawScaledBitmap(bitmapX, bitmapY, 55, 55, appIcon); // making icon smaller on this watch, since dc width on top of the screen is quite small constrasting to the big default icon size (70x70)
-        } else if (labelWidth==117){ // Vivoactive 5, which doesn't have ScaledBitmap and icon is too big. Removing it and showing only text.
-            labelX = (width - (labelWidth)) / 2;
+        if(titleWidth==117){ // Venu 3s
+            if(dc has :drawScaledBitmap){
+              dc.drawScaledBitmap(iconX, iconY, 55, 55, appIcon); // making icon smaller on this watch, since dc width on top of the screen is quite small constrasting to the big default icon size (70x70)    
+            } else {
+              titleX = (width - (titleWidth)) / 2; // Vivoactive 5, which doesn't have ScaledBitmap and icon is too big. Removing it and showing only text.
+            }
         } else {
-            dc.drawBitmap(bitmapX, bitmapY, appIcon);
-        }
+            dc.drawBitmap(iconX, iconY, appIcon);
+        } 
 
         dc.setColor(Config.getAccentColor(), Graphics.COLOR_TRANSPARENT);
-        dc.drawText(labelX, labelY, Graphics.FONT_SMALL, "Config", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(titleX, titleY, Graphics.FONT_SMALL, title, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
 
