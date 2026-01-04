@@ -388,11 +388,11 @@ class HandThicknessSettings extends WatchUi.Drawable {
     }    
 
     function setNextSetting() as Void{
-        var nextState=Config.getHandsThickness()+1;
-        if(nextState >= HAND_THICKNESS_LEVEL_LABELS.size()) {
-            nextState = HandThicknessSettings.STANDARD;
+        var nextSetting=Config.getHandsThickness()+1;
+        if(nextSetting >= HAND_THICKNESS_LEVEL_LABELS.size()) {
+            nextSetting = HandThicknessSettings.STANDARD;
         }
-        Config.setHandsThickness(nextState);
+        Config.setHandsThickness(nextSetting);
     }
 }
 
