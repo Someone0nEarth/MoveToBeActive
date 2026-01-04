@@ -5,7 +5,7 @@ class AppStorage {
 
 public static enum StorageKey {
     KEY_1_CFG_ACCENT_COLOR = 1,
-    KEY_2_CFG_ACCENT_INDEX = 2,
+    KEY_2_CFG_ACCENT_COLOR_ID = 2,
     KEY_3_CFG_GARMINLOGO = 3,
     KEY_4_CFG_BLUETOOTH_TOGGLE = 4,
     KEY_5_CFG_HOUR_LABELS = 5,

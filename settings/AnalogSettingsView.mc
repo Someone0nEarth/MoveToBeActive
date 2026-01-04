@@ -20,8 +20,8 @@ class AnalogSettingsViewTest extends WatchUi.Menu2 {
 
         Menu2.setTitle(new SettingsMenuTitle());
 
-        var drawable1 = new CustomAccent();
-        Menu2.addItem(new WatchUi.IconMenuItem("Accent Color", drawable1.getString(), AppStorage.KEY_1_CFG_ACCENT_COLOR, drawable1, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+        var accentColorSettings = new AccentColorSettings();
+        Menu2.addItem(new WatchUi.IconMenuItem(AccentColorSettings.getLabel(), accentColorSettings.currentSettingLabel(), AccentColorSettings.getLabel(), accentColorSettings, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
         Menu2.addItem(new WatchUi.ToggleMenuItem("Theme", {:enabled=>"Light", :disabled=>"Dark"}, AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
         Menu2.addItem(new WatchUi.MenuItem("Layout", null, "design", null));
         Menu2.addItem(new WatchUi.MenuItem("Data Fields", null, "datapoints", null));
@@ -57,8 +57,8 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
 	public function onSelect(item) as Void {
 
         if (item instanceof WatchUi.IconMenuItem) {
-            if (item.getIcon() instanceof CustomAccent){
-                item.setSubLabel((item.getIcon() as CustomAccent).nextState(item.getId()));
+            if (item.getIcon() instanceof AccentColorSettings){
+                item.setSubLabel((item.getIcon() as AccentColorSettings).setNextSetting());
             } else if (item.getIcon() instanceof DataPointSettings){
                 item.setSubLabel((item.getIcon() as DataPointSettings).setNextSetting());
             } else if (item.getIcon() instanceof HandThicknessSettings){ 
@@ -219,67 +219,47 @@ class SettingsMenuTitle extends WatchUi.Drawable {
 // This is the custom Icon drawable. It fills the icon space with a color to
 // to demonstrate its extents. It changes color each time the next state is
 // triggered, which is done when the item is selected in this application.
-class CustomAccent extends WatchUi.Drawable {
-
-    // This constant data stores the color state list.
-    //const mColors = [0x55FF00, 0xAAFF00, 0xFFFF00, Graphics.COLOR_BLUE, 0x00FFFF, 0xAA55FF, 0xFFAA00/*0xFF5500*/, 0xFF0000, 0xFF55FF, Graphics.COLOR_WHITE];
-    //const mColorStrings = ["Bright Green", "Vivomove", "Yellow", "Sky Blue", "Aqua", "Medium Purple", "Orange", "Red", "Pink Flamingo", "White"];
-    private var mIndex as Number;
+class AccentColorSettings extends WatchUi.Drawable {
 
     public function initialize() {
         Drawable.initialize({});
-        if (Config.getAccentIndex() == false or Config.getAccentIndex() == null){ 
-        	mIndex = 0;
-        } else {
-        	mIndex=Config.getAccentIndex();
-        }
     }
 
-    // Return the color string for the menu to use as it's sublabel
-    public function getString() {
-        var mColorStrings;
-        //if (Config.gettLightTheme() == null or Config.gettLightTheme() == false){
-        if (Config.getLightTheme() == true){
-            mColorStrings = Application.loadResource(Rez.JsonData.mColorStringsWhite) as Array;
+    public static function getLabel() as String{
+        return "Accent Color";
+    }
+
+    public function currentSettingLabel() as String {
+        var colorLabels;
+        if (Config.getLightTheme()){
+            colorLabels = Application.loadResource(Rez.JsonData.mColorStringsWhite) as Array;
         } else {
-            mColorStrings = Application.loadResource(Rez.JsonData.mColorStrings) as Array;
+            colorLabels = Application.loadResource(Rez.JsonData.mColorStrings) as Array;
         }
          
-        return mColorStrings[mIndex];
+        return colorLabels[Config.getAccentColorID()];
     }
 
-    // Advance to the next color state for the drawable
-    public function nextState(id) {
-        //var mColorStrings = Application.loadResource(Rez.JsonData.mColorStrings);
-        
-        var mColors;
-        if (Config.getLightTheme() == true){
-            mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
+    public function setNextSetting() as String {
+        var colors;
+        if (Config.getLightTheme()){
+            colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
         } else {
-            mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
+            colors = Application.loadResource(Rez.JsonData.mColors) as Array;
         }
 
-        mIndex++;
-        if(mIndex >= mColors.size()) {
-            mIndex = 0;
+        var nextColorID = Config.getAccentColorID()+1;
+        if(nextColorID >= colors.size()) {
+            nextColorID = 0;
         }
-		Config.setAccentColor( mColors[mIndex]);
-		Config.setAccentIndex( mIndex);
+		Config.setAccentColor(colors[nextColorID]);
+		Config.setAccentColorID(nextColorID);
 
-        //return mColorStrings[mIndex];
-        return getString();
+        return currentSettingLabel();
     }
 
-    // Set the color for the current state and use dc.clear() to fill
-    // the drawable area with that color
     public function draw(dc) {
-        var mColors;
-        if (Config.getLightTheme() == true){
-            mColors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
-        } else {
-            mColors = Application.loadResource(Rez.JsonData.mColors) as Array;
-        }
-	    var color = mColors[mIndex];
+	    var color = Config.getAccentColor();
         dc.setColor(color, color);
         dc.clear();        
     }

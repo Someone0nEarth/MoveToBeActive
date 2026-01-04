@@ -12,7 +12,7 @@ class Config {
   private static const COLOR_SATURATEDLIME_GREEN = 0xaaff000;
 
   private static var mAccentColor = AppStorage.load(AppStorage.KEY_1_CFG_ACCENT_COLOR);
-  private static var mAccentIndex = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_INDEX);
+  private static var mAccentColorID = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_COLOR_ID);
   private static var mTickmarkAccentColor = loadOrSetDefault(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, false);
   private static var mLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_32_CFG_LIGHT_THEME, false);
   private static var mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
@@ -59,9 +59,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_1_CFG_ACCENT_COLOR, value);
   }
 
-  public static function setAccentIndex(value) {
-    mAccentIndex = value;
-    AppStorage.persist(AppStorage.KEY_2_CFG_ACCENT_INDEX, value);
+  public static function setAccentColorID(value) {
+    mAccentColorID = value;
+    AppStorage.persist(AppStorage.KEY_2_CFG_ACCENT_COLOR_ID, value);
   }
 
   public static function setTickmarkAccentColor(value) {
@@ -203,8 +203,8 @@ class Config {
     return mAccentColor;
   }
 
-  public static function getAccentIndex() {
-    return mAccentIndex;
+  public static function getAccentColorID() {
+    return mAccentColorID;
   }
 
   public static function getTickmarkAccentColor() {
@@ -353,13 +353,13 @@ class Config {
   }
 
   private static function setAccentColorsIfNeeded() as Void {
-    if (getAccentColor() == null or getAccentIndex() == null) {
+    if (getAccentColor() == null or getAccentColorID() == null) {
       if (isAMOLEDDisplay()) {
         // AMOLED
-        setAccentIndex(1);
+        setAccentColorID(1);
         setAccentColor(COLOR_SATURATEDLIME_GREEN);
       } else {
-        setAccentIndex(0);
+        setAccentColorID(0);
         setAccentColor(COLOR_BRIGHT_LIME_GREEN); // Bright Green
       }
     }
@@ -367,7 +367,7 @@ class Config {
 
   private static function adjustAccentColorForThemesLegacy(){
         var accentColor = getAccentColor();
-        var accIndex = getAccentIndex();
+        var accIndex = getAccentColorID();
 
         if(getLightTheme()){
             var colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
