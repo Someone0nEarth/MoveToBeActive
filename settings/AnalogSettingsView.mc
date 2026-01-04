@@ -414,10 +414,10 @@ class HandThicknessSettings extends WatchUi.Drawable {
     }    
 
     function setNextSetting() as Void{
-        var nextState=Config.getWindSpeedUnit()+1;
-        if(nextState >= WIND_SPEED_LABELS.size()) {
-            nextState = WindSpeedUnitSettings.KPH_OR_MPH;
+        var nextSetting=Config.getWindSpeedUnit()+1;
+        if(nextSetting >= WIND_SPEED_LABELS.size()) {
+            nextSetting = WindSpeedUnitSettings.KPH_OR_MPH;
         }
-        Config.setWindSpeedUnit(nextState);
+        Config.setWindSpeedUnit(nextSetting);
     }
 }
