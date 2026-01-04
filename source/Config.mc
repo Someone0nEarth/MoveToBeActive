@@ -329,7 +329,7 @@ class Config {
     return mPressuretype;
   }
 
-  private static function loadOrSetDefault(storageKey as Integer, defaultValue) {
+  private static function loadOrSetDefault(storageKey as AppStorage.StorageKey, defaultValue) {
     var value = AppStorage.load(storageKey);
     if (value == null) {
       AppStorage.persist(storageKey, defaultValue);
