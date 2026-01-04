@@ -60,12 +60,8 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
         if (item instanceof WatchUi.IconMenuItem) {
             if (item.getIcon() instanceof CustomAccent){
                 item.setSubLabel((item.getIcon() as CustomAccent).nextState(item.getId()));
-            } else if (item.getIcon() instanceof CustomDataPoint){
-                if (item.getId()==9 or item.getId()==10){
-                    item.setSubLabel((item.getIcon() as CustomDataPoint).nextState(item.getId(),1)); //big //TODO get rid of magic number
-                } else {
-                    item.setSubLabel((item.getIcon() as CustomDataPoint).nextState(item.getId(),2)); //small //TODO get rid of magic number
-                }
+            } else if (item.getIcon() instanceof DataPointSettings){
+                item.setSubLabel((item.getIcon() as DataPointSettings).setNextSetting());
             } else if (item.getIcon() instanceof HandThicknessSettings){ 
                 var cycle=item.getIcon() as HandThicknessSettings;
                 cycle.setNextSetting();
@@ -114,17 +110,16 @@ class Menu2TestMenu2Delegate extends WatchUi.Menu2InputDelegate { // Sub-menu De
         } else if( item.getId().equals("datapoints") ) {
 		    var dataMenu = new WatchUi.Menu2({:title=>"Data"});
 		    $.count=0;
-		    var drawable2 = new CustomDataPoint(1); // Big
-		    var drawable3 = new CustomDataPoint(1); // Big
-		    //count=0;
-		    var drawable4 = new CustomDataPoint(2); // Small
-		    var drawable5 = new CustomDataPoint(2); // Small
-            var drawable6 = new CustomDataPoint(2); // Small
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Top", drawable2.nextState(-1,1/*big*/), AppStorage.KEY_9_CFG_LEFT_TOP_DF, drawable2, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Middle", drawable3.nextState(-1,1/*big*/), AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, drawable3, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Bottom", drawable4.nextState(-1,2/*small*/), AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, drawable4, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-            dataMenu.addItem(new WatchUi.IconMenuItem("Right Top", drawable6.nextState(-1,2/*small*/), AppStorage.KEY_17_CFG_RIGHT_TOP_DF, drawable6, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
-		    dataMenu.addItem(new WatchUi.IconMenuItem("Right Bottom", drawable5.nextState(-1,2/*small*/), AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, drawable5, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    var topLeftDataPoint = DataPointSettings.big(AppStorage.KEY_9_CFG_LEFT_TOP_DF);
+		    var leftMiddleDataPoint = DataPointSettings.big(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF);
+		    var leftBottomDataPoint = DataPointSettings.small(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF);
+		    var rightTopDataPoint = DataPointSettings.small(AppStorage.KEY_17_CFG_RIGHT_TOP_DF);
+            var rightBottom = DataPointSettings.small(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF);
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Top", topLeftDataPoint.currentSettingLabel(), topLeftDataPoint.getConfigID(), topLeftDataPoint, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Middle", leftMiddleDataPoint.currentSettingLabel(), leftMiddleDataPoint.getConfigID(), leftMiddleDataPoint, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Left Bottom", leftBottomDataPoint.currentSettingLabel(), leftBottomDataPoint.getConfigID(), leftBottomDataPoint, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+            dataMenu.addItem(new WatchUi.IconMenuItem("Right Top", rightTopDataPoint.currentSettingLabel(), rightTopDataPoint.getConfigID(), rightTopDataPoint, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+		    dataMenu.addItem(new WatchUi.IconMenuItem("Right Bottom", rightBottom.currentSettingLabel(), rightBottom.getConfigID(), rightTopDataPoint, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
 		   	if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
                 dataMenu.addItem(new WatchUi.ToggleMenuItem("Font Size", {:enabled=>"Bigger", :disabled=>"Standard"}, AppStorage.KEY_14_CFG_FONT_SIZE, Config.getFontSize(), {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
             }
@@ -308,70 +303,69 @@ class CustomAccent extends WatchUi.Drawable {
 
 // ------
 
-// This is the custom Icon drawable. It fills the icon space with a color to
-// to demonstrate its extents. It changes color each time the next state is
-// triggered, which is done when the item is selected in this application.
-class CustomDataPoint extends WatchUi.Drawable {
 
-    // This constant data stores the color state list.
-    //const mIcons = ["0" /*stepsIcon*/, ";" /*elevationIcon*/, "P" /*windIcon*/, "A" /*humidityIcon*/, "S" /*precipitationIcon*/, "6" /*caloriesIcon*/, "1" /*floorsClimbIcon*/, "@" /*pulseOxIcon*/, "3" /*heartRateIcon*/, "5" /*notificationIcon*/, "R" /*solarIcon*/, "" /*none*/];
-    //const mIconStrings = ["Steps", ,"Distance", "Elevation", "Wind Speed", "Humidity", "Precipitation", "Calories",  (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available", "Heart Rate", "Notification",(System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "None"];
-    var mIndex; // 0=stepsIcon, 1=distanceIcon, 2=elevationIcon, 3=windSpeed, 4=humidityIcon, 5=precipitationIcon, 6=caloriesIcon, 7=floorsClimbIcon, 8=pulseOxIcon, 9=heartRateIcon, 10=notificationIcon, 11=solarIcon, 12=seconds, 13=intensityMin, 14=none
-    var type;
-	
-    function initialize(size) {
+class DataPointSettings extends WatchUi.Drawable {
+
+   private var mConfigID as AppStorage.StorageKey;
+
+   private var mSettingsLabels;
+   private var mSettingsIconsRessourceName;
+
+   private function initialize(settingID as AppStorage.StorageKey) {
         Drawable.initialize({});
-        type=size;
-        var mArray=[Config.getLeftTopDF(), Config.getLeftMiddleDF(), Config.getLeftBottomDF(), Storage.getValue(12), Config.getRightTopDF()]; // if values are null, then "none"
-        mIndex=mArray[$.count];   
-        $.count++;
+        mConfigID=settingID;
+    }
+
+    public static function small(configID as AppStorage.StorageKey) as DataPointSettings {
+        var datapoint = new DataPointSettings(configID);
+        datapoint.useSmall();
+        return datapoint;
+    }
+
+    public static function big(configID as AppStorage.StorageKey) as DataPointSettings {
+        var datapoint = new DataPointSettings(configID);
+        datapoint.useBig();
+        return datapoint;
+    }
+
+    public function useSmall(){
+        mSettingsLabels = ["Steps", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Humidity":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Precipitation":"Not Available", (Activity.getActivityInfo() has :rawAmbientPressure) ? "Atm. Pressure" : "Not available", "Calories Total", "Calories Active", (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available" , "Heart Rate", "Notifications", (System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "Seconds", "Digital Clock", "Intensity Min.", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory))?"Body Battery":"Not Available", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory))?"Stress":"Not Available", (ActivityMonitor.getInfo() has :respirationRate)?"Respiration Rate":"Not Available", (ActivityMonitor.getInfo() has :timeToRecovery)?"Recovery Time":"Not Available", (UserProfile.getProfile() has :vo2maxRunning)?"VO2 Max Run":"Not Available", (UserProfile.getProfile() has :vo2maxCycling)?"VO2 Max Cycle":"Not Available", ((Toybox has :Weather) && (Weather has :getSunset and Weather has :getSunrise))?"Next Sun Event":"Not Available", "Battery %/day", (Toybox has :Weather and Toybox.Weather has :getHourlyForecast)?"2h Forecast":"Not Available", "None"];
+        mSettingsIconsRessourceName = Rez.JsonData.mIcons9;
+    }
+
+    public function useBig(){
+        mSettingsLabels=["Steps", "Distance", "Elevation", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Wind Speed":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Min/Max Temp.":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Humidity":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Precipitation":"Not Available", (Activity.getActivityInfo() has :rawAmbientPressure) ? "Atm. Pressure" : "Not available", "Calories Total", "Calories Active",  (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available", "Heart Rate", "Notifications",(System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "Seconds", "Digital Clock", "Intensity Min.", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory))?"Body Battery":"Not Available", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory))?"Stress":"Not Available", (ActivityMonitor.getInfo() has :respirationRate)?"Respiration Rate":"Not Available", (ActivityMonitor.getInfo() has :timeToRecovery)?"Recovery Time":"Not Available", (UserProfile.getProfile() has :vo2maxRunning)?"VO2 Max Run":"Not Available", (UserProfile.getProfile() has :vo2maxCycling)?"VO2 Max Cycle":"Not Available", ((Toybox has :Weather) && (Weather has :getSunset and Weather has :getSunrise))?"Next Sun Event":"Not Available", "Battery %/day", (Toybox has :Weather and Toybox.Weather has :getHourlyForecast)?"3h Forecast":"Not Available", "None"];
+        mSettingsIconsRessourceName = Rez.JsonData.mIcons12;
+    }
+
+    function currentSettingLabel() as String{
+        return mSettingsLabels[AppStorage.load(mConfigID)]; //TODO get rid of warning
+    }
+
+    function setNextSetting() as String{
+        var nextSetting=AppStorage.load(mConfigID)+1;
+        if(nextSetting >= mSettingsLabels.size()) {
+            nextSetting = 0;
+        }
+        AppStorage.persist(mConfigID, nextSetting);
+        return currentSettingLabel();
+    }
+
+    public function getConfigID() as AppStorage.StorageKey{
+        return mConfigID;
     }
  
-
-    // Advance to the next color state for the drawable, or return the icon string for the menu to use as its label if id=-1
-    function nextState(id, size) {
-        //var checkWeather = Config.getDateFontSize()[2];
-        var mIconStrings;
-
-        if (size==2){ // Data field locations with length limitation = "small"
-            mIconStrings = ["Steps", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Humidity":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Precipitation":"Not Available", (Activity.getActivityInfo() has :rawAmbientPressure) ? "Atm. Pressure" : "Not available", "Calories Total", "Calories Active", (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available" , "Heart Rate", "Notifications", (System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "Seconds", "Digital Clock", "Intensity Min.", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory))?"Body Battery":"Not Available", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory))?"Stress":"Not Available", (ActivityMonitor.getInfo() has :respirationRate)?"Respiration Rate":"Not Available", (ActivityMonitor.getInfo() has :timeToRecovery)?"Recovery Time":"Not Available", (UserProfile.getProfile() has :vo2maxRunning)?"VO2 Max Run":"Not Available", (UserProfile.getProfile() has :vo2maxCycling)?"VO2 Max Cycle":"Not Available", ((Toybox has :Weather) && (Weather has :getSunset and Weather has :getSunrise))?"Next Sun Event":"Not Available", "Battery %/day", (Toybox has :Weather and Toybox.Weather has :getHourlyForecast)?"2h Forecast":"Not Available", "None"];
-        } else { // No limitations on data field length
-            mIconStrings = ["Steps", "Distance", "Elevation", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Wind Speed":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Min/Max Temp.":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Humidity":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Precipitation":"Not Available", (Activity.getActivityInfo() has :rawAmbientPressure) ? "Atm. Pressure" : "Not available", "Calories Total", "Calories Active",  (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available", "Heart Rate", "Notifications",(System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "Seconds", "Digital Clock", "Intensity Min.", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory))?"Body Battery":"Not Available", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory))?"Stress":"Not Available", (ActivityMonitor.getInfo() has :respirationRate)?"Respiration Rate":"Not Available", (ActivityMonitor.getInfo() has :timeToRecovery)?"Recovery Time":"Not Available", (UserProfile.getProfile() has :vo2maxRunning)?"VO2 Max Run":"Not Available", (UserProfile.getProfile() has :vo2maxCycling)?"VO2 Max Cycle":"Not Available", ((Toybox has :Weather) && (Weather has :getSunset and Weather has :getSunrise))?"Next Sun Event":"Not Available", "Battery %/day", (Toybox has :Weather and Toybox.Weather has :getHourlyForecast)?"3h Forecast":"Not Available", "None"];
-        }
-
-        if (id!=-1){ // -1 means to return only the name, while any other value means to skip to next step
-            type=size;
-            mIndex++;
-            if(mIndex >= mIconStrings.size()) {
-                mIndex = 0;
-            }
-            Storage.setValue(id, mIndex); //Storage 9 or 10
-        }
-        return mIconStrings[mIndex]; // Return the icon string for the menu to use as its label
-    }
-
-    // Set the color for the current state and use dc.clear() to fill
-    // the drawable area with that color
     function draw(dc) {
-        var mIcons;
-        if (type==2) {
-            mIcons = Application.loadResource(Rez.JsonData.mIcons9) as Array;
-        } else {
-            mIcons = Application.loadResource(Rez.JsonData.mIcons12) as Array;
-        }
-        var iColor=0x55FF00;
+        var icons = Application.loadResource(mSettingsIconsRessourceName) as Array;
 
-        if (Config.getAccentColor() != null) {
-			iColor = Config.getAccentColor();
-            if (iColor==Graphics.COLOR_WHITE){ iColor=Graphics.COLOR_LT_GRAY; }
-        }
+		var color = Config.getAccentColor();
+        if (color==Graphics.COLOR_WHITE){ color=Graphics.COLOR_LT_GRAY; } //TODO figuring out, why white color is set to gray. And if there better ways to solve the purpose of it
 		
-        dc.setColor(iColor, Graphics.COLOR_TRANSPARENT);
-		if (mIndex < mIcons.size()-1){
-			var iconsFont = Application.loadResource(Rez.Fonts.IconsFont);
-			var icon = mIcons[mIndex];
-            dc.drawText( dc.getWidth()/2, dc.getHeight()/3, iconsFont, icon , Graphics.TEXT_JUSTIFY_CENTER);
-		}
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var iconsFont = Application.loadResource(Rez.Fonts.IconsFont);
+        var icon = icons[AppStorage.load(mConfigID)];
+        dc.drawText( dc.getWidth()/2, dc.getHeight()/3, iconsFont, icon , Graphics.TEXT_JUSTIFY_CENTER);
+
         dc.clear();
     }
 }
