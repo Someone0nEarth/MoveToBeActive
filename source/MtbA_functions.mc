@@ -1323,7 +1323,7 @@ class MtbA_functions {
 	/* ------------------------ */
 	
 	// Draw Hour and Minute Hands
-	function drawHands(dc, width, height, accentColor, thickInd as HandThicknessSettings.HandsThicknessLevel, aod, upTop, AODColor) {	
+	function drawHands(dc, width, height, accentColor, thickInd as HandsThicknessSettings.HandsThicknessLevel, aod, upTop, AODColor) {	
 		var clockTime = System.getClockTime();
 		var screenCenterPoint = [width/2, height/2];
 
@@ -1338,55 +1338,55 @@ class MtbA_functions {
 		if (handWidth==260){
 			handWidth=10;
 			offsetOuterCircle=-1;			
-			if (thickInd == HandThicknessSettings.THICKER) { // remove redundancies on later versions, true/false was used previously instead of 0,1,2
+			if (thickInd == HandsThicknessSettings.THICKER) { // remove redundancies on later versions, true/false was used previously instead of 0,1,2
 				handWidth = handWidth+3;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-2;
 			}
 		} else if (handWidth==240){
 			handWidth=10;
 			offsetOuterCircle = -1;			
-			if (thickInd == HandThicknessSettings.THICKER) {
+			if (thickInd == HandsThicknessSettings.THICKER) {
 				handWidth = handWidth+2;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-2;
 			}
 		} else if (handWidth==280){
 			handWidth=11;
 			offsetInnerCircle = 1;
-			if (thickInd == HandThicknessSettings.THICKER) {
+			if (thickInd == HandsThicknessSettings.THICKER) {
 				offsetOuterCircle = -0.5;
 				handWidth = handWidth+4;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-3;
 			}
 		} else if (handWidth<=218){ // Vivoactive 4S
 			handWidth=8;
 			offsetOuterCircle = -1;
-			if (thickInd == HandThicknessSettings.THICKER) {
+			if (thickInd == HandsThicknessSettings.THICKER) {
 				handWidth = handWidth+3;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-1;
 			}
 		} else if (handWidth==360 or handWidth==320){ // Venu 2s and Sq2
 			handWidth=15;
 			offsetInnerCircle = 1;
 			offsetOuterCircle = -1;
-			if (thickInd == HandThicknessSettings.THICKER) {
+			if (thickInd == HandsThicknessSettings.THICKER) {
 				handWidth = handWidth+5;
 				offsetInnerCircle = 2;
 				offsetOuterCircle = 0;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-5;
 			}
 		} else if (handWidth>=390){ // Venu 1 & 2
 			handWidth=14;
 			offsetInnerCircle = 1;
 			offsetOuterCircle = -1;
-			if (thickInd == HandThicknessSettings.THICKER) {
+			if (thickInd == HandsThicknessSettings.THICKER) {
 				handWidth = handWidth+5;
 				offsetInnerCircle = 2;
-			} else if (thickInd == HandThicknessSettings.THINNER) {
+			} else if (thickInd == HandsThicknessSettings.THINNER) {
 				handWidth = handWidth-4;
 			}
 		}

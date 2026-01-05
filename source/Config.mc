@@ -26,7 +26,7 @@ class Config {
   private static var mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
   private static var mAlarmToggle = loadOrSetDefault(AppStorage.KEY_8_CFG_ALARM_TOGGLE, true);
   private static var mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, true);
-  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, HandThicknessSettings.STANDARD);
+  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, HandsThicknessSettings.STANDARD);
   private static var mRightBottomDF = loadOrSetDefault(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, 23);
   private static var mRightTopDF = loadOrSetDefault(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, 23);
   private static var mLeftTopDF = loadOrSetDefault(AppStorage.KEY_9_CFG_LEFT_TOP_DF, 27);
@@ -119,7 +119,7 @@ class Config {
     AppStorage.persist(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, value);
   }
 
-  public static function setHandsThickness(value as HandThicknessSettings.HandsThicknessLevel) {
+  public static function setHandsThickness(value as HandsThicknessSettings.HandsThicknessLevel) {
     mHandsThickness = value;
     AppStorage.persist(AppStorage.KEY_13_CFG_HANDS_THICKNESS, value);
   }
@@ -251,7 +251,7 @@ class Config {
     return mBluetoothToggle;
   }
 
-  public static function getHandsThickness() as HandThicknessSettings.HandsThicknessLevel{
+  public static function getHandsThickness() as HandsThicknessSettings.HandsThicknessLevel{
     return mHandsThickness;
   }
 
