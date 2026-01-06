@@ -45,24 +45,19 @@ class SettingsMainMenuDelegate extends WatchUi.Menu2InputDelegate {
 
 class SettingsMainMenu extends WatchUi.Menu2 {
 
-    private var MENU_LAYOUT_TITLE = "Layout";
-    private var MENU_DATAFIELDS_TITLE = "Data Fields";
-    private var MENU_UNITS_TITLE = "Base Units";
-    private var MENU_THEME_TITLE = "Theme";
-
     public function initialize() {
         Menu2.initialize({:title=>new SettingsMenuTitle()});
 
         iconMenuItem(self, "Accent Color", new AccentColorSettings());
 
-        toggleItem(self, MENU_THEME_TITLE, "Light", "Dark", AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme());
+        toggleItem(self, "Theme", "Light", "Dark", AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme());
 
-        menuItem(self, MENU_LAYOUT_TITLE, :layout);
+        menuItem(self, "Layout", :layout);
 
-        menuItem(self, MENU_DATAFIELDS_TITLE, :data_fields);
+        menuItem(self, "Data Fields", :data_fields);
         
         if (Toybox has :Weather or System.getSystemStats() has :batteryInDays){ // 
-            menuItem(self, MENU_UNITS_TITLE, :units);
+            menuItem(self, "Base Units", :units);
         }
     }
 
@@ -85,10 +80,8 @@ class SettingsMainMenu extends WatchUi.Menu2 {
 
 class SettingsUnitsMenu extends WatchUi.Menu2 {         
 
-    private var MENU_UNITS_TITLE_SHORT = "Units";
-
     public function initialize() {
-        Menu2.initialize({:title=>MENU_UNITS_TITLE_SHORT});
+        Menu2.initialize({:title=>"Units"});
 
 
             if (System.getSystemStats() has :batteryInDays){
@@ -115,10 +108,8 @@ class SettingsUnitsMenu extends WatchUi.Menu2 {
 }
 class SettingsDataFieldsMenu extends WatchUi.Menu2 {
 
-    private var MENU_DATAFIELDS_TITLE_SHORT = "Data";
-
     public function initialize() {
-        Menu2.initialize({:title=>MENU_DATAFIELDS_TITLE_SHORT});
+        Menu2.initialize({:title=>"Data"});
 
             SettingsMainMenu.iconMenuItem(self, "Left Top", DataPointSettings.big(AppStorage.KEY_9_CFG_LEFT_TOP_DF));
 
@@ -138,10 +129,8 @@ class SettingsDataFieldsMenu extends WatchUi.Menu2 {
 
 class SettingsLayoutMenu extends WatchUi.Menu2 {
 
-    private var MENU_LAYOUT_TITLE = "Layout";
-
     public function initialize() {
-        Menu2.initialize({:title=>MENU_LAYOUT_TITLE});
+        Menu2.initialize({:title=>"Layout"});
 
 		    SettingsMainMenu.toggleItem(self, "Garmin Logo", "ON", "OFF", AppStorage.KEY_3_CFG_GARMINLOGO, Config.getGarminlogo());
             SettingsMainMenu.toggleItem(self, "Bluetooth Logo", "ON", "OFF", AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE , Config.getBluetoothToggle());
