@@ -16,32 +16,31 @@ class SettingsMainMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     public function initialize() {
         Menu2InputDelegate.initialize();
+        
     }
 
     public function onSelect(item) as Void {
 
-        if ((item instanceof WatchUi.IconMenuItem) && (item.getIcon() instanceof AccentColorSettings)){
-                item.setSubLabel((item.getIcon() as AccentColorSettings).setNextSetting());
+        if (item has :getIcon && item.getIcon() != null && item.getIcon() has :setNextSetting){ 
+                item.setSubLabel(item.getIcon().setNextSetting());
+
+        } else if (item instanceof WatchUi.ToggleMenuItem  and item.getId() instanceof Number) {
+            AppStorage.persist(item.getId() as AppStorage.StorageKey, item.isEnabled());
+
         } else if( item.getId().equals(:layout) ) {
+            WatchUi.pushView(new SettingsLayoutMenu(), self, WatchUi.SLIDE_UP );
 
-            WatchUi.pushView(new SettingsLayoutMenu(), new SettingsLayoutMenuDelegate(), WatchUi.SLIDE_UP );
-            
         } else if( item.getId().equals(:data_fields) ) {
-
-            WatchUi.pushView(new SettingsDataFieldsMenu(), new SettingsDataFieldsMenuDelegate(), WatchUi.SLIDE_UP );
+            WatchUi.pushView(new SettingsDataFieldsMenu(), self, WatchUi.SLIDE_UP );
 
         } else if( item.getId().equals(:units) ) {
-
-            WatchUi.pushView(new SettingsUnitsMenu(), new SettingsUnitsDelegate(), WatchUi.SLIDE_UP );
-         
+           WatchUi.pushView(new SettingsUnitsMenu(), self, WatchUi.SLIDE_UP );
         }
     }
 
     function onBack() {
         WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
     }
-
-   
 }
 
 class SettingsMainMenu extends WatchUi.Menu2 {
@@ -52,12 +51,11 @@ class SettingsMainMenu extends WatchUi.Menu2 {
     private var MENU_THEME_TITLE = "Theme";
 
     public function initialize() {
-         Menu2.initialize({:title=>new SettingsMenuTitle()});
+        Menu2.initialize({:title=>new SettingsMenuTitle()});
 
-        var accentColorSettings = new AccentColorSettings();
-        iconMenuItem2(self, AccentColorSettings.getLabel(), accentColorSettings.currentSettingLabel(), AccentColorSettings.getLabel(), accentColorSettings);
+        iconMenuItem(self, "Accent Color", new AccentColorSettings());
 
-        toggleItem2(self, MENU_THEME_TITLE, "Light", "Dark", AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme());
+        toggleItem(self, MENU_THEME_TITLE, "Light", "Dark", AppStorage.KEY_32_CFG_LIGHT_THEME, Config.getLightTheme());
 
         menuItem(self, MENU_LAYOUT_TITLE, :layout);
 
@@ -76,11 +74,11 @@ class SettingsMainMenu extends WatchUi.Menu2 {
         menu.addItem(item);
     }
 
-    public static function iconMenuItem2(menu as Menu2, title as String, subLabel as String, id, icon as WatchUi.Drawable) as Void{
-        menu.addItem(new WatchUi.IconMenuItem(title, subLabel, id, icon, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
+    public static function iconMenuItem(menu as Menu2, lable as String, item as SettingsItem) as Void{
+        menu.addItem(new WatchUi.IconMenuItem(lable, item.currentSettingLabel(), item.getItemID(), item as WatchUi.Drawable, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT})); 
     }
 
-    public static function toggleItem2(menu as Menu2, title as String, enabledLabel as String, disabledLabel as String, storageKey as AppStorage.StorageKey, currentValue as Boolean) as Void{
+    public static function toggleItem(menu as Menu2, title as String, enabledLabel as String, disabledLabel as String, storageKey as AppStorage.StorageKey, currentValue as Boolean) as Void{
         menu.addItem(new WatchUi.ToggleMenuItem(title, {:enabled=>enabledLabel, :disabled=>disabledLabel}, storageKey, currentValue, {:alignment=>WatchUi.MenuItem.MENU_ITEM_LABEL_ALIGN_LEFT}));
     }
 }
@@ -94,48 +92,27 @@ class SettingsUnitsMenu extends WatchUi.Menu2 {
 
 
             if (System.getSystemStats() has :batteryInDays){
-                SettingsMainMenu.toggleItem2(self, "Battery Estimate", "ON", "OFF", AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, Config.getBatteryEstFlag());
+                SettingsMainMenu.toggleItem(self, "Battery Estimate", "ON", "OFF", AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, Config.getBatteryEstFlag());
             }
 
             var today = Time.Gregorian.info(Time.now(), Time.FORMAT_LONG);
-            SettingsMainMenu.toggleItem2(self, "Date Format", Lang.format("$2$ $1$", [today.month, today.day]), Lang.format("$1$ $2$", [today.month, today.day]), AppStorage.KEY_24_CFG_DATE_FORMAT, Config.getDateFormat());
-            SettingsMainMenu.toggleItem2(self, "Date Size", "Standard", "Small", AppStorage.KEY_21_CFG_DATE_FONT_SIZE, Config.getDateFontSize());
+            SettingsMainMenu.toggleItem(self, "Date Format", Lang.format("$2$ $1$", [today.month, today.day]), Lang.format("$1$ $2$", [today.month, today.day]), AppStorage.KEY_24_CFG_DATE_FORMAT, Config.getDateFormat());
+            SettingsMainMenu.toggleItem(self, "Date Size", "Standard", "Small", AppStorage.KEY_21_CFG_DATE_FONT_SIZE, Config.getDateFontSize());
 
             if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions and Toybox.Weather.getCurrentConditions()!=null){
                 if (Activity.getActivityInfo() has :rawAmbientPressure){
-                    SettingsMainMenu.toggleItem2(self, "Atm. Pres. Unit", "hPa", "inHg", AppStorage.KEY_20_CFG_PRESSURE_TYPE, Config.getPressureType()); 
+                    SettingsMainMenu.toggleItem(self, "Atm. Pres. Unit", "hPa", "inHg", AppStorage.KEY_20_CFG_PRESSURE_TYPE, Config.getPressureType()); 
                 }
 
-                SettingsMainMenu.toggleItem2(self, "Temp. Type", "Real Temperature", "Feels Like", AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, Config.getTemperatureType());
+                SettingsMainMenu.toggleItem(self, "Temp. Type", "Real Temperature", "Feels Like", AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, Config.getTemperatureType());
 
-                SettingsMainMenu.toggleItem2(self, "Temp. Unit", "Always Celsius", "User Settings", AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, Config.getTemperatureUnit());
+                SettingsMainMenu.toggleItem(self, "Temp. Unit", "Always Celsius", "User Settings", AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, Config.getTemperatureUnit());
 
-                var windspeed = new WindSpeedUnitSettings();
-                SettingsMainMenu.iconMenuItem2(self, "Wind Speed Unit", windspeed.currentSettingLabel(), AppStorage.KEY_15_CFG_WINDSPEED_UNIT, windspeed);
+                SettingsMainMenu.iconMenuItem(self, "Wind Speed Unit", new WindSpeedUnitSettings());
             }
     }
 
 }
-
-class SettingsUnitsDelegate extends WatchUi.Menu2InputDelegate {
-
-    public function initialize() {
-        Menu2InputDelegate.initialize();
-    }
-
-    function onSelect(item) {
-        if ((item instanceof WatchUi.IconMenuItem) && (item.getIcon() instanceof WindSpeedUnitSettings)){ 
-                item.setSubLabel((item.getIcon() as WindSpeedUnitSettings).currentSettingLabel());
-        } else if (item instanceof WatchUi.ToggleMenuItem  and item.getId() instanceof Number) {
-            AppStorage.persist(item.getId() as AppStorage.StorageKey, item.isEnabled());
-        }
-    }
-    function onBack() {
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-    }
-
-}
-
 class SettingsDataFieldsMenu extends WatchUi.Menu2 {
 
     private var MENU_DATAFIELDS_TITLE_SHORT = "Data";
@@ -143,45 +120,19 @@ class SettingsDataFieldsMenu extends WatchUi.Menu2 {
     public function initialize() {
         Menu2.initialize({:title=>MENU_DATAFIELDS_TITLE_SHORT});
 
+            SettingsMainMenu.iconMenuItem(self, "Left Top", DataPointSettings.big(AppStorage.KEY_9_CFG_LEFT_TOP_DF));
 
-		    var topLeftDataPoint = DataPointSettings.big(AppStorage.KEY_9_CFG_LEFT_TOP_DF);
-            SettingsMainMenu.iconMenuItem2(self, "Left Top", topLeftDataPoint.currentSettingLabel(), topLeftDataPoint.getConfigID(), topLeftDataPoint);
+            SettingsMainMenu.iconMenuItem(self, "Left Middle", DataPointSettings.big(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF));
 
-		    var leftMiddleDataPoint = DataPointSettings.big(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF);
-            SettingsMainMenu.iconMenuItem2(self, "Left Middle", leftMiddleDataPoint.currentSettingLabel(), leftMiddleDataPoint.getConfigID(), leftMiddleDataPoint);
+            SettingsMainMenu.iconMenuItem(self, "Left Bottom", DataPointSettings.small(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF));
 
-		    var leftBottomDataPoint = DataPointSettings.small(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF);
-            SettingsMainMenu.iconMenuItem2(self, "Left Bottom", leftBottomDataPoint.currentSettingLabel(), leftBottomDataPoint.getConfigID(), leftBottomDataPoint);
-
-		    var rightTopDataPoint = DataPointSettings.small(AppStorage.KEY_17_CFG_RIGHT_TOP_DF);
-            SettingsMainMenu.iconMenuItem2(self, "Right Top", rightTopDataPoint.currentSettingLabel(), rightTopDataPoint.getConfigID(), rightTopDataPoint);
+            SettingsMainMenu.iconMenuItem(self, "Right Top", DataPointSettings.small(AppStorage.KEY_17_CFG_RIGHT_TOP_DF));
             
-            var rightBottom = DataPointSettings.small(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF);
-            SettingsMainMenu.iconMenuItem2(self, "Right Bottom", rightBottom.currentSettingLabel(), rightBottom.getConfigID(), rightBottom);
+            SettingsMainMenu.iconMenuItem(self, "Right Bottom", DataPointSettings.small(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF));
 
 		   	if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
-                SettingsMainMenu.toggleItem2(self, "Font Size", "Bigger", "Standard", AppStorage.KEY_14_CFG_FONT_SIZE, Config.getFontSize());
+                SettingsMainMenu.toggleItem(self, "Font Size", "Bigger", "Standard", AppStorage.KEY_14_CFG_FONT_SIZE, Config.getFontSize());
             }
-    }
-}
-
-class SettingsDataFieldsMenuDelegate extends WatchUi.Menu2InputDelegate {
-
-    public function initialize() {
-        Menu2InputDelegate.initialize();
-    }
-
-    function onSelect(item) as Void {
-
-        if ((item instanceof WatchUi.IconMenuItem) && (item.getIcon() instanceof DataPointSettings)){
-            item.setSubLabel((item.getIcon() as DataPointSettings).setNextSetting());
-        } else if (item instanceof WatchUi.ToggleMenuItem  and item.getId() instanceof Number) {
-            AppStorage.persist(item.getId() as AppStorage.StorageKey, item.isEnabled());
-        }
-    }
-
-    function onBack() {
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
     }
 }
 
@@ -192,35 +143,34 @@ class SettingsLayoutMenu extends WatchUi.Menu2 {
     public function initialize() {
         Menu2.initialize({:title=>MENU_LAYOUT_TITLE});
 
-		    SettingsMainMenu.toggleItem2(self, "Garmin Logo", "ON", "OFF", AppStorage.KEY_3_CFG_GARMINLOGO, Config.getGarminlogo());
-            SettingsMainMenu.toggleItem2(self, "Bluetooth Logo", "ON", "OFF", AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE , Config.getBluetoothToggle());
-            SettingsMainMenu.toggleItem2(self, "Alarm Icon", "ON", "OFF", AppStorage.KEY_8_CFG_ALARM_TOGGLE, Config.getAlarmToggle());
-            SettingsMainMenu.toggleItem2(self, "Battery Icon", "ON", "OFF", AppStorage.KEY_26_CFG_BATTERY_ICON, Config.getBatteryIcon());
-            SettingsMainMenu.toggleItem2(self, "Battery Color", "Conditional", "Always Gray", AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, Config.getConditionalBatteryIconColor());
+		    SettingsMainMenu.toggleItem(self, "Garmin Logo", "ON", "OFF", AppStorage.KEY_3_CFG_GARMINLOGO, Config.getGarminlogo());
+            SettingsMainMenu.toggleItem(self, "Bluetooth Logo", "ON", "OFF", AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE , Config.getBluetoothToggle());
+            SettingsMainMenu.toggleItem(self, "Alarm Icon", "ON", "OFF", AppStorage.KEY_8_CFG_ALARM_TOGGLE, Config.getAlarmToggle());
+            SettingsMainMenu.toggleItem(self, "Battery Icon", "ON", "OFF", AppStorage.KEY_26_CFG_BATTERY_ICON, Config.getBatteryIcon());
+            SettingsMainMenu.toggleItem(self, "Battery Color", "Conditional", "Always Gray", AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, Config.getConditionalBatteryIconColor());
 
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) {
-                SettingsMainMenu.toggleItem2(self, "Hour Labels", "ON", "OFF", AppStorage.KEY_5_CFG_HOUR_LABELS, Config.getHourLabels());
-                SettingsMainMenu.toggleItem2(self, "Labels Color", "Accent", "Default", AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, Config.getHourLabelAccentColor());
+                SettingsMainMenu.toggleItem(self, "Hour Labels", "ON", "OFF", AppStorage.KEY_5_CFG_HOUR_LABELS, Config.getHourLabels());
+                SettingsMainMenu.toggleItem(self, "Labels Color", "Accent", "Default", AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, Config.getHourLabelAccentColor());
             }
 
-            SettingsMainMenu.toggleItem2(self, "Tickmark Color", "Accent", "Default", AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, Config.getTickmarkAccentColor());
+            SettingsMainMenu.toggleItem(self, "Tickmark Color", "Accent", "Default", AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, Config.getTickmarkAccentColor());
 
             if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions){ // has weather, doesn't show these for Fenix 5 Plus series
-                    SettingsMainMenu.toggleItem2(self, "Weather Condition", "ON", "OFF", AppStorage.KEY_25_CFG_WEATHER_CONDITION, Config.showWeatherCondition());
-                    SettingsMainMenu.toggleItem2(self, "Condition Name", "ON", "OFF", AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, Config.showWeatherConditionName());  
+                    SettingsMainMenu.toggleItem(self, "Weather Condition", "ON", "OFF", AppStorage.KEY_25_CFG_WEATHER_CONDITION, Config.showWeatherCondition());
+                    SettingsMainMenu.toggleItem(self, "Condition Name", "ON", "OFF", AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, Config.showWeatherConditionName());  
             }
 
             // allow these extra features only for LCD and AMOLED devices
             if(System.getDeviceSettings().requiresBurnInProtection){
-                SettingsMainMenu.toggleItem2(self, "AOD Colors", "Accent", "Grayscale", AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, Config.getAodUseAccentColor());
+                SettingsMainMenu.toggleItem(self, "AOD Colors", "Accent", "Grayscale", AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, Config.getAodUseAccentColor());
             }
 
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape) { //check if rounded display
-                SettingsMainMenu.toggleItem2(self, "Seconds Hand", "On", "Off", AppStorage.KEY_33_CFG_SECONDS_HAND, Config.getSecondsHand());
+                SettingsMainMenu.toggleItem(self, "Seconds Hand", "On", "Off", AppStorage.KEY_33_CFG_SECONDS_HAND, Config.getSecondsHand());
             }
 
-            var handsThickness = new HandsThicknessSettings();
-            SettingsMainMenu.iconMenuItem2(self, "Hands Thickness", handsThickness.currentSettingLabel(), "Hands Thickness", handsThickness);
+            SettingsMainMenu.iconMenuItem(self, "Hands Thickness", new HandsThicknessSettings());
     }
 
     function onBack() {
@@ -229,26 +179,6 @@ class SettingsLayoutMenu extends WatchUi.Menu2 {
 
 }
 
-class SettingsLayoutMenuDelegate extends WatchUi.Menu2InputDelegate {
-
-    public function initialize() {
-        Menu2InputDelegate.initialize();
-    }
-
-    function onSelect(item) as Void {
-
-        if ((item instanceof WatchUi.IconMenuItem) && (item.getIcon() instanceof HandsThicknessSettings)){ 
-                item.setSubLabel((item.getIcon() as HandsThicknessSettings).setNextSetting());
-        } else if (item instanceof WatchUi.ToggleMenuItem  and item.getId() instanceof Number) {
-            AppStorage.persist(item.getId() as AppStorage.StorageKey, item.isEnabled());
-        }
-    }
-
-    function onBack() {
-        WatchUi.popView(WatchUi.SLIDE_IMMEDIATE);
-    }
-
-}
 class SettingsMenuTitle extends WatchUi.Drawable {
 
     function initialize() {
@@ -305,6 +235,11 @@ class SettingsMenuTitle extends WatchUi.Drawable {
     }
 }
 
+typedef SettingsItem as interface {
+    function getItemID();
+    function currentSettingLabel() as String;
+    function setNextSetting() as String;
+};
 
 // This is the custom Icon drawable. It fills the icon space with a color to
 // to demonstrate its extents. It changes color each time the next state is
@@ -313,10 +248,6 @@ class AccentColorSettings extends WatchUi.Drawable {
 
     public function initialize() {
         Drawable.initialize({});
-    }
-
-    public static function getLabel() as String{
-        return "Accent Color";
     }
 
     public function currentSettingLabel() as String {
@@ -347,6 +278,14 @@ class AccentColorSettings extends WatchUi.Drawable {
 		Config.setAccentColorID(nextColorID);
 
         return currentSettingLabel();
+    }
+
+    public function getItemID(){
+        return AppStorage.KEY_1_CFG_ACCENT_COLOR;
+    }
+
+    public function getIcon() as WatchUi.Drawable{
+        return self;
     }
 
     public function draw(dc) {
@@ -381,6 +320,7 @@ class DataPointSettings extends WatchUi.Drawable {
     }
 
     //TODO extract duplicated strings into vars
+    //TODO Try to set Lables via constructor parameter (maybe proving the weather capability through the caller)
 
     public function useSmall(){
         mSettingsLabels = ["Steps", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Humidity":"Not Available", (Toybox has :Weather and Toybox.Weather has :getCurrentConditions)?"Precipitation":"Not Available", (Activity.getActivityInfo() has :rawAmbientPressure) ? "Atm. Pressure" : "Not available", "Calories Total", "Calories Active", (ActivityMonitor.getInfo() has :floorsClimbed)?"Floors Climbed":"Not Available", (Activity.getActivityInfo() has :currentOxygenSaturation)?"Pulse Ox":"Not available" , "Heart Rate", "Notifications", (System.getSystemStats() has :solarIntensity and System.getSystemStats().solarIntensity != null) ? "Solar Intensity" : "Not available", "Seconds", "Digital Clock", "Intensity Min.", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getBodyBatteryHistory))?"Body Battery":"Not Available", ((Toybox has :SensorHistory) && (Toybox.SensorHistory has :getStressHistory))?"Stress":"Not Available", (ActivityMonitor.getInfo() has :respirationRate)?"Respiration Rate":"Not Available", (ActivityMonitor.getInfo() has :timeToRecovery)?"Recovery Time":"Not Available", (UserProfile.getProfile() has :vo2maxRunning)?"VO2 Max Run":"Not Available", (UserProfile.getProfile() has :vo2maxCycling)?"VO2 Max Cycle":"Not Available", ((Toybox has :Weather) && (Weather has :getSunset and Weather has :getSunrise))?"Next Sun Event":"Not Available", "Battery %/day", (Toybox has :Weather and Toybox.Weather has :getHourlyForecast)?"2h Forecast":"Not Available", "None"];
@@ -405,7 +345,7 @@ class DataPointSettings extends WatchUi.Drawable {
         return currentSettingLabel();
     }
 
-    public function getConfigID() as AppStorage.StorageKey{
+    public function getItemID(){
         return mConfigID;
     }
  
@@ -449,10 +389,18 @@ class HandsThicknessSettings extends WatchUi.Drawable {
         Config.setHandsThickness(nextSetting);
         return currentSettingLabel();
     }
+
+    public function getItemID() {
+        return AppStorage.KEY_13_CFG_HANDS_THICKNESS;
+    }
+
+    public function getIcon() as WatchUi.Drawable{
+        return self;
+    }
 }
 
 (:weather) class WindSpeedUnitSettings extends WatchUi.Drawable {
-    
+
     public static enum WindSpeedUnit {
         KPH_OR_MPH = 0,
         METER_PER_SECONDS = 1,
@@ -463,13 +411,13 @@ class HandsThicknessSettings extends WatchUi.Drawable {
 	
     function initialize() {
         Drawable.initialize({});
-    }    
+    }
     
-    function currentSettingLabel() as String{
+    public function currentSettingLabel() as String{
         return WIND_SPEED_LABELS[Config.getWindSpeedUnit()];
     }    
 
-    function setNextSetting() as String{
+    public function setNextSetting() as String{
         var nextSetting=Config.getWindSpeedUnit()+1;
         if(nextSetting >= WIND_SPEED_LABELS.size()) {
             nextSetting = WindSpeedUnitSettings.KPH_OR_MPH;
@@ -477,5 +425,13 @@ class HandsThicknessSettings extends WatchUi.Drawable {
         Config.setWindSpeedUnit(nextSetting);
 
         return currentSettingLabel();
+    }
+
+    public function getItemID() {
+        return AppStorage.KEY_15_CFG_WINDSPEED_UNIT;
+    }
+
+    public function getIcon() as WatchUi.Drawable{
+        return self;
     }
 }
