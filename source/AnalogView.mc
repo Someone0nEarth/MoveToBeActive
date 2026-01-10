@@ -34,19 +34,17 @@ class AnalogView extends WatchUi.WatchFace {
     private var mUpTop=true;
     private var mDrawer as Drawer;
     private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
-    private var mFontColor = (Config.getLightTheme() ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
+    
 
     // Initialize variables for this view
     function initialize() {
-
         WatchFace.initialize();
         //_fullScreenRefresh = true;
         //_partialUpdatesAllowed = (WatchUi.WatchFace has :onPartialUpdate);
 
         Config.load();
 
-        mDrawer= new Drawer(mInLowPower, mFontColor);   
-    
+        mDrawer= new Drawer(mInLowPower, Config.getFontColor());   
     }
 
     // Configure the layout of the watchface for this device
@@ -109,13 +107,13 @@ class AnalogView extends WatchUi.WatchFace {
 
     // Handle the update event
     public function onUpdate(dc as Dc) as Void {
+        mDrawer.setFontColor(Config.getFontColor()); //TODO do this only, when config (light / dark theme) changes
         var targetDc = null;        
         //var MtbA = new MtbA_functions();
         //var check = Storage.getValue(21);
         
         //var accentColor = config[0];
         
-        var tickmarkColor = Config.getTickmarkAccentColor();
 
         // We always want to refresh the full screen when we get a regular onUpdate call.
         //_fullScreenRefresh = true;
@@ -133,6 +131,7 @@ class AnalogView extends WatchUi.WatchFace {
         var screenCenterPoint = [width/2, height/2];
 
         var accentColor;
+        var tickmarkColor = Config.getTickmarkAccentColor();
         var arborColor;
         var showSecondHand;
         var borderColor=Graphics.COLOR_BLACK;
@@ -156,7 +155,7 @@ class AnalogView extends WatchUi.WatchFace {
               showSecondHand = false;
             }
           accentColor = Config.getAccentColor();
-          if(mFontColor == Graphics.COLOR_BLACK){
+          if(Config.getLightTheme()){
               arborColor=Graphics.COLOR_LT_GRAY;
           } else {
               arborColor=Graphics.COLOR_WHITE;

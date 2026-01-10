@@ -27,6 +27,10 @@ class Drawer {
         mFontColor = fontColor;
 	}
 
+    public function setFontColor(fontColor as Number) as Void {
+        mFontColor = fontColor;
+    }
+
 	// This function is used to generate the coordinates of the 4 corners of the polygon
     // used to draw a watch hand. The coordinates are generated with specified length,
     // tail length, and width and rotated around the center point at the provided angle.
@@ -52,7 +56,7 @@ class Drawer {
     /* ------------------------ */
 	
 	// Draws the clock tick marks around the outside edges of the screen.
-(:round) function drawHashMarks(dc, width, aod, colorFlag, showBoolean) { // 2, 5
+(:round) function drawHashMarks(dc, width, aod, colorFlag, showHoursLabels) { // 2, 5
 			var sX, sY;
 			var eX, eY;
 			var outerRad = width / 2;
@@ -89,17 +93,17 @@ class Drawer {
 							if (colorFlag == true and (i % 5 == 0)){
 								dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 							} else{
-								if ((!showBoolean) and (i == 0 or i == 30)) {
+								if ((!showHoursLabels) and (i == 0 or i == 30)) {
 										dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 								} else {
-						          if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
-										if (width < 360){ //TODO magic number
-											dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT); // Using lighter tone for MIP displays
-										} else {
-											dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT); // Darker tone for AMOLED
-										}
-								  }	else { // Light Theme
-										dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+						          if (Config.getLightTheme()){
+                                    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+								  }	else {
+                                  	if (width < 360){ //TODO magic number
+										dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT); // Using lighter tone for MIP displays
+									} else {
+										dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT); // Darker tone for AMOLED
+									}
 								  }
 								}
 							}       
@@ -117,7 +121,7 @@ class Drawer {
 						eY = outerRad * Math.sin(angle);
 						sX = innerRad * Math.cos(angle);
 						eX = outerRad * Math.cos(angle);							
-					} else if (!showBoolean) { // AOD for AMOLED is OFF and NOT showing hour labels, then all 5 minute marks will have same length
+					} else if (!showHoursLabels) { // AOD for AMOLED is OFF and NOT showing hour labels, then all 5 minute marks will have same length
 						// longer lines at intermediate 5 min marks
 						if ((i % 5) == 0) {               		
 							sY = (innerRad-10) * Math.sin(angle);
@@ -292,13 +296,13 @@ class Drawer {
                 
 			var settings = System.getDeviceSettings().phoneConnected; // maybe .connectionAvailable or .ConnectionInfo.state ?
 			if (settings) {
-				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
-					dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
-				} else {
+				if (Config.getLightTheme()){
 					dc.setColor(0x0055AA, Graphics.COLOR_TRANSPARENT);
+				} else {
+					dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 				}
 			} else {
-					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			}
 			dc.drawText( x - offset, y - offset, mIconsFont, "8", Graphics.TEXT_JUSTIFY_CENTER);
     }
@@ -321,7 +325,7 @@ class Drawer {
             dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
         } else {
 						if (width!=208){
-							dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
+							dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 						} else { // Fr55
 							dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 						}
@@ -339,7 +343,7 @@ class Drawer {
 				if (hourLabel) {
 					dc.setColor(accent, Graphics.COLOR_TRANSPARENT);  
 				} else if (width < 360){ // Using lighter tone for MIP displays 
-						dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);  
+						dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);  
 				} else { // Darker tone for AMOLED
 	    		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);  
 				}
@@ -552,13 +556,13 @@ class Drawer {
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if ((minTemp != null) and (maxTemp != null)) { //  and minTemp instanceof Number ;  and maxTemp instanceof Number
 				if (temp<=minTemp){
-					if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+					if (!Config.getLightTheme()){ // Dark Theme
 						dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT); // Light Blue 0x55AAFF
 					} else { // Light Theme
 						dc.setColor(0x0055AA, Graphics.COLOR_TRANSPARENT); 
 					}
 				} else if (temp>=maxTemp){
-					if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+					if (!Config.getLightTheme()){ // Dark Theme
 						dc.setColor(0xFFAA00, Graphics.COLOR_TRANSPARENT); // Light Orange
 					} else { // Light Theme
 						dc.setColor(0xFF5500, Graphics.COLOR_TRANSPARENT);
@@ -576,7 +580,7 @@ class Drawer {
 	}
 	
 	function drawLocation(dc, x, y) {
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, y, Graphics.FONT_XTINY, mWeatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
@@ -614,7 +618,7 @@ class Drawer {
 			// Icon
 			if (formattedNotificationAmount.toNumber() == 0){ // when notification count is zero
 //				if (width>=360){ //AMOLED (2021)
-					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 //				} else { // MIP, for better readability
 //					dc.setColor( (accentColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_WHITE), Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
 //				}
@@ -692,7 +696,7 @@ class Drawer {
 		// Choose the colour of the heart rate icon based on heart rate zone
 		var heartRateIconColour;
 		
-		if (mFontColor==Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			heartRateIconColour = Graphics.COLOR_DK_GRAY;
 			
 			if (heartRateZone == 1) { // Resting / Light load
@@ -807,7 +811,7 @@ class Drawer {
 		var height=dc.getHeight();
 				
 		// Choose the colour of the battery based on it's state
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			batteryIconColour = Graphics.COLOR_LT_GRAY;
 			if (greyIcon!=false){ // Show battery colors
 				if (battery <= 20) {
@@ -942,7 +946,7 @@ class Drawer {
 			offsetLED = -1;
 		}
 
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
 		} else { // Light Theme
 			if (width==208 and battery > 40){
@@ -1061,7 +1065,7 @@ class Drawer {
 		}
 
 		if (width>=360){ //AMOLED (2021)
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
 		}
@@ -1105,7 +1109,7 @@ class Drawer {
 			}		
 
 			if (width!=208){
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // FR55
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
@@ -1138,7 +1142,7 @@ class Drawer {
 		
 		if (pulseOx!= null) {
 			// Change the colour of the pulse Ox icon based on current value
-			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (!Config.getLightTheme()){ // Dark Theme
 				if (pulseOx >= 95) { // Normal
 					if (accentColor == 0xAAFF00) {
 						dc.setColor(0xAAFF00, Graphics.COLOR_TRANSPARENT); /* Vivomove GREEN */
@@ -1199,7 +1203,7 @@ class Drawer {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
@@ -1249,7 +1253,7 @@ class Drawer {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
@@ -1308,7 +1312,7 @@ class Drawer {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width==360 or width==390 or width==416){ //AMOLED
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
@@ -1425,7 +1429,7 @@ class Drawer {
 		dc.setColor(accentColor, Graphics.COLOR_WHITE);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
 		// tip in different color
-		if (mFontColor == Graphics.COLOR_WHITE) { // Dark Theme
+		if (!Config.getLightTheme()) { // Dark Theme
 			dc.setColor(borderColor,Graphics.COLOR_BLACK);
 			dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, -(width/2.25), Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //rectangle
 		}
@@ -1501,7 +1505,7 @@ class Drawer {
 	    
 		// Icon
 		if (width==360 or width==390 or width==416){ //AMOLED
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}		
@@ -1543,7 +1547,7 @@ class Drawer {
 		}
         
 		if (width==360 or width==390 or width==416){ //AMOLED
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}
@@ -1613,10 +1617,10 @@ class Drawer {
 			offset = -2;
 		}
 
-		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+		dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 
 		if (pressure!=null and pressure instanceof Float){
-			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (!Config.getLightTheme()){ // Dark Theme
 				if(pressure<100914.4) {
 					dc.setColor(0xFFAA00, Graphics.COLOR_TRANSPARENT); 
 				} else if (pressure>102268.9){
@@ -1687,7 +1691,7 @@ class Drawer {
 
 		var precipitationIconColour;
 		
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			if (precipitation >= 90) { // Very High
 				precipitationIconColour = 0xAA55FF; // Violet
 			} else if (precipitation >= 60) { // High
@@ -1766,7 +1770,7 @@ class Drawer {
 		//precipitationIconColour = 0xAA55FF; // Violet
 
 		if (width>=360){ //AMOLED
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}
@@ -1776,10 +1780,10 @@ class Drawer {
 		minTemp=minTemp.format("%d");
 		maxTemp=maxTemp.format("%d");
 
-		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Light Blue 0x00FFFF / 0x55AAFF
+		dc.setColor((!Config.getLightTheme() ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Light Blue 0x00FFFF / 0x55AAFF
 		dc.drawText( xText, yText , mFontSize, minTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
 
-		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Purple 0xAA55FF
+		dc.setColor((!Config.getLightTheme() ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Purple 0xAA55FF
 		dc.drawText( xText + dc.getTextWidthInPixels(minTemp+"/",mFontSize) , yText , mFontSize, maxTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
 
 		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
@@ -1824,7 +1828,7 @@ class Drawer {
 			xIcon = xIcon + 1;
 		} 
 
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			if ((humidity > 0 and humidity < 25) or humidity >=70) { // Poor
 				dc.setColor(0xFF5555, Graphics.COLOR_TRANSPARENT); // Red
 			} else if (humidity < 30 or humidity >= 60) { // Fair
@@ -1901,7 +1905,7 @@ class Drawer {
 			windSpeed = Weather.getCurrentConditions().windSpeed;//.toString();
 			windBearing = Weather.getCurrentConditions().windBearing;//.toString();
 
-			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (!Config.getLightTheme()){ // Dark Theme
 				if (windSpeed >= 32.7) { // Hurricane Force
 					windIconColour = 0xAA0000;
 				} else if (windSpeed >= 28.5) { // Violent Storm
@@ -2051,7 +2055,7 @@ class Drawer {
 		
 		var solarIconColour = null;
 
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			if (solarIntensity >= 80) { // Extreme
 				solarIconColour = 0xAA55FF; 
 			} else if (solarIntensity >= 60) { // Very High
@@ -2139,7 +2143,7 @@ class Drawer {
 		*/
 		
 		if (width>=360){ //AMOLED
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP displays, for better readability
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			yIcon = yIcon-5; // 3?
@@ -2183,7 +2187,7 @@ class Drawer {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				yIcon = yIcon-5;
@@ -2230,7 +2234,7 @@ class Drawer {
 				dc.drawText(xText, yText,	mFontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
 				//dc.drawText(xText, yText,	fontSize, Lang.format("$1$",[sample.data.format("%02d")]), Graphics.TEXT_JUSTIFY_LEFT);
 
-				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+				if (!Config.getLightTheme()){ // Dark Theme
 					if (sample.data<=25) {
 						dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 					} else if (sample.data<=50){
@@ -2254,7 +2258,7 @@ class Drawer {
 			} else{
 				dc.drawText(xText, yText,	mFontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
 				if (width>=360){ //AMOLED
-					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 				} else { // MIP displays, for better readability
 					dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				}
@@ -2285,7 +2289,7 @@ class Drawer {
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if (sample != null) { 
 				dc.drawText(xText, yText,	mFontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
-				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+				if (!Config.getLightTheme()){ // Dark Theme
 					if (sample.data<=25) {
 						dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 					} else if (sample.data<=50){
@@ -2309,7 +2313,7 @@ class Drawer {
 			} else{
 				dc.drawText(xText, yText,	mFontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
 				if (width>=360){ //AMOLED
-					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 				} else { // MIP displays, for better readability
 					dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				}
@@ -2345,7 +2349,7 @@ class Drawer {
 			yIcon=yIcon-1;
 		}
 
-		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (!Config.getLightTheme()){ // Dark Theme
 			if (text<=30){ // Very Poor
 				dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 			} else if (text<=34){ // Poor
@@ -2414,7 +2418,7 @@ class Drawer {
 
 		// Icon
 		if (width>=360){ //AMOLED
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP displays, for better readability
 			dc.setColor( mFontColor, Graphics.COLOR_TRANSPARENT); 
 		}
@@ -2444,7 +2448,7 @@ class Drawer {
 			return false;
 		} else {					
 			if (width>=360){ //AMOLED
-				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP displays, for better readability
 				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
@@ -2528,9 +2532,9 @@ class Drawer {
 		}
 
 		if (icon != null && icon.equals(">")){
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Blue
+			dc.setColor((!Config.getLightTheme() ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Blue
 		} else {
-			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Orange
+			dc.setColor((!Config.getLightTheme() ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Orange
 		}
 		dc.drawText( xIcon, yIcon + offset , mIconsFont, icon, Graphics.TEXT_JUSTIFY_CENTER); // Draw Icon
 		

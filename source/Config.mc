@@ -362,6 +362,10 @@ class Config {
     return mPressuretype;
   }
 
+  public static function getFontColor() as Number {
+    return (Config.getLightTheme() ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE);
+  }
+
   private static function loadOrSetDefault(storageKey as AppStorage.StorageKey, defaultValue) {
     var value = AppStorage.load(storageKey);
     if (value == null) {
