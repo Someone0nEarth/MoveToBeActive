@@ -30,7 +30,7 @@ class Drawer {
     // used to draw a watch hand. The coordinates are generated with specified length,
     // tail length, and width and rotated around the center point at the provided angle.
     // 0 degrees is at the 12 o'clock position, and increases in the clockwise direction.
-    function generateHandCoordinates(centerPoint as Array<Number>, angle as Float, handLength as Number, tailLength as Number, width as Float, triangle as Float) as Array<[Numeric, Numeric]> {
+    private function generateHandCoordinates(centerPoint as Array<Number>, angle as Float, handLength as Number, tailLength as Number, width as Float, triangle as Float) as Array<[Numeric, Numeric]> {
         // Map out the coordinates of the watch hand
         var coords = [[-(width / 2), tailLength], [-(width / 2), -handLength], [0,-handLength*triangle], [width / 2, -handLength], [width / 2, tailLength]];
         var result = new [5];
@@ -958,7 +958,7 @@ class Drawer {
 
 	/* ------------------------ */
 
-	function calcHourDiff(today) { // calculate hourDiff
+	private function calcHourDiff(today) { // calculate hourDiff
 	    //TODO use Toybox.Time for calculation and also for persistance?
 	    var lastCharge=Status.getLastTimeCharging();
 		var hourDiff = 0;
@@ -1000,7 +1000,7 @@ class Drawer {
 
 	/* ------------------------ */
 
-	function drawBatteryConsumption(dc, xIcon, yIcon, xText, yText, width) {	
+	private function drawBatteryConsumption(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		var battery = Math.ceil(System.getSystemStats().battery);
 		var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
@@ -1121,7 +1121,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Pulse Ox Icon and Text	
-	function drawPulseOx(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawPulseOx(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
           
 		var pulseOx = null;
 		if (Activity has :getActivityInfo and Activity.getActivityInfo() has :currentOxygenSaturation) {
@@ -1180,7 +1180,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Floors Climbed Icon and Text
-	function drawFloorsClimbed(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawFloorsClimbed(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 	  var floorsCount=0;
@@ -1222,7 +1222,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Steps
-	function drawSteps(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawSteps(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
 
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var unit = "";
@@ -1264,7 +1264,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Distance Traveled
-	function drawDistance(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawDistance(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
 
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var DistanceMetric = System.getDeviceSettings().distanceUnits;
@@ -1476,7 +1476,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Calories Burned
-	function drawCalories(dc, xIcon, yIcon, xText, yText, width, type) {	
+	private function drawCalories(dc, xIcon, yIcon, xText, yText, width, type) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var calories=0;
@@ -1528,7 +1528,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Elevation
-	function drawElevation(dc, xIcon, yIcon, xText, yText, width, side) {	
+	private function drawElevation(dc, xIcon, yIcon, xText, yText, width, side) {	
 		// side 1 = left top
 		// side 2 = left middle
 
@@ -1598,7 +1598,7 @@ class Drawer {
 /* ------------------------ */
 	
 	// Draw Atmospheric Pressure
-	function drawPressure(dc, xIcon, yIcon, xText, yText, width) {	
+	private function drawPressure(dc, xIcon, yIcon, xText, yText, width) {	
 
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var pressure=null;
@@ -1668,7 +1668,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Precipitation Percentage
-(:tempo) function drawPrecipitation(dc, xIcon, yIcon, xText, yText, width) {	
+(:tempo) private function drawPrecipitation(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.HumidityFont);
 	  var precipitation=0;
@@ -1736,7 +1736,7 @@ class Drawer {
 /* ------------------------ */
 	
 	// Draw Min and Max Temperatures
-(:tempo) function drawMinMaxTemp(dc, xIcon, yIcon, xText, yText, width) {	
+(:tempo) private function drawMinMaxTemp(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var minTemp, maxTemp;
@@ -1804,7 +1804,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Humidity Percentage
-(:tempo) function drawHumidity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+(:tempo) private function drawHumidity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var humidity=0;
@@ -1866,7 +1866,7 @@ class Drawer {
 	
 	/* ------------------------ */		
 
-(:tempo) function drawForecast(dc, xIcon, yIcon, width, size) {	
+(:tempo) private function drawForecast(dc, xIcon, yIcon, width, size) {	
 		//var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 
 		if (Toybox has :Weather and Toybox.Weather has :getHourlyForecast) {
@@ -1900,7 +1900,7 @@ class Drawer {
 	/* ------------------------ */	
 
 	// Draw Wind Speed
-(:tempo) function drawWindSpeed(dc, xIcon, yIcon, xText, yText, width) {	
+(:tempo) private function drawWindSpeed(dc, xIcon, yIcon, xText, yText, width) {	
 
 		var WindMetric = System.getDeviceSettings().paceUnits;
 		var windSpeed=null;
@@ -2051,7 +2051,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Solar Intensity
-	function drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
 	
 		var solarIntensity=0;
 		
@@ -2114,7 +2114,7 @@ class Drawer {
 
 	/* ------------------------ */
 	
-	function drawSeconds(dc, xIcon, yIcon, xText, yText, width, type) {
+	private function drawSeconds(dc, xIcon, yIcon, xText, yText, width, type) {
 		var clockTime = System.getClockTime();
 		var seconds = clockTime.sec.format("%02d");
 		var am_pm="";
@@ -2182,7 +2182,7 @@ class Drawer {
 
 	/* ------------------------ */
 	
-	function drawIntensityMin(dc, xIcon, yIcon, xText, yText, width, accentColor) {
+	private function drawIntensityMin(dc, xIcon, yIcon, xText, yText, width, accentColor) {
 		var intensity=0;
 
 		if (ActivityMonitor.getInfo().activeMinutesWeek.total != null and ActivityMonitor.getInfo().activeMinutesWeekGoal!=null) {
@@ -2221,7 +2221,7 @@ class Drawer {
 
 /* ------------------------ */
 	
-	function drawBodyBattery(dc, xIcon, yIcon, xText, yText, width) {
+	private function drawBodyBattery(dc, xIcon, yIcon, xText, yText, width) {
 
 		var offset = 0;
 		if (width>=360) { // Venu & D2 Air
@@ -2280,7 +2280,7 @@ class Drawer {
 
 /* ------------------------ */
 	
-	function drawStress(dc, xIcon, yIcon, xText, yText, width) {
+	private function drawStress(dc, xIcon, yIcon, xText, yText, width) {
 
 		var offsetY = 0;
 		if (width>=360) { // Fenix 6X & Enduro
@@ -2335,7 +2335,7 @@ class Drawer {
 /* ------------------------ */
 	// Add Vo2 Max - vo2maxRunning and vo2maxCycling from UserProfile.getProfile()
 
-	function drawVO2Max(dc, xIcon, yIcon, xText, yText, width, cycle) {	
+	private function drawVO2Max(dc, xIcon, yIcon, xText, yText, width, cycle) {	
 	
 		var text = null;
 
@@ -2401,7 +2401,7 @@ class Drawer {
 
 /* ------------------------ */
 	// Add respiration Rate (breaths per minute) - respirationRate from ActivityMonitor.getInfo()
-	function drawRespiration(dc, xIcon, yIcon, xText, yText, accentColor, width) {
+	private function drawRespiration(dc, xIcon, yIcon, xText, yText, accentColor, width) {
 
 		var text=null;    
        
@@ -2438,7 +2438,7 @@ class Drawer {
 /* ------------------------ */
 
 	// Add Recovery Time (hours) - timeToRecovery from ActivityMonitor.getInfo()
-	function drawRecoveryTime(dc, xIcon, yIcon, xText, yText, width) {	
+	private function drawRecoveryTime(dc, xIcon, yIcon, xText, yText, width) {	
           
 		var recovery = null;
 		if (ActivityMonitor.getInfo() has :timeToRecovery and ActivityMonitor.getInfo().timeToRecovery!=null){ 
@@ -2475,7 +2475,7 @@ class Drawer {
 
 	// Draw next Sun Event time
 	//(:memory) 
-(:tempo) function drawSunriseSunset(dc, xIcon, yIcon, xText, yText, width) {	
+(:tempo) private function drawSunriseSunset(dc, xIcon, yIcon, xText, yText, width) {	
           
 		// placeholder for SDK 5
 		var myTime = System.getClockTime(); 
