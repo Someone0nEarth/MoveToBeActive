@@ -36,7 +36,7 @@ class AnalogView extends WatchUi.WatchFace {
         //_fullScreenRefresh = true;
         //_partialUpdatesAllowed = (WatchUi.WatchFace has :onPartialUpdate);
 
-        Config.init();
+        Config.load();
 
         $.MtbA = new MtbA_functions($.inLowPower as Boolean);        
     }

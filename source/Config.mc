@@ -4,50 +4,83 @@ import Toybox.System;
 import Toybox.Graphics;
 
 class Config {
-
   private static const CURRENT_APP_VERSION = 534;
   private static const SCREEN_IS_ROUND_SHAPED = System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape;
 
   private static const COLOR_BRIGHT_LIME_GREEN = 0x55ff00;
   private static const COLOR_SATURATEDLIME_GREEN = 0xaaff000;
 
-  private static var mAccentColor = AppStorage.load(AppStorage.KEY_1_CFG_ACCENT_COLOR);
-  private static var mAccentColorID = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_COLOR_ID);
-  private static var mTickmarkAccentColor = loadOrSetDefault(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, false);
-  private static var mLightTheme as Boolean = loadOrSetDefault(AppStorage.KEY_32_CFG_LIGHT_THEME, false);
-  private static var mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
-  // prettier-ignore
-  private static var mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
-  private static var mWeatherCondition = loadOrSetDefault(AppStorage.KEY_25_CFG_WEATHER_CONDITION, true);
-  private static var mTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, true);
-  private static var mShowWeatherConditionName = loadOrSetDefault(AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, true);
-  private static var mBatteryIcon = loadOrSetDefault(AppStorage.KEY_26_CFG_BATTERY_ICON, true);
-  // prettier-ignore
-  private static var mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mAlarmToggle = loadOrSetDefault(AppStorage.KEY_8_CFG_ALARM_TOGGLE, true);
-  private static var mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, true);
-  private static var mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, HandsThicknessSettings.STANDARD);
-  private static var mRightBottomDF = loadOrSetDefault(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, 23);
-  private static var mRightTopDF = loadOrSetDefault(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, 23);
-  private static var mLeftTopDF = loadOrSetDefault(AppStorage.KEY_9_CFG_LEFT_TOP_DF, 27);
-  private static var mLeftMiddleDF = loadOrSetDefault(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, 27);
-  private static var mLeftBottomDF = loadOrSetDefault(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, 23);
-  private static var mBatteryEstFlag = loadOrSetDefault(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, false);
-  private static var mPressuretype = loadOrSetDefault(AppStorage.KEY_20_CFG_PRESSURE_TYPE, false);
-  private static var mAodUseAccentColor = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, false);
-  private static var mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
-  private static var mWindSpeedUnit = loadOrSetDefault(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, WindSpeedUnitSettings.KPH_OR_MPH);
-  private static var mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
-  // prettier-ignore
-  private static var mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mConditionalBatteryIconColor = loadOrSetDefault(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, true);
-  private static var mDateFontSize = loadOrSetDefault(AppStorage.KEY_21_CFG_DATE_FONT_SIZE, true);
-  // prettier-ignore
-  private static var mSecondsHand as Boolean = loadOrSetDefault(AppStorage.KEY_33_CFG_SECONDS_HAND, SCREEN_IS_ROUND_SHAPED ? false : true);
-  private static var mAppStorageConfigVersion = loadOrSetDefault(AppStorage.KEY_23_CFG_CURRENT_VERSION, 0);
+  private static var mAccentColor;
+  private static var mAccentColorID;
+  private static var mTickmarkAccentColor;
+  private static var mLightTheme;
+  private static var mGarminlogo;
+  private static var mHourLabels;
+  private static var mWeatherCondition;
+  private static var mTemperatureType;
+  private static var mShowWeatherConditionName;
+  private static var mBatteryIcon;
+  private static var mFontSize;
+  private static var mAlarmToggle;
+  private static var mBluetoothToggle;
+  private static var mHandsThickness;
+  private static var mRightBottomDF;
+  private static var mRightTopDF;
+  private static var mLeftTopDF;
+  private static var mLeftMiddleDF;
+  private static var mLeftBottomDF;
+  private static var mBatteryEstFlag;
+  private static var mPressuretype;
+  private static var mAodUseAccentColor;
+  private static var mDateFormat;
+  private static var mWindSpeedUnit;
+  private static var mTemperatureUnit;
+  private static var mHourLabelAccentColor;
+  private static var mConditionalBatteryIconColor;
+  private static var mDateFontSize;
+  private static var mSecondsHand;
+  private static var mAppStorageConfigVersion;
 
-  public static function init() as Void {
+  private static function init() {
+    mAccentColor = AppStorage.load(AppStorage.KEY_1_CFG_ACCENT_COLOR);
+    mAccentColorID = AppStorage.load(AppStorage.KEY_2_CFG_ACCENT_COLOR_ID);
+    mTickmarkAccentColor = loadOrSetDefault(AppStorage.KEY_18_CFG_TICKMARK_ACCENT_COLOR, false);
+    mLightTheme = loadOrSetDefault(AppStorage.KEY_32_CFG_LIGHT_THEME, false);
+    mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
+    mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
+    mWeatherCondition = loadOrSetDefault(AppStorage.KEY_25_CFG_WEATHER_CONDITION, true);
+    mTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, true);
+    mShowWeatherConditionName = loadOrSetDefault(AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, true);
+    mBatteryIcon = loadOrSetDefault(AppStorage.KEY_26_CFG_BATTERY_ICON, true);
+    mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
+    mAlarmToggle = loadOrSetDefault(AppStorage.KEY_8_CFG_ALARM_TOGGLE, true);
+    mBluetoothToggle = loadOrSetDefault(AppStorage.KEY_4_CFG_BLUETOOTH_TOGGLE, true);
+    mHandsThickness = loadOrSetDefault(AppStorage.KEY_13_CFG_HANDS_THICKNESS, HandsThicknessSettings.STANDARD);
+    mRightBottomDF = loadOrSetDefault(AppStorage.KEY_12_CFG_RIGHT_BOTTOM_DF, 23);
+    mRightTopDF = loadOrSetDefault(AppStorage.KEY_17_CFG_RIGHT_TOP_DF, 23);
+    mLeftTopDF = loadOrSetDefault(AppStorage.KEY_9_CFG_LEFT_TOP_DF, 27);
+    mLeftMiddleDF = loadOrSetDefault(AppStorage.KEY_10_CFG_LEFT_MIDDLE_DF, 27);
+    mLeftBottomDF = loadOrSetDefault(AppStorage.KEY_11_CFG_LEFT_BOTTOM_DF, 23);
+    mBatteryEstFlag = loadOrSetDefault(AppStorage.KEY_19_CFG_BATTERY_EST_FLAG, false);
+    mPressuretype = loadOrSetDefault(AppStorage.KEY_20_CFG_PRESSURE_TYPE, false);
+    mAodUseAccentColor = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, false);
+    mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
+    mWindSpeedUnit = loadOrSetDefault(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, WindSpeedUnitSettings.KPH_OR_MPH);
+    mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
+    // prettier-ignore
+    mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true);
+    mConditionalBatteryIconColor = loadOrSetDefault(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, true);
+    mDateFontSize = loadOrSetDefault(AppStorage.KEY_21_CFG_DATE_FONT_SIZE, true);
+    mSecondsHand = loadOrSetDefault(AppStorage.KEY_33_CFG_SECONDS_HAND, SCREEN_IS_ROUND_SHAPED ? false : true);
+    mAppStorageConfigVersion = loadOrSetDefault(AppStorage.KEY_23_CFG_CURRENT_VERSION, 0);
+  }
+
+  public static function load() as Void {
+    init();
+
     setAccentColorsIfNeeded();
+
+    adjustAccentColorForThemesLegacy();
 
     migrateStoredConfigIfNeeded();
 
@@ -72,6 +105,7 @@ class Config {
   public static function setLightTheme(value) {
     mLightTheme = value;
     AppStorage.persist(AppStorage.KEY_32_CFG_LIGHT_THEME, value);
+    adjustAccentColorForThemesLegacy();
   }
 
   public static function setGarminlogo(value) {
@@ -189,12 +223,12 @@ class Config {
     AppStorage.persist(AppStorage.KEY_33_CFG_SECONDS_HAND, value);
   }
 
-  private static function setPressureType(value as Boolean) {
+  public static function setPressureType(value as Boolean) {
     mPressuretype = value;
     AppStorage.persist(AppStorage.KEY_20_CFG_PRESSURE_TYPE, value);
   }
 
-  public static function setWindSpeedUnit(value as WindSpeedUnitSettings.WindSpeedUnit) as Void{
+  public static function setWindSpeedUnit(value as WindSpeedUnitSettings.WindSpeedUnit) as Void {
     mWindSpeedUnit = value;
     AppStorage.persist(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, value);
   }
@@ -251,7 +285,7 @@ class Config {
     return mBluetoothToggle;
   }
 
-  public static function getHandsThickness() as HandsThicknessSettings.HandsThicknessLevel{
+  public static function getHandsThickness() as HandsThicknessSettings.HandsThicknessLevel {
     return mHandsThickness;
   }
 
@@ -307,19 +341,18 @@ class Config {
     return mSecondsHand;
   }
 
-  public static function getWindSpeedUnit() as WindSpeedUnitSettings.WindSpeedUnit{
+  public static function getWindSpeedUnit() as WindSpeedUnitSettings.WindSpeedUnit {
     return mWindSpeedUnit;
   }
 
   public static function showWeather() as Boolean {
-    if (Toybox has :Weather and Toybox.Weather has :getCurrentConditions){
-        if(showWeatherCondition() || showWeatherConditionName()){
-            return true;
-        } 
+    if (Toybox has :Weather and (Toybox.Weather has :getCurrentConditions)) {
+      if (showWeatherCondition() || showWeatherConditionName()) {
+        return true;
+      }
     }
     return false;
   }
-
 
   private static function getCurrentVersion() as Numeric {
     return CURRENT_APP_VERSION;
@@ -354,6 +387,8 @@ class Config {
 
   private static function setAccentColorsIfNeeded() as Void {
     if (getAccentColor() == null or getAccentColorID() == null) {
+      //TODO Figuring out, why AMOLED color is different (and is this chekced & set only here?)
+      //TODO Should not light/dark theme to be considered?
       if (isAMOLEDDisplay()) {
         // AMOLED
         setAccentColorID(1);
@@ -365,23 +400,16 @@ class Config {
     }
   }
 
-  private static function adjustAccentColorForThemesLegacy(){
-        var accentColor = getAccentColor();
-        var accIndex = getAccentColorID();
+  private static function adjustAccentColorForThemesLegacy() {
+    var accIndex = getAccentColorID();
 
-        if(getLightTheme()){
-            var colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
-            if(colors[accIndex] != accentColor){
-                Config.setAccentColor(colors[accIndex]);
-                accentColor = colors[accIndex];
-            }
-        } else {
-            var colors = Application.loadResource(Rez.JsonData.mColors) as Array;
-            if(colors[accIndex] != accentColor){
-                Config.setAccentColor(colors[accIndex]);
-                accentColor = colors[accIndex];
-            }
-        }
+    if (getLightTheme()) {
+      var colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
+      Config.setAccentColor(colors[accIndex]);
+    } else {
+      var colors = Application.loadResource(Rez.JsonData.mColors) as Array;
+      Config.setAccentColor(colors[accIndex]);
+    }
   }
 
   private static function isAMOLEDDisplay() as Boolean {

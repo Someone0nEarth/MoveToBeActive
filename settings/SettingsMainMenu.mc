@@ -68,6 +68,8 @@ class SettingsMainMenuDelegate extends WatchUi.Menu2InputDelegate {
     } else if (item.getId().equals(:units)) {
       WatchUi.pushView(new SettingsUnitsMenu(), self, WatchUi.SLIDE_UP);
     }
+
+    Config.load();
   }
 
   function onBack() {
@@ -155,6 +157,7 @@ class AccentColorSettings extends WatchUi.Drawable {
   }
 
   public function setNextSetting() as String {
+    //TODO this theme accent color logic is used in multiple places, refactor to Config?
     var colors;
     if (Config.getLightTheme()) {
       colors = Application.loadResource(Rez.JsonData.mColorsWhite) as Array;
