@@ -33,6 +33,8 @@ class AnalogView extends WatchUi.WatchFace {
     //var canBurnIn=false;
     private var mUpTop=true;
     private var mDrawer as Drawer;
+    private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
+    private var mFontColor = (Config.getLightTheme() ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
 
     // Initialize variables for this view
     function initialize() {
@@ -43,7 +45,7 @@ class AnalogView extends WatchUi.WatchFace {
 
         Config.load();
 
-        mDrawer= new Drawer(mInLowPower);   
+        mDrawer= new Drawer(mInLowPower, mFontColor);   
     
     }
 
@@ -110,9 +112,9 @@ class AnalogView extends WatchUi.WatchFace {
         var targetDc = null;        
         //var MtbA = new MtbA_functions();
         //var check = Storage.getValue(21);
-        var canBurnIn=System.getDeviceSettings().requiresBurnInProtection;
+        
         //var accentColor = config[0];
-        var accentColor = Config.getAccentColor();
+        
         var tickmarkColor = Config.getTickmarkAccentColor();
 
         // We always want to refresh the full screen when we get a regular onUpdate call.
@@ -128,37 +130,75 @@ class AnalogView extends WatchUi.WatchFace {
 
         var width = targetDc.getWidth();
         var height = targetDc.getHeight();
+        var screenCenterPoint = [width/2, height/2];
 
-        //System.println(width);
-        //System.println(height);
+        var accentColor;
+        var arborColor;
+        var showSecondHand;
+        var borderColor=Graphics.COLOR_BLACK;
 
-        //var labels=Storage.getValue(5);
-
-        if(mInLowPower and canBurnIn) { // aod on
-        	if (dc has :setAntiAlias) {
-        		dc.setAntiAlias(false);
-        	}
-            
-            mUpTop=!mUpTop;
-            //targetDc.clearClip();
-            targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
-            targetDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
-
-            if(tickmarkColor){ //tickmark color toggle
-                drawBackground(dc);
-                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+        if(mInLowPower and mCanBurnIn) { // aod on
+           drawAOD(dc, targetDc, width, tickmarkColor);
+           showSecondHand = false;
+           if(Config.getAodUseAccentColor()) {
+                accentColor = Config.getAccentColor();      
+                arborColor=Graphics.COLOR_WHITE;
             } else {
-                mDrawer.drawHashMarks(targetDc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
-                drawBackground(dc);
-            }
-
-            // Draw the tick marks around the edges of the screen
-            
-            //drawBackground(dc);
-            //dc.drawBitmap(0, 0, _offscreenBuffer);
+                accentColor=Graphics.COLOR_LT_GRAY;
+                arborColor=Graphics.COLOR_LT_GRAY;
+            } 
+          
         } else {
+            if((!mInLowPower && Config.getSecondsHand())){
+              showSecondHand = true;
 
-            // Fill the entire background
+            } else {
+              showSecondHand = false;
+            }
+          accentColor = Config.getAccentColor();
+          if(mFontColor == Graphics.COLOR_BLACK){
+              arborColor=Graphics.COLOR_LT_GRAY;
+          } else {
+              arborColor=Graphics.COLOR_WHITE;
+          }
+          drawNormal(dc, targetDc, width, height, tickmarkColor, accentColor);
+        }
+
+        var clockTime = System.getClockTime();
+        
+		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), accentColor, arborColor, borderColor, clockTime);
+
+       if (mInLowPower and mCanBurnIn)  {
+            //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
+            mDrawer.drawCheckboard(dc, width, height, mUpTop);
+        }
+
+        if(showSecondHand){
+            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), accentColor, arborColor, borderColor, clockTime);
+        }
+    }
+
+    private function drawAOD(dc as Dc, targetDc as Dc, width as Number, tickmarkColor as Boolean) as Void {
+      if (dc has :setAntiAlias) {
+        dc.setAntiAlias(false);
+        }
+            
+      mUpTop=!mUpTop;
+      //targetDc.clearClip();
+      targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
+      targetDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height   
+      if(tickmarkColor){ //tickmark color toggle
+          drawBackground(dc);
+          mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+      } else {
+          mDrawer.drawHashMarks(targetDc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+          drawBackground(dc);
+      }
+
+    }
+
+    private function drawNormal(dc as Dc, targetDc as Dc, width as Number, height as Number, tickmarkColor as Boolean, accentColor as Boolean) as Void {
+     // Fill the entire background
             if (Config.getLightTheme()){ // Light Theme
                 targetDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
             } else { // Dark Theme
@@ -171,7 +211,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
+                mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
             }
 
             if (dc has :setAntiAlias) {
@@ -180,7 +220,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width<360){ // With anti-alias for MIP displays
-                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
+                mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
             }
 
             // Garmin Logo check
@@ -355,25 +395,6 @@ class AnalogView extends WatchUi.WatchFace {
                 mDrawer.drawDateString( dc, width / 2, position[5] + (width<=240 ? 5 : 0 ) + (width==218 ? 3 : 0 ), Config.getDateFormat(), Config.getDateFontSize()); // offsets needed because of size of Garmin Logo compared to Date Font
             }
 
-        } 
-        
-		//Draw Hour and Minute hands
-		mDrawer.drawHands(dc, width, height, accentColor, Config.getHandsThickness(), mInLowPower, mUpTop, Config.getAodUseAccentColor());
-
-        /*
-        if (_partialUpdatesAllowed) {
-            // If this device supports partial updates and they are currently
-            // allowed run the onPartialUpdate method to draw the second hand.
-            onPartialUpdate(dc);
-        } else if (inLowPower==false) {
-            // Otherwise, if we are out of sleep mode, draw the second hand
-            // directly in the full update method.
-
-            //call the seconds hand here
-        }
-
-        _fullScreenRefresh = false;
-        */
     }
 
 

@@ -18,12 +18,13 @@ class Drawer {
     private var mIconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 	private var mScreenShape = System.getDeviceSettings().screenShape;
 	private var mFontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
-	private var mFontColor = (Config.getLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
+	private var mFontColor;
 	private var mWeatherConditionName as String = "";
 	private var mLowPower as Boolean;
 
-	function initialize(inLowPower) {
+	function initialize(inLowPower, fontColor) {
 		mLowPower = inLowPower;
+        mFontColor = fontColor;
 	}
 
 	// This function is used to generate the coordinates of the 4 corners of the polygon
@@ -1323,10 +1324,7 @@ class Drawer {
 	/* ------------------------ */
 	
 	// Draw Hour and Minute Hands
-	function drawHands(dc, width, height, accentColor, thickInd as HandsThicknessSettings.HandsThicknessLevel, aod, upTop, AODColor) {	
-		var clockTime = System.getClockTime();
-		var screenCenterPoint = [width/2, height/2];
-
+	function drawHourAndMinuteHands(dc, width, height, screenCenterPoint, thickInd as HandsThicknessSettings.HandsThicknessLevel, accentColor, arborColor, borderColor, clockTime) {	
 		var hourHandAngle = Math.PI/6*(1.0*clockTime.hour+clockTime.min/60.0);
 		
 		// Correct widths and lengths depending on resolution
@@ -1390,18 +1388,8 @@ class Drawer {
 				handWidth = handWidth-4;
 			}
 		}
-		
-		var borderColor=Graphics.COLOR_BLACK, arborColor=Graphics.COLOR_LT_GRAY; // colors for not AOD mode
-		var BurnIn = System.getDeviceSettings().requiresBurnInProtection;
-		if (aod==true and BurnIn==true) { //AOD mode ON
-            if(!AODColor) {
-                accentColor=Graphics.COLOR_LT_GRAY;
-            } 
-			
-			//arborColor=Graphics.COLOR_LT_GRAY;
-			//borderColor=Graphics.COLOR_BLACK;
-		}
 
+        //TODO figuring this out
 		if (accentColor==5592405){ // Came from MtbA White
 			accentColor=Graphics.COLOR_LT_GRAY;
 		}		
@@ -1410,7 +1398,7 @@ class Drawer {
 		dc.setColor(borderColor, Graphics.COLOR_TRANSPARENT); //(centerPoint, angle, handLength, tailLength, width, triangle)
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.485, 0, Math.ceil(handWidth+(width*0.01)), triangle)); // hour hand border
 
-		dc.setColor(((aod==true and BurnIn==true and AODColor != true) or (mFontColor == Graphics.COLOR_BLACK)) ? arborColor : Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT); // Light gray if AOD mode ON, White if not (or MIP display)
+		dc.setColor(arborColor, Graphics.COLOR_TRANSPARENT); 
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.54 , 0, handWidth, triangle-0.01)); // hour hand
 		
 		// Draw the minute hand.
@@ -1428,8 +1416,26 @@ class Drawer {
 		dc.fillCircle(width / 2, height / 2, handWidth*0.65-offsetOuterCircle); // *0.65
 		dc.setColor(arborColor, Graphics.COLOR_WHITE);
 		dc.fillCircle(width / 2, height / 2, handWidth*0.65-offsetInnerCircle); // -4
+	}
 
-		if (aod==true and BurnIn==true)  {
+    public function drawSecondHand(dc, width, height, screenCenterPoint, handWidth, accentColor, arborColor, borderColor, clockTime) {
+		var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
+		dc.setColor(borderColor,Graphics.COLOR_BLACK);
+		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, (width/15)+2, Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //tip rectangle
+		dc.setColor(accentColor, Graphics.COLOR_WHITE);
+		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
+		// tip in different color
+		if (mFontColor == Graphics.COLOR_WHITE) { // Dark Theme
+			dc.setColor(borderColor,Graphics.COLOR_BLACK);
+			dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, -(width/2.25), Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //rectangle
+		}
+		dc.setColor(arborColor, Graphics.COLOR_TRANSPARENT);
+		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, -(width/2.23), Math.ceil(handWidth-(width*0.0035))/2.75, 1.0)); //rectangle
+
+    }
+        
+
+    public function drawCheckboard(dc, width as Number, height as Number, upTop as Boolean) {
 			var checkerboard = Application.loadResource(Rez.Fonts.Checkerboard);
 			dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
 			for (var row=(upTop) ? 1 : 0; row < height+48; row += 48) {
@@ -1438,25 +1444,7 @@ class Drawer {
 				}
 			}
 			dc.fillRectangle( 0, 0 , width, 1); // Using Font
-		} else if(Config.getSecondsHand()==true){
-			if (BurnIn==true or mLowPower==false){ // AMOLED or MIP not in low-power mode
-				// Seconds hand
-				var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
-				dc.setColor(borderColor,Graphics.COLOR_BLACK);
-				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, (width/15)+2, Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //tip rectangle
-				dc.setColor(accentColor, Graphics.COLOR_WHITE);
-				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
-				// tip in different color
-				if (mFontColor == Graphics.COLOR_WHITE) { // Dark Theme
-					dc.setColor(borderColor,Graphics.COLOR_BLACK);
-					dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, -(width/2.25), Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //rectangle
-				}
-				dc.setColor(((aod==true and BurnIn==true and AODColor != true) or (accentColor == Graphics.COLOR_WHITE)) ? arborColor : Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT); // Light gray if AOD mode ON, White if not (or MIP display)
-				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, -(width/2.23), Math.ceil(handWidth-(width*0.0035))/2.75, 1.0)); //rectangle
-			}
-		}
-
-	}
+    }
     
 	/* ------------------------ */
 	
