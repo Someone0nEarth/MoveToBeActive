@@ -13,17 +13,17 @@ import Toybox.Lang;
 import Toybox.Application;
 import Toybox.Time;
 
-class MtbA_functions {
+class Drawer {
 	
-  const IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
-	const screenShape = System.getDeviceSettings().screenShape;
-	var fontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
-	var fontColor = (Config.getLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
-	var mWeatherConditionName as String = "";
-	var lowPower as Boolean;
+    private var mIconsFont = Application.loadResource(Rez.Fonts.IconsFont);
+	private var mScreenShape = System.getDeviceSettings().screenShape;
+	private var mFontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
+	private var mFontColor = (Config.getLightTheme() == true ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE); //TODO
+	private var mWeatherConditionName as String = "";
+	private var mLowPower as Boolean;
 
 	function initialize(inLowPower) {
-		lowPower = inLowPower;
+		mLowPower = inLowPower;
 	}
 
 	// This function is used to generate the coordinates of the 4 corners of the polygon
@@ -62,7 +62,7 @@ class MtbA_functions {
 
       
 			// Draw hashmarks differently depending on screen geometry.
-			if (System.SCREEN_SHAPE_ROUND == screenShape) { //check if round display		//TODO is this redundant with :round tag? (also retangle)			
+			if (System.SCREEN_SHAPE_ROUND == mScreenShape) { //check if round display		//TODO is this redundant with :round tag? (also retangle)			
 				var increment = (aod==true) ? 5 : 1;
 
 				// Loop through each minute and draw tick marks
@@ -91,7 +91,7 @@ class MtbA_functions {
 								if ((!showBoolean) and (i == 0 or i == 30)) {
 										dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 								} else {
-						          if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+						          if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 										if (width < 360){ //TODO magic number
 											dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT); // Using lighter tone for MIP displays
 										} else {
@@ -272,7 +272,7 @@ class MtbA_functions {
 				y = y + 3;
 			}
 
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			//dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, size ? y : y+(dc.getWidth()*0.017), size ? Graphics.FONT_TINY : Graphics.FONT_XTINY, dateStr, Graphics.TEXT_JUSTIFY_CENTER);   
     }
@@ -291,15 +291,15 @@ class MtbA_functions {
                 
 			var settings = System.getDeviceSettings().phoneConnected; // maybe .connectionAvailable or .ConnectionInfo.state ?
 			if (settings) {
-				if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 					dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 				} else {
 					dc.setColor(0x0055AA, Graphics.COLOR_TRANSPARENT);
 				}
 			} else {
-					dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
 			}
-			dc.drawText( x - offset, y - offset, IconsFont, "8", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText( x - offset, y - offset, mIconsFont, "8", Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     /* ------------------------ */	
@@ -320,12 +320,12 @@ class MtbA_functions {
             dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
         } else {
 						if (width!=208){
-							dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
+							dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_DK_GRAY : Graphics.COLOR_LT_GRAY), Graphics.COLOR_TRANSPARENT);
 						} else { // Fr55
-							dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+							dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 						}
         }
-        dc.drawText( x - offset - LEDoffset, y - offset, IconsFont, ":", Graphics.TEXT_JUSTIFY_CENTER); 
+        dc.drawText( x - offset - LEDoffset, y - offset, mIconsFont, ":", Graphics.TEXT_JUSTIFY_CENTER); 
     }
 	
 	/* ------------------------ */	
@@ -338,7 +338,7 @@ class MtbA_functions {
 				if (hourLabel) {
 					dc.setColor(accent, Graphics.COLOR_TRANSPARENT);  
 				} else if (width < 360){ // Using lighter tone for MIP displays 
-						dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);  
+						dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);  
 				} else { // Darker tone for AMOLED
 	    		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);  
 				}
@@ -422,7 +422,7 @@ class MtbA_functions {
 			//weather.condition = 6;
 			var WeatherFont = Application.loadResource(Rez.Fonts.WeatherFont);			
 
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if (cond == 20) { // Cloudy
 				dc.drawText(x2-1, y-1, WeatherFont, "I", Graphics.TEXT_JUSTIFY_RIGHT); // Cloudy
 				if (clockTime >= sunset or clockTime < sunrise) { 
@@ -548,16 +548,16 @@ class MtbA_functions {
 		}
 		
 		if (temp != null){ // and temp instanceof Number
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if ((minTemp != null) and (maxTemp != null)) { //  and minTemp instanceof Number ;  and maxTemp instanceof Number
 				if (temp<=minTemp){
-					if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+					if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 						dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT); // Light Blue 0x55AAFF
 					} else { // Light Theme
 						dc.setColor(0x0055AA, Graphics.COLOR_TRANSPARENT); 
 					}
 				} else if (temp>=maxTemp){
-					if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+					if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 						dc.setColor(0xFFAA00, Graphics.COLOR_TRANSPARENT); // Light Orange
 					} else { // Light Theme
 						dc.setColor(0xFF5500, Graphics.COLOR_TRANSPARENT);
@@ -569,13 +569,13 @@ class MtbA_functions {
 			temp=temp.format("%d");
 
 			dc.drawText(x, y+offset, Graphics.FONT_XTINY, temp, Graphics.TEXT_JUSTIFY_LEFT); // + units
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x + dc.getTextWidthInPixels(temp,Graphics.FONT_XTINY), y+offset , Graphics.FONT_XTINY, units, Graphics.TEXT_JUSTIFY_LEFT); 
 		}
 	}
 	
 	function drawLocation(dc, x, y) {
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, y, Graphics.FONT_XTINY, mWeatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
@@ -595,8 +595,8 @@ class MtbA_functions {
 			}
 			
 			// Text
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-			dc.drawText( xText, yText, fontSize, formattedNotificationAmount, Graphics.TEXT_JUSTIFY_LEFT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+			dc.drawText( xText, yText, mFontSize, formattedNotificationAmount, Graphics.TEXT_JUSTIFY_LEFT);
 			
 			if (width==240 and dc.getFontHeight(0)>=26){ //Fenix 5 Plus
 				yIcon=yIcon-0.5;
@@ -613,14 +613,14 @@ class MtbA_functions {
 			// Icon
 			if (formattedNotificationAmount.toNumber() == 0){ // when notification count is zero
 //				if (width>=360){ //AMOLED (2021)
-					dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 //				} else { // MIP, for better readability
 //					dc.setColor( (accentColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_WHITE), Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
 //				}
 			} else {
 				dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 			}
-			dc.drawText( xIcon, yIcon, IconsFont, "5", Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText( xIcon, yIcon, mIconsFont, "5", Graphics.TEXT_JUSTIFY_CENTER);
 		}
 	}
 	
@@ -691,7 +691,7 @@ class MtbA_functions {
 		// Choose the colour of the heart rate icon based on heart rate zone
 		var heartRateIconColour;
 		
-		if (fontColor==Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor==Graphics.COLOR_WHITE){ // Dark Theme
 			heartRateIconColour = Graphics.COLOR_DK_GRAY;
 			
 			if (heartRateZone == 1) { // Resting / Light load
@@ -750,7 +750,7 @@ class MtbA_functions {
 		}	else if(width==240){ // Fenix 6s
 				xText = xText-0.5;
 				hrIconY = hrIconY - 5;
-				if (System.SCREEN_SHAPE_ROUND != screenShape){ //rectangle
+				if (System.SCREEN_SHAPE_ROUND != mScreenShape){ //rectangle
 					hrIconY = hrIconY + 1;
 					xIcon = xIcon - 1;
 					offset = 4;
@@ -767,7 +767,7 @@ class MtbA_functions {
 
 
 		var FontAdj= 0;
-		if (fontSize==1){ //big
+		if (mFontSize==1){ //big
 				if (width==260 and dc.getFontHeight(Graphics.FONT_TINY)==29) { //Fenix 6
 						FontAdj=6;
 				} else if (width==260 and dc.getFontHeight(Graphics.FONT_TINY)==27) { // Vivoactive 4
@@ -791,9 +791,9 @@ class MtbA_functions {
 
 		// Render heart rate icon and text
 		dc.setColor(heartRateIconColour, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xIcon + offset/3 , hrIconY - 1, IconsFont, "3", Graphics.TEXT_JUSTIFY_CENTER); // Icon
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText, hrIconY - offset - FontAdj , fontSize, heartRateText, Graphics.TEXT_JUSTIFY_LEFT);	// Text	
+		dc.drawText( xIcon + offset/3 , hrIconY - 1, mIconsFont, "3", Graphics.TEXT_JUSTIFY_CENTER); // Icon
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText, hrIconY - offset - FontAdj , mFontSize, heartRateText, Graphics.TEXT_JUSTIFY_LEFT);	// Text	
 	}
 
 	/* ------------------------ */
@@ -806,7 +806,7 @@ class MtbA_functions {
 		var height=dc.getHeight();
 				
 		// Choose the colour of the battery based on it's state
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			batteryIconColour = Graphics.COLOR_LT_GRAY;
 			if (greyIcon!=false){ // Show battery colors
 				if (battery <= 20) {
@@ -844,7 +844,7 @@ class MtbA_functions {
 			offset = -1;
 		} else if (width==416) { // Venu 2
 			offsetLED = 2;
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape) { // Venu sq
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { // Venu sq
 			offsetLED = -5;
 			offset = offset - 3;
 			yBattery = yBattery - 3;
@@ -864,7 +864,7 @@ class MtbA_functions {
 
 		dc.setColor(batteryIconColour, Graphics.COLOR_TRANSPARENT); 
 		//dc.fillRoundedRectangle(x, y, width, height, radius)
-		dc.fillRoundedRectangle(xBattery, yBattery , width*0.135 + (System.SCREEN_SHAPE_ROUND != screenShape ? 14 : 0) + (width==240 and dc.getFontHeight(0)>=26 and System.SCREEN_SHAPE_ROUND == screenShape ? 12 : 0), height*0.0625 - offsetLED, 2);
+		dc.fillRoundedRectangle(xBattery, yBattery , width*0.135 + (System.SCREEN_SHAPE_ROUND != mScreenShape ? 14 : 0) + (width==240 and dc.getFontHeight(0)>=26 and System.SCREEN_SHAPE_ROUND == mScreenShape ? 12 : 0), height*0.0625 - offsetLED, 2);
 		dc.fillRoundedRectangle(xContact, yContact , width*0.018, height*0.039 - offset, 2);
 	}
 	
@@ -921,7 +921,7 @@ class MtbA_functions {
 		}  else if (width<=218 or width==240) { // Vivoactive 4S & Fenix 6S & Vivoactive 3 Music
 			if (width==218 and dc.getFontHeight(1)==23) { // FR255s
 				offset = 0;			
-			} else if (System.SCREEN_SHAPE_ROUND == screenShape) { 
+			} else if (System.SCREEN_SHAPE_ROUND == mScreenShape) { 
 				offset = -0.5;	
 				if (width==240 and check>=26){ //Fenix 5 Plus or FR55
 					offset = -2.5;
@@ -941,7 +941,7 @@ class MtbA_functions {
 			offsetLED = -1;
 		}
 
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
 		} else { // Light Theme
 			if (width==208 and battery > 40){
@@ -1060,18 +1060,18 @@ class MtbA_functions {
 		}
 
 		if (width>=360){ //AMOLED (2021)
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
 		}
-		dc.drawText( xIcon, yIcon, IconsFont, "4", Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawText( xIcon, yIcon, mIconsFont, "4", Graphics.TEXT_JUSTIFY_CENTER);
 		
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText, yText, fontSize, text, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText, yText, mFontSize, text, Graphics.TEXT_JUSTIFY_LEFT);
 		
 		//if (System.getSystemStats().charging==false and Storage.getValue(21)!=null){
 		if (text.toNumber() instanceof Number) {
-			dc.drawText(xText + dc.getTextWidthInPixels(text,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 ? 1 : 0)),	0, "%/d", Graphics.TEXT_JUSTIFY_LEFT);
+			dc.drawText(xText + dc.getTextWidthInPixels(text,mFontSize), yText + mFontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 ? 1 : 0)),	0, "%/d", Graphics.TEXT_JUSTIFY_LEFT);
 		}		
 		
 		return true;
@@ -1104,12 +1104,12 @@ class MtbA_functions {
 			}		
 
 			if (width!=208){
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // FR55
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
 
-			dc.drawText( x + offsetX, y + offsetY , IconsFont, "Y", Graphics.TEXT_JUSTIFY_LEFT);
+			dc.drawText( x + offsetX, y + offsetY , mIconsFont, "Y", Graphics.TEXT_JUSTIFY_LEFT);
 			return true;
 		} else {
 			//dndIcon = null;
@@ -1131,13 +1131,13 @@ class MtbA_functions {
 		var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 7;	
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape){ // Venu sq
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape){ // Venu sq
 			offset = -2;
 		}
 		
 		if (pulseOx!= null) {
 			// Change the colour of the pulse Ox icon based on current value
-			if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 				if (pulseOx >= 95) { // Normal
 					if (accentColor == 0xAAFF00) {
 						dc.setColor(0xAAFF00, Graphics.COLOR_TRANSPARENT); /* Vivomove GREEN */
@@ -1167,10 +1167,10 @@ class MtbA_functions {
 				}
 			}
 
-			dc.drawText( xIcon, yIcon + offset , IconsFont, "Q", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.drawText( xIcon, yIcon + offset , mIconsFont, "Q", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			//dc.drawText( xText, yText , fontSize, Lang.format("$1$%", [pulseOx.format("%.0f")] ), Graphics.TEXT_JUSTIFY_LEFT);
-			dc.drawText( xText, yText, fontSize, pulseOx.format("%.0f") + "%", Graphics.TEXT_JUSTIFY_LEFT);
+			dc.drawText( xText, yText, mFontSize, pulseOx.format("%.0f") + "%", Graphics.TEXT_JUSTIFY_LEFT);
 			return true;
 		} else {
 			return false;
@@ -1198,9 +1198,9 @@ class MtbA_functions {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
 	  }
 	    
@@ -1213,9 +1213,9 @@ class MtbA_functions {
 			offset = 0.5;
 		}
 	    
-		dc.drawText(xIcon, yIcon + offset , IconsFont, "1", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText, yText , fontSize, floorsCount, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.drawText(xIcon, yIcon + offset , mIconsFont, "1", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText, yText , mFontSize, floorsCount, Graphics.TEXT_JUSTIFY_LEFT);
 		return true;
     }
 
@@ -1233,7 +1233,7 @@ class MtbA_functions {
 		} else if (width==260 or width==218){
 			offsetY = 0.5;
 			xIcon = xIcon+1;
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape){ // Venu sq
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape){ // Venu sq
 			yIcon = yIcon-1.5;
 			xIcon = xIcon+1;
 		}
@@ -1248,16 +1248,16 @@ class MtbA_functions {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
 		} 
-		dc.drawText( xIcon, yIcon + offsetY, IconsFont, "0", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offsetY, mIconsFont, "0", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 		
 		// Steps Text	        
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText , yText, fontSize, distStr + unit, Graphics.TEXT_JUSTIFY_LEFT); // Step Text
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText , yText, mFontSize, distStr + unit, Graphics.TEXT_JUSTIFY_LEFT); // Step Text
 	}
 
 
@@ -1294,7 +1294,7 @@ class MtbA_functions {
     var offsetY = 0;
 		if (width>=360) { // Venu & D2 Air
 			offsetY = 7;	
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape) { // Venu sq
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { // Venu sq
 			offsetY = -2;
 		} else if (width==240 and dc.getFontHeight(0)>=26){ // Fenix 5 Plus
 			offsetY = -1;
@@ -1307,16 +1307,16 @@ class MtbA_functions {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width==360 or width==390 or width==416){ //AMOLED
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
 		} 
-		dc.drawText( xIcon, yIcon + offsetY, IconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offsetY, mIconsFont, "7", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 		
 		// Distance Text	        
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText , yText, fontSize, distStr + unit, Graphics.TEXT_JUSTIFY_LEFT); // Step Distance
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText , yText, mFontSize, distStr + unit, Graphics.TEXT_JUSTIFY_LEFT); // Step Distance
 	}
 
 
@@ -1410,7 +1410,7 @@ class MtbA_functions {
 		dc.setColor(borderColor, Graphics.COLOR_TRANSPARENT); //(centerPoint, angle, handLength, tailLength, width, triangle)
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.485, 0, Math.ceil(handWidth+(width*0.01)), triangle)); // hour hand border
 
-		dc.setColor(((aod==true and BurnIn==true and AODColor != true) or (fontColor == Graphics.COLOR_BLACK)) ? arborColor : Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT); // Light gray if AOD mode ON, White if not (or MIP display)
+		dc.setColor(((aod==true and BurnIn==true and AODColor != true) or (mFontColor == Graphics.COLOR_BLACK)) ? arborColor : Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT); // Light gray if AOD mode ON, White if not (or MIP display)
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.54 , 0, handWidth, triangle-0.01)); // hour hand
 		
 		// Draw the minute hand.
@@ -1439,7 +1439,7 @@ class MtbA_functions {
 			}
 			dc.fillRectangle( 0, 0 , width, 1); // Using Font
 		} else if(Config.getSecondsHand()==true){
-			if (BurnIn==true or lowPower==false){ // AMOLED or MIP not in low-power mode
+			if (BurnIn==true or mLowPower==false){ // AMOLED or MIP not in low-power mode
 				// Seconds hand
 				var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
 				dc.setColor(borderColor,Graphics.COLOR_BLACK);
@@ -1447,7 +1447,7 @@ class MtbA_functions {
 				dc.setColor(accentColor, Graphics.COLOR_WHITE);
 				dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
 				// tip in different color
-				if (fontColor == Graphics.COLOR_WHITE) { // Dark Theme
+				if (mFontColor == Graphics.COLOR_WHITE) { // Dark Theme
 					dc.setColor(borderColor,Graphics.COLOR_BLACK);
 					dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, -(width/2.25), Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //rectangle
 				}
@@ -1505,7 +1505,7 @@ class MtbA_functions {
     var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 7;	
-		}	else if (System.SCREEN_SHAPE_ROUND != screenShape) { // Venu sq
+		}	else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { // Venu sq
 			offset = -2;	
 		} else if (width==240 and dc.getFontHeight(0)>=26){ //Fenix 5 Plus
 			offset = -1;	
@@ -1513,15 +1513,15 @@ class MtbA_functions {
 	    
 		// Icon
 		if (width==360 or width==390 or width==416){ //AMOLED
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}		
-		dc.drawText( xIcon, yIcon + offset , IconsFont, "6", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offset , mIconsFont, "6", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
 		// Text
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText , yText , fontSize, calories, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText , yText , mFontSize, calories, Graphics.TEXT_JUSTIFY_LEFT);
 
     }
 
@@ -1555,11 +1555,11 @@ class MtbA_functions {
 		}
         
 		if (width==360 or width==390 or width==416){ //AMOLED
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}
-		dc.drawText( xIcon, yIcon + offsetY, IconsFont, ";", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offsetY, mIconsFont, ";", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
         
 		elevationStr = elevation;			
 
@@ -1568,7 +1568,7 @@ class MtbA_functions {
 			if (elevationMetric == System.UNIT_METRIC) {
 				unit = "m";				
 				if (elevationStr >= 1000) {
-					if (fontSize==1 and width<=240 and side==2){
+					if (mFontSize==1 and width<=240 and side==2){
 						unit = "km";
 					}
 				}
@@ -1576,7 +1576,7 @@ class MtbA_functions {
 				unit = "ft";
 				elevationStr = elevationStr * 3.28084;
 			}
-			if (elevationStr >= 1000 and elevationMetric == System.UNIT_METRIC and fontSize==1 and width<=240 and side==2) {
+			if (elevationStr >= 1000 and elevationMetric == System.UNIT_METRIC and mFontSize==1 and width<=240 and side==2) {
 				elevationStr = elevationStr * 0.001;
 				//elevationStr = Lang.format("$1$", [elevationStr.format("%.1f")] );
 				elevationStr = elevationStr.format("%.1f");
@@ -1589,9 +1589,9 @@ class MtbA_functions {
 			unit = "N/A";
 		}
        		
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText, yText, fontSize, elevationStr, Graphics.TEXT_JUSTIFY_LEFT); // Elevation in m or ft
-		dc.drawText(xText + dc.getTextWidthInPixels(elevationStr,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 or width==260? 1 : 0) + (width==208? 1 : 0)),	0, unit, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText, yText, mFontSize, elevationStr, Graphics.TEXT_JUSTIFY_LEFT); // Elevation in m or ft
+		dc.drawText(xText + dc.getTextWidthInPixels(elevationStr,mFontSize), yText + mFontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 or width==260? 1 : 0) + (width==208? 1 : 0)),	0, unit, Graphics.TEXT_JUSTIFY_LEFT);
 
 	}
 
@@ -1621,14 +1621,14 @@ class MtbA_functions {
 		var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 7;	
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape){ // Venu sq
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape){ // Venu sq
 			offset = -2;
 		}
 
-		dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 
 		if (pressure!=null and pressure instanceof Float){
-			if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 				if(pressure<100914.4) {
 					dc.setColor(0xFFAA00, Graphics.COLOR_TRANSPARENT); 
 				} else if (pressure>102268.9){
@@ -1642,7 +1642,7 @@ class MtbA_functions {
 				} 				
 			}
 
-			dc.drawText( xIcon, yIcon + offset , IconsFont, "@", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+			dc.drawText( xIcon, yIcon + offset , mIconsFont, "@", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
     // Pressure Text	
 //		if (pressure != null and pressure instanceof Float) {
@@ -1660,8 +1660,8 @@ class MtbA_functions {
 			pressure = "";
 		}
        		
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText, yText, fontSize, pressure, Graphics.TEXT_JUSTIFY_LEFT); // pressure in hPa
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText, yText, mFontSize, pressure, Graphics.TEXT_JUSTIFY_LEFT); // pressure in hPa
 	}
 
 
@@ -1685,7 +1685,7 @@ class MtbA_functions {
 	
     var offset = 0;
 		if (width<=280){
-			if (System.SCREEN_SHAPE_ROUND == screenShape) {
+			if (System.SCREEN_SHAPE_ROUND == mScreenShape) {
 				xIcon = xIcon - 1;
 				xText = xText - 6;
 			} else { // Venu sq
@@ -1699,7 +1699,7 @@ class MtbA_functions {
 
 		var precipitationIconColour;
 		
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			if (precipitation >= 90) { // Very High
 				precipitationIconColour = 0xAA55FF; // Violet
 			} else if (precipitation >= 60) { // High
@@ -1726,9 +1726,9 @@ class MtbA_functions {
 		}
 
 	  dc.setColor(precipitationIconColour, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xIcon, yIcon + offset , IconsFont, "S", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText - offset , yText , fontSize, precipitation + "%", Graphics.TEXT_JUSTIFY_LEFT);
+		dc.drawText( xIcon, yIcon + offset , mIconsFont, "S", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText - offset , yText , mFontSize, precipitation + "%", Graphics.TEXT_JUSTIFY_LEFT);
 		
 		return true;
     }
@@ -1768,7 +1768,7 @@ class MtbA_functions {
     var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 7;	
-		}	else if (System.SCREEN_SHAPE_ROUND != screenShape) { // Venu sq
+		}	else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { // Venu sq
 			offset = -2;	
 		} else if (width==240 and dc.getFontHeight(0)>=26){ //Fenix 5 Plus
 			offset = -1;
@@ -1778,25 +1778,25 @@ class MtbA_functions {
 		//precipitationIconColour = 0xAA55FF; // Violet
 
 		if (width>=360){ //AMOLED
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP, for better readability
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		}
-		dc.drawText( xIcon, yIcon + offset , IconsFont, ".", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offset , mIconsFont, ".", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
 		// correcting a bug introduced by System 7 SDK
 		minTemp=minTemp.format("%d");
 		maxTemp=maxTemp.format("%d");
 
-		dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Light Blue 0x00FFFF / 0x55AAFF
-		dc.drawText( xText, yText , fontSize, minTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
+		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Light Blue 0x00FFFF / 0x55AAFF
+		dc.drawText( xText, yText , mFontSize, minTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
 
-		dc.setColor((fontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Purple 0xAA55FF
-		dc.drawText( xText + dc.getTextWidthInPixels(minTemp+"/",fontSize) , yText , fontSize, maxTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
+		dc.setColor((mFontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Purple 0xAA55FF
+		dc.drawText( xText + dc.getTextWidthInPixels(minTemp+"/",mFontSize) , yText , mFontSize, maxTemp, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
 
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText + dc.getTextWidthInPixels(minTemp,fontSize), yText , fontSize, "/", Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
-		dc.drawText( xText + dc.getTextWidthInPixels(minTemp+"/"+maxTemp,fontSize), yText , fontSize, units, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText + dc.getTextWidthInPixels(minTemp,mFontSize), yText , mFontSize, "/", Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
+		dc.drawText( xText + dc.getTextWidthInPixels(minTemp+"/"+maxTemp,mFontSize), yText , mFontSize, units, Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$%",[precipitation])
 		
 		return true;
     }
@@ -1827,7 +1827,7 @@ class MtbA_functions {
 			xIcon = xIcon + 1;
 		} else if(width==240){
 			xIcon = xIcon + 1;
-			if (System.SCREEN_SHAPE_ROUND == screenShape) { // not rectangle
+			if (System.SCREEN_SHAPE_ROUND == mScreenShape) { // not rectangle
 				offsetY = -0.5;
 			} else {
 				offsetY = -1.5;
@@ -1836,7 +1836,7 @@ class MtbA_functions {
 			xIcon = xIcon + 1;
 		} 
 
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			if ((humidity > 0 and humidity < 25) or humidity >=70) { // Poor
 				dc.setColor(0xFF5555, Graphics.COLOR_TRANSPARENT); // Red
 			} else if (humidity < 30 or humidity >= 60) { // Fair
@@ -1858,9 +1858,9 @@ class MtbA_functions {
 			}
 		}
 	    
-		dc.drawText( xIcon, yIcon + offsetY , IconsFont, "A", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText , yText , fontSize, humidity + "%", Graphics.TEXT_JUSTIFY_LEFT);
+		dc.drawText( xIcon, yIcon + offsetY , mIconsFont, "A", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText , yText , mFontSize, humidity + "%", Graphics.TEXT_JUSTIFY_LEFT);
 		return true;
   }
 	
@@ -1913,7 +1913,7 @@ class MtbA_functions {
 			windSpeed = Weather.getCurrentConditions().windSpeed;//.toString();
 			windBearing = Weather.getCurrentConditions().windBearing;//.toString();
 
-			if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+			if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 				if (windSpeed >= 32.7) { // Hurricane Force
 					windIconColour = 0xAA0000;
 				} else if (windSpeed >= 28.5) { // Violent Storm
@@ -1990,7 +1990,7 @@ class MtbA_functions {
 			} else {
 				letter = "P";
 			}      
-			if (letter.length()==2 and (width>260 or System.SCREEN_SHAPE_ROUND != screenShape or width==240)) {
+			if (letter.length()==2 and (width>260 or System.SCREEN_SHAPE_ROUND != mScreenShape or width==240)) {
 				xIcon = xIcon - 2;
 			} 
 		}
@@ -2003,7 +2003,7 @@ class MtbA_functions {
 		} else if (width==280) { // Fenix 6X & Enduro
 			yIcon = yIcon - 6;
 		} else if (width==260 or width==240) { // Fenix 6 & 6s
-			if (System.SCREEN_SHAPE_ROUND == screenShape){
+			if (System.SCREEN_SHAPE_ROUND == mScreenShape){
 				yIcon = yIcon - 4;
 			} else {
 				yIcon = yIcon - 6;
@@ -2024,7 +2024,7 @@ class MtbA_functions {
 				windSpeed = windSpeed * 3.6; //converting from m/s to km/h
 				if (width<=218) {
 					unit = "kph";
-				} else if (fontSize==1 and width<=240) {
+				} else if (mFontSize==1 and width<=240) {
 					unit = " kph";
 				} else {
 					unit = " km/h";
@@ -2042,9 +2042,9 @@ class MtbA_functions {
 
 		if (windSpeed != null){
 			var windStr = Math.round(windSpeed).format("%.0f");
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(xText , yText, fontSize, windStr, Graphics.TEXT_JUSTIFY_LEFT); // Wind Speed in km/h or mph
-			dc.drawText(xText + dc.getTextWidthInPixels(windStr,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 or width==260? 1 : 0) + (width==208? 1 : 0)),	0, unit, Graphics.TEXT_JUSTIFY_LEFT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+			dc.drawText(xText , yText, mFontSize, windStr, Graphics.TEXT_JUSTIFY_LEFT); // Wind Speed in km/h or mph
+			dc.drawText(xText + dc.getTextWidthInPixels(windStr,mFontSize), yText + mFontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 or width==260? 1 : 0) + (width==208? 1 : 0)),	0, unit, Graphics.TEXT_JUSTIFY_LEFT);
 		}     
 	}
 
@@ -2063,7 +2063,7 @@ class MtbA_functions {
 		
 		var solarIconColour = null;
 
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			if (solarIntensity >= 80) { // Extreme
 				solarIconColour = 0xAA55FF; 
 			} else if (solarIntensity >= 60) { // Very High
@@ -2105,9 +2105,9 @@ class MtbA_functions {
 		}
 	    
     dc.setColor(solarIconColour, Graphics.COLOR_TRANSPARENT); 
-		dc.drawText( xIcon, yIcon + offsetY , IconsFont, "R", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText , yText , fontSize, solarIntensity + "%", Graphics.TEXT_JUSTIFY_LEFT);
+		dc.drawText( xIcon, yIcon + offsetY , mIconsFont, "R", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText , yText , mFontSize, solarIntensity + "%", Graphics.TEXT_JUSTIFY_LEFT);
 		return true;
   }
     
@@ -2132,9 +2132,9 @@ class MtbA_functions {
 			}
 			seconds = clockTime.hour.format("%2d") + ":" + clockTime.min.format("%02d");
 			if (clockTime.hour < 10 and clockTime.hour > 0 and width>=240){
-				xText=xText-(dc.getTextWidthInPixels(clockTime.hour.format("%2d"),fontSize))/2;
+				xText=xText-(dc.getTextWidthInPixels(clockTime.hour.format("%2d"),mFontSize))/2;
 			} else {
-				xText=xText-(dc.getTextWidthInPixels("1",fontSize))/2;
+				xText=xText-(dc.getTextWidthInPixels("1",mFontSize))/2;
 			}
 		}
 
@@ -2151,13 +2151,13 @@ class MtbA_functions {
 		*/
 		
 		if (width>=360){ //AMOLED
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP displays, for better readability
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			yIcon = yIcon-5; // 3?
 		}
 
-		if (width==240 and System.SCREEN_SHAPE_ROUND == screenShape){
+		if (width==240 and System.SCREEN_SHAPE_ROUND == mScreenShape){
 			yIcon = yIcon - 1.5;
 			if (dc.getFontHeight(0)>=26){
 				yIcon = yIcon + 1;
@@ -2166,16 +2166,16 @@ class MtbA_functions {
 			yIcon = yIcon + 1;
 		}
 
-		dc.drawText( xIcon, yIcon, IconsFont, "2", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon, mIconsFont, "2", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		if (lowPower==false) {
-			dc.drawText(xText, yText,	fontSize, seconds, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		if (mLowPower==false) {
+			dc.drawText(xText, yText,	mFontSize, seconds, Graphics.TEXT_JUSTIFY_LEFT);
 		}
 
 		if (type==2){ //digital clock
 			//dc.drawText(xText + dc.getTextWidthInPixels(seconds,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width>=360 ? 1 : 0)),	0, am_pm, Graphics.TEXT_JUSTIFY_LEFT);
-			dc.drawText(xText + dc.getTextWidthInPixels(seconds,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width>=360 ? 1 : 0)),	0, am_pm, Graphics.TEXT_JUSTIFY_LEFT);
+			dc.drawText(xText + dc.getTextWidthInPixels(seconds,mFontSize), yText + mFontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width>=360 ? 1 : 0)),	0, am_pm, Graphics.TEXT_JUSTIFY_LEFT);
 		}
 
 	}
@@ -2195,14 +2195,14 @@ class MtbA_functions {
 			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP, for better readability
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				yIcon = yIcon-5;
 			}
 	  }
 
-		if (width==240 and System.SCREEN_SHAPE_ROUND == screenShape){
+		if (width==240 and System.SCREEN_SHAPE_ROUND == mScreenShape){
 			yIcon = yIcon - 1;
 			if (dc.getFontHeight(0)>=26){
 				yIcon = yIcon - 1;
@@ -2211,10 +2211,10 @@ class MtbA_functions {
 			yIcon = yIcon + 1;
 		}
 
-		dc.drawText( xIcon, yIcon, IconsFont, "B", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon, mIconsFont, "B", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText(xText, yText,	fontSize, intensity, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText(xText, yText,	mFontSize, intensity, Graphics.TEXT_JUSTIFY_LEFT);
 
 		return true;
 	}
@@ -2226,7 +2226,7 @@ class MtbA_functions {
 		var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 7;	
-		}	else if (System.SCREEN_SHAPE_ROUND != screenShape) { // Venu sq
+		}	else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { // Venu sq
 			offset = -2;	
 		} else if (width==240 and dc.getFontHeight(0)>=26){ //Fenix 5 Plus
 			offset = -1;
@@ -2237,12 +2237,12 @@ class MtbA_functions {
 			var bbIterator = Toybox.SensorHistory.getBodyBatteryHistory({:period=>1});
 			var sample = bbIterator.next(); 
 
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if (sample != null) { 
-				dc.drawText(xText, yText,	fontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
+				dc.drawText(xText, yText,	mFontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
 				//dc.drawText(xText, yText,	fontSize, Lang.format("$1$",[sample.data.format("%02d")]), Graphics.TEXT_JUSTIFY_LEFT);
 
-				if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 					if (sample.data<=25) {
 						dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 					} else if (sample.data<=50){
@@ -2264,16 +2264,16 @@ class MtbA_functions {
 					}						
 				}
 			} else{
-				dc.drawText(xText, yText,	fontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
+				dc.drawText(xText, yText,	mFontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
 				if (width>=360){ //AMOLED
-					dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 				} else { // MIP displays, for better readability
-					dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+					dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				}
 			}
 		} else { return false; }
 
-		dc.drawText( xIcon, yIcon + offset , IconsFont, "U", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offset , mIconsFont, "U", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 		return true;
 
 	}
@@ -2294,10 +2294,10 @@ class MtbA_functions {
 			var stressIterator = Toybox.SensorHistory.getStressHistory({:period=>1});
 			var sample = stressIterator.next(); 
 
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			if (sample != null) { 
-				dc.drawText(xText, yText,	fontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
-				if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+				dc.drawText(xText, yText,	mFontSize, sample.data.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
+				if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 					if (sample.data<=25) {
 						dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
 					} else if (sample.data<=50){
@@ -2319,16 +2319,16 @@ class MtbA_functions {
 					}					
 				}
 			} else{
-				dc.drawText(xText, yText,	fontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
+				dc.drawText(xText, yText,	mFontSize, "--", Graphics.TEXT_JUSTIFY_LEFT);
 				if (width>=360){ //AMOLED
-					dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+					dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 				} else { // MIP displays, for better readability
-					dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+					dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 				}
 			}
 		} else { return false; }
 
-		dc.drawText( xIcon, yIcon + offsetY , IconsFont, "T", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+		dc.drawText( xIcon, yIcon + offsetY , mIconsFont, "T", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 		return true;
 	}
 
@@ -2357,7 +2357,7 @@ class MtbA_functions {
 			yIcon=yIcon-1;
 		}
 
-		if (fontColor == Graphics.COLOR_WHITE){ // Dark Theme
+		if (mFontColor == Graphics.COLOR_WHITE){ // Dark Theme
 			if (text<=30){ // Very Poor
 				dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
 			} else if (text<=34){ // Poor
@@ -2391,10 +2391,10 @@ class MtbA_functions {
 			}			
 		}
 
-		dc.drawText( xIcon, yIcon, IconsFont, "X", Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawText( xIcon, yIcon, mIconsFont, "X", Graphics.TEXT_JUSTIFY_CENTER);
 		
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-		dc.drawText( xText, yText, fontSize, text.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+		dc.drawText( xText, yText, mFontSize, text.format("%d"), Graphics.TEXT_JUSTIFY_LEFT);
 		
 		return true;
 	}
@@ -2413,8 +2413,8 @@ class MtbA_functions {
 		}
 
 		// Text
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);		
-		dc.drawText( xText, yText, fontSize, text, Graphics.TEXT_JUSTIFY_LEFT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);		
+		dc.drawText( xText, yText, mFontSize, text, Graphics.TEXT_JUSTIFY_LEFT);
 		
 		if(width==280 or width==240){ //Fenix 6X & Enduro
 			yIcon=yIcon-5;
@@ -2426,11 +2426,11 @@ class MtbA_functions {
 
 		// Icon
 		if (width>=360){ //AMOLED
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 		} else { // MIP displays, for better readability
-			dc.setColor( fontColor, Graphics.COLOR_TRANSPARENT); 
+			dc.setColor( mFontColor, Graphics.COLOR_TRANSPARENT); 
 		}
-		dc.drawText( xIcon, yIcon, IconsFont, "W", Graphics.TEXT_JUSTIFY_CENTER);
+		dc.drawText( xIcon, yIcon, mIconsFont, "W", Graphics.TEXT_JUSTIFY_CENTER);
 		return true;
 
 	}
@@ -2448,7 +2448,7 @@ class MtbA_functions {
 		var offset = 0;
 		if (width>=360) { // Venu & D2 Air
 			offset = 6;	
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape) { //check if rectangle display
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { //check if rectangle display
 			offset = -2;
 		}
 		
@@ -2456,15 +2456,15 @@ class MtbA_functions {
 			return false;
 		} else {					
 			if (width>=360){ //AMOLED
-				dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+				dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			} else { // MIP displays, for better readability
-				dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 			}
 
-			dc.drawText( xIcon, yIcon + offset , IconsFont, "V", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
+			dc.drawText( xIcon, yIcon + offset , mIconsFont, "V", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
-			dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(xText, yText , fontSize, (recovery>=10 ? recovery.format("%.0f") : recovery.format("%.1f")) + " hs", Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$", [recovery.format("%.1f")] )
+			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+			dc.drawText(xText, yText , mFontSize, (recovery>=10 ? recovery.format("%.0f") : recovery.format("%.1f")) + " hs", Graphics.TEXT_JUSTIFY_LEFT); //Lang.format("$1$", [recovery.format("%.1f")] )
 			return true;       	
 		}
 
@@ -2540,22 +2540,22 @@ class MtbA_functions {
 		}
 
 		if (icon != null && icon.equals(">")){
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Blue
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? Graphics.COLOR_BLUE : 0x0055AA), Graphics.COLOR_TRANSPARENT); // Blue
 		} else {
-			dc.setColor((fontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Orange
+			dc.setColor((mFontColor==Graphics.COLOR_WHITE ? 0xFFAA00 : 0xFF5500), Graphics.COLOR_TRANSPARENT); // Orange
 		}
-		dc.drawText( xIcon, yIcon + offset , IconsFont, icon, Graphics.TEXT_JUSTIFY_CENTER); // Draw Icon
+		dc.drawText( xIcon, yIcon + offset , mIconsFont, icon, Graphics.TEXT_JUSTIFY_CENTER); // Draw Icon
 		
-		dc.setColor(fontColor, Graphics.COLOR_TRANSPARENT);
+		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
 		//dc.drawText( xText, yText , fontSize, Lang.format("$1$:$2$$3$",[time.hour.format("%02u"), time.min.format("%02u"), am_pm]), Graphics.TEXT_JUSTIFY_LEFT);
 		
 		if (time!=null){
 			text=Lang.format("$1$:$2$",[time.hour.format("%02u"), time.min.format("%02u")]);
 		}
 		
-		dc.drawText( xText, yText , fontSize, text, Graphics.TEXT_JUSTIFY_LEFT); // Draw time
+		dc.drawText( xText, yText , mFontSize, text, Graphics.TEXT_JUSTIFY_LEFT); // Draw time
 		if (am_pm!=""){ // draw AM/PM on a smaller font
-			dc.drawText(xText + dc.getTextWidthInPixels(text,fontSize), yText + fontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 ? 1 : 0)),	0, am_pm, Graphics.TEXT_JUSTIFY_LEFT);
+			dc.drawText(xText + dc.getTextWidthInPixels(text,mFontSize), yText + mFontSize*((dc.getFontHeight(Graphics.FONT_TINY)-dc.getFontHeight(Graphics.FONT_XTINY))*0.9 - (width==360 ? 1 : 0)),	0, am_pm, Graphics.TEXT_JUSTIFY_LEFT);
 		}
 
 		return true;
@@ -2575,7 +2575,7 @@ class MtbA_functions {
 
 		if (width>=390) { // Venu 1 & 2
 			offset390=1;
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape) { //check if rectangle display
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { //check if rectangle display
 			offset390=1;
 		}
 		
@@ -2706,7 +2706,7 @@ class MtbA_functions {
 	}
 
 	public function enterSleep(inLowPower) as Void {
-			lowPower=inLowPower;
+			mLowPower=inLowPower;
 			//WatchUi.requestUpdate();
 	}
 
@@ -2714,7 +2714,7 @@ class MtbA_functions {
 	//! Set the isAwake flag to let onUpdate know it should render the second hand.
 	public function exitSleep(inLowPower) as Void {
 			//_isAwake = true;
-			lowPower=inLowPower;
+			mLowPower=inLowPower;
 			//WatchUi.requestUpdate();
 	}
 

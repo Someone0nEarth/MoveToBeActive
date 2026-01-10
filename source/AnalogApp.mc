@@ -35,11 +35,11 @@ class AnalogWatch extends Application.AppBase
     //public function getInitialView() {
         //var mainView = new AnalogView(); // old way
         if( Toybox.WatchUi has :WatchFaceDelegate ) {
-            //var inputDelegate = new $.AnalogDelegate(mainView); // old way
+            //var inputDelegate = new AnalogDelegate(mainView); // old way
             //return [mainView, inputDelegate]; // old way
-            return [new $.AnalogView(), new $.AnalogDelegate()];
+            return [new AnalogView(), new AnalogDelegate()];
         } else {
-            return [new $.AnalogView()];
+            return [new AnalogView()];
         }
     }
 

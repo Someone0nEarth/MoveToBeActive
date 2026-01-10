@@ -16,10 +16,10 @@ import Toybox.Lang;
 //var partialUpdatesAllowed = false;
 //var fullScreenRefresh;
 //var accentColor;
-var inLowPower as Boolean = false;
-//var canBurnIn=false;
-var upTop=true;
-var MtbA = null;
+// var inLowPower as Boolean = false;
+// //var canBurnIn=false;
+// var upTop=true;
+// var MtbA = null;
 
 // This implements an analog watch face
 // Original design by Austen Harbour
@@ -28,6 +28,11 @@ class AnalogView extends WatchUi.WatchFace {
     private var mOffscreenBuffer as BufferedBitmap?;
     //private var _fullScreenRefresh as Boolean;
     //private var _partialUpdatesAllowed as Boolean;
+
+    private var mInLowPower as Boolean = false;
+    //var canBurnIn=false;
+    private var mUpTop=true;
+    private var mDrawer as Drawer;
 
     // Initialize variables for this view
     function initialize() {
@@ -38,7 +43,8 @@ class AnalogView extends WatchUi.WatchFace {
 
         Config.load();
 
-        $.MtbA = new MtbA_functions($.inLowPower as Boolean);        
+        mDrawer= new Drawer(mInLowPower);   
+    
     }
 
     // Configure the layout of the watchface for this device
@@ -128,21 +134,21 @@ class AnalogView extends WatchUi.WatchFace {
 
         //var labels=Storage.getValue(5);
 
-        if($.inLowPower and canBurnIn) { // aod on
+        if(mInLowPower and canBurnIn) { // aod on
         	if (dc has :setAntiAlias) {
         		dc.setAntiAlias(false);
         	}
             
-            $.upTop=!$.upTop;
+            mUpTop=!mUpTop;
             //targetDc.clearClip();
             targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
             targetDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
 
             if(tickmarkColor){ //tickmark color toggle
                 drawBackground(dc);
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
             } else {
-                $.MtbA.drawHashMarks(targetDc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+                mDrawer.drawHashMarks(targetDc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc
                 drawBackground(dc);
             }
 
@@ -165,7 +171,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
+                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
             }
 
             if (dc has :setAntiAlias) {
@@ -174,19 +180,19 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width<360){ // With anti-alias for MIP displays
-                $.MtbA.drawHashMarks(dc, width, $.inLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
+                mDrawer.drawHashMarks(dc, width, mInLowPower and canBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
             }
 
             // Garmin Logo check
             var showGarminLogo=Config.getGarminlogo();
             var position = Application.loadResource(Rez.JsonData.mPosition) as Array;
             if (showGarminLogo == null or showGarminLogo == true) {
-                $.MtbA.drawGarminLogo(dc, position[4], position[5], Config.getLightTheme()); 
+                mDrawer.drawGarminLogo(dc, position[4], position[5], Config.getLightTheme()); 
             }
 
             // Draw the 3, 6, 9, and 12 hour labels.
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape and Config.getHourLabels() != false) {
-                $.MtbA.drawHourLabels(dc, width, height, accentColor, Config.getHourLabelAccentColor()); 
+                mDrawer.drawHourLabels(dc, width, height, accentColor, Config.getHourLabelAccentColor()); 
             }
 
             if (Config.showWeather()) {
@@ -223,20 +229,20 @@ class AnalogView extends WatchUi.WatchFace {
                     }
 
                     if (Config.showWeatherCondition()){
-                        $.MtbA.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions.condition, System.getClockTime().hour);
-                        $.MtbA.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
+                        mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions.condition, System.getClockTime().hour);
+                        mDrawer.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
                     }
                     
                     if(Config.showWeatherConditionName()){
-                        $.MtbA.drawLocation(dc, xName, yName);
+                        mDrawer.drawLocation(dc, xName, yName);
                     }
                 }
             }
             
             // Draw Battery
             if (Config.getBatteryIcon()!=false){ // Show Battery Icon
-                $.MtbA.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.getConditionalBatteryIconColor());
-                $.MtbA.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.getBatteryEstFlag());
+                mDrawer.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.getConditionalBatteryIconColor());
+                mDrawer.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.getBatteryEstFlag());
             }
 
             //Data Points
@@ -271,22 +277,22 @@ class AnalogView extends WatchUi.WatchFace {
 
             // (dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset, dataPoint)            
             var dataPoint = Config.getRightBottomDF(); //right bottom
-            $.MtbA.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, accentColor, width, dataPoint, 4);
+            mDrawer.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, accentColor, width, dataPoint, 4);
             //MtbA.drawRightPoints(dc, position[8], position[14], position[10], position[15], accentColor, width, 0, dataPoint);
 
             dataPoint = Config.getRightTopDF(); //right top
-            $.MtbA.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, accentColor, width, dataPoint, 4); 
+            mDrawer.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, accentColor, width, dataPoint, 4); 
 
             //(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
             dataPoint = Config.getLeftTopDF(); // left top
-            $.MtbA.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, accentColor, width, dataPoint, 1);
+            mDrawer.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, accentColor, width, dataPoint, 1);
 
             dataPoint = Config.getLeftMiddleDF(); // left middle
-            $.MtbA.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, accentColor, width, dataPoint, 2);	
+            mDrawer.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, accentColor, width, dataPoint, 2);	
             //MtbA.drawLeftMiddle(dc, position[12], position[16], position[13], position[17], accentColor, width, dataPoint);	
 
             dataPoint = Config.getLeftBottomDF(); // left bottom
-            $.MtbA.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, accentColor, width, dataPoint, 3);
+            mDrawer.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, accentColor, width, dataPoint, 3);
 
             var iconSize = 0;
 
@@ -309,50 +315,50 @@ class AnalogView extends WatchUi.WatchFace {
             if (System.getDeviceSettings() has :doNotDisturb and System.getDeviceSettings().doNotDisturb) { // Dnd exists and is turned on
                 if ((alarm == true and blue == true) or (alarm == null and blue == null)){ // all 3 icons
                     // Draw the Do Not Disturb Icon in the middle
-                    $.MtbA.drawDndIcon(dc, position[0], position[1], width);
+                    mDrawer.drawDndIcon(dc, position[0], position[1], width);
                     // Draw alarm icon on the right
-                    $.MtbA.drawAlarmIcon(dc, position[3], position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, position[3], position[1], accentColor, width);
                     //Draw bluetooth icon on the left
-                    $.MtbA.drawBluetoothIcon(dc, position[2], position[1]);
+                    mDrawer.drawBluetoothIcon(dc, position[2], position[1]);
                 } else if(alarm == false and (blue == true)) { // alarm icon is hidden
                     // Draw the Do Not Disturb Icon on the right
-                    $.MtbA.drawDndIcon(dc, (position[0]+position[3])/2, position[1], width);
+                    mDrawer.drawDndIcon(dc, (position[0]+position[3])/2, position[1], width);
                     //Draw bluetooth icon on the left
-                    $.MtbA.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
+                    mDrawer.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
                 } else if(alarm == true and blue == false){ // bluetooth icon is hidden
                     // Draw the Do Not Disturb Icon on the left
-                    $.MtbA.drawDndIcon(dc, (position[3]+position[0])/2, position[1], width);
+                    mDrawer.drawDndIcon(dc, (position[3]+position[0])/2, position[1], width);
                     // Draw alarm icon on the right
-                    $.MtbA.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], accentColor, width);                    
+                    mDrawer.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], accentColor, width);                    
                 } else{ // only Dnd
                     // Draw the Do Not Disturb Icon in the middle
-                    $.MtbA.drawDndIcon(dc, position[0], position[1], width);
+                    mDrawer.drawDndIcon(dc, position[0], position[1], width);
                 }
             } else { // Dnd does not exist or is turned off
                 if ((alarm == true or alarm == null) and (blue == true or blue == null)){ // all 2 icons
                     // Draw alarm icon on the right
                     //MtbA.drawAlarmIcon(dc, (position[3]+(position[3]+position[0])/2)/2, position[1], accentColor, width);
-                    $.MtbA.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], accentColor, width);
                     //Draw bluetooth icon on the left
-                    $.MtbA.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
+                    mDrawer.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
                 } else if(alarm == false and (blue == true)){ // alarm icon is hidden
-                    $.MtbA.drawBluetoothIcon(dc, (width/2)-1, position[1]);
+                    mDrawer.drawBluetoothIcon(dc, (width/2)-1, position[1]);
                 } else if(alarm == true){
-                    $.MtbA.drawAlarmIcon(dc, width/2, position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, width/2, position[1], accentColor, width);
                 }
             }
 
             //Draw the date string
             if (showGarminLogo == null or showGarminLogo == true) { // Garmin Logo check
-                $.MtbA.drawDateString( dc, width / 2, position[6], Config.getDateFormat(), Config.getDateFontSize()); 
+                mDrawer.drawDateString( dc, width / 2, position[6], Config.getDateFormat(), Config.getDateFontSize()); 
             } else { // No Garmin Logo
-                $.MtbA.drawDateString( dc, width / 2, position[5] + (width<=240 ? 5 : 0 ) + (width==218 ? 3 : 0 ), Config.getDateFormat(), Config.getDateFontSize()); // offsets needed because of size of Garmin Logo compared to Date Font
+                mDrawer.drawDateString( dc, width / 2, position[5] + (width<=240 ? 5 : 0 ) + (width==218 ? 3 : 0 ), Config.getDateFormat(), Config.getDateFontSize()); // offsets needed because of size of Garmin Logo compared to Date Font
             }
 
         } 
         
 		//Draw Hour and Minute hands
-		$.MtbA.drawHands(dc, width, height, accentColor, Config.getHandsThickness(), $.inLowPower, $.upTop, Config.getAodUseAccentColor());
+		mDrawer.drawHands(dc, width, height, accentColor, Config.getHandsThickness(), mInLowPower, mUpTop, Config.getAodUseAccentColor());
 
         /*
         if (_partialUpdatesAllowed) {
@@ -411,8 +417,8 @@ class AnalogView extends WatchUi.WatchFace {
     //! Set the isAwake flag to let onUpdate know it should stop rendering the second hand.
     public function onEnterSleep() as Void {
         //_isAwake = false;
-        $.inLowPower=true;            
-        $.MtbA.enterSleep($.inLowPower);
+        mInLowPower=true;            
+        mDrawer.enterSleep(mInLowPower);
         WatchUi.requestUpdate();
     }
 
@@ -420,8 +426,8 @@ class AnalogView extends WatchUi.WatchFace {
     //! Set the isAwake flag to let onUpdate know it should render the second hand.
     public function onExitSleep() as Void {
         //_isAwake = true;
-        $.inLowPower=false;
-        $.MtbA.exitSleep($.inLowPower);
+        mInLowPower=false;
+        mDrawer.exitSleep(mInLowPower);
         //WatchUi.requestUpdate();
     }
 
