@@ -357,7 +357,7 @@ class AnalogView extends WatchUi.WatchFace {
                         x2Icon=position[19];
                         xTemp=position[21];
 
-                        mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions.condition, System.getClockTime().hour);
+                        mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
                         mDrawer.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
                     }
                     

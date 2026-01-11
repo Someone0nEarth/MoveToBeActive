@@ -13,6 +13,7 @@ import Toybox.Lang;
 import Toybox.Application;
 import Toybox.Time;
 import Toybox.Graphics;
+import Toybox.Weather;
 
 class Drawer {
 	
@@ -303,7 +304,7 @@ class Drawer {
         dc.drawText(width / 2, height - 41 + (width208 ? 1 : 0), font, "6", Graphics.TEXT_JUSTIFY_CENTER);
         dc.drawText(13 + (width208 ? -1 : 0), (height / 2) - 15, font, "9", Graphics.TEXT_JUSTIFY_LEFT);
     }
-    
+
 	/**
 	 * Draws the weather icon on the display.
 	 * 
@@ -314,144 +315,226 @@ class Drawer {
 	 * @param width The width of the display.
 	 * @param cond The weather condition code.
 	 * @param clockTime The current clock time in hours.
-	 * @return Boolean indicating if the icon was drawn successfully.
 	 */
-function drawWeatherIcon(dc, x, y, x2, width, cond, clockTime) {
-		
-		//var cond = Toybox.Weather.getCurrentConditions().condition;
-		var sunset, sunrise;
+function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.CurrentConditions?, condition, clockTime) as Void{
+    var sunset = 18;
+    var sunrise = 6;
 
-		if (cond != null && cond instanceof Number){
-			//System.println(clockTime);
-			//var clockTime = System.getClockTime().hour;
-//			clockTime = clockTime.hour;
+    //TODO just to ensure weatherConditions is tried to set (helper while doing the refactoring)
+    if (weatherConditions == null) {
+      if (Toybox has :Weather && Toybox.Weather has :getCurrentConditions) {
+        weatherConditions = Weather.getCurrentConditions();
+      }
+    }
+    
+    // gets the correct symbol (sun/moon) depending on actual sun events
+    if (Toybox.Weather has :getSunset && Toybox.Weather has :getSunrise && weatherConditions != null) {
+      var position = null, today = null;
 
-			// gets the correct symbol (sun/moon) depending on actual sun events
-			if (Toybox has :Weather && Toybox.Weather != null) {
-				if (Toybox.Weather has :getCurrentConditions && Toybox.Weather.getCurrentConditions() != null) {
-					if (Toybox.Weather has :getSunset && Toybox.Weather has :getSunrise) {
-						var position=null, today=null;
-						if ((Toybox.Weather.getCurrentConditions() has :observationLocationPosition && Toybox.Weather.getCurrentConditions().observationLocationPosition!=null) && (Toybox.Weather.getCurrentConditions() has :observationTime && Toybox.Weather.getCurrentConditions().observationTime!=null)){ //trying to address errors found on ERA viewer when watch can't get position. Not sure if only related to SDK 7.4.2 or overall for system 7
-						//if (Toybox.Weather.getCurrentConditions() has :observationLocationPosition and Toybox.Weather.getCurrentConditions() has :observationTime){ //trying to address errors found on ERA viewer when watch can't get position
-							position = Toybox.Weather.getCurrentConditions().observationLocationPosition; // or Activity.Info.currentLocation if observation is null?
-							today = Toybox.Weather.getCurrentConditions().observationTime; // or new Time.Moment(Time.now().value()); ?
-						}	
-						if ((position!=null and position instanceof Position.Location) && (today != null && today instanceof Moment)){
-							if (Weather.getSunset(position, today)!=null) {
-								sunset = Time.Gregorian.info(Weather.getSunset(position, today), Time.FORMAT_SHORT);
-								sunset = sunset.hour;
-							} else {
-								sunset = 18; 
-							}
-							if (Weather.getSunrise(position, today)!=null) {
-								sunrise = Time.Gregorian.info(Weather.getSunrise(position, today), Time.FORMAT_SHORT);
-								sunrise = sunrise.hour;
-							} else {
-								sunrise = 6;
-							}
-						} else {
-							sunset = 18;
-							sunrise = 6;
-						}
-					} else {
-						sunset = 18;
-						sunrise = 6;
-					}			
-				} else{
-					return false;
-				}
-			} else {
-				return false;
-			}
-					
-			if (width<=280){
-				y = y-2;
-				if (width==218) {
-					y = y-1;
-				}
-			} 
-		
-			//weather icon test
-			//weather.condition = 6;
-			var WeatherFont = Application.loadResource(Rez.Fonts.WeatherFont);			
+      // prettier-ignore
+      if ((weatherConditions has :observationLocationPosition && weatherConditions.observationLocationPosition!=null) && (weatherConditions has :observationTime && weatherConditions.observationTime!=null)){ //trying to address errors found on ERA viewer when watch can't get position. Not sure if only related to SDK 7.4.2 or overall for system 7
+		position = weatherConditions.observationLocationPosition; // or Activity.Info.currentLocation if observation is null?
+		today = weatherConditions.observationTime; // or new Time.Moment(Time.now().value()); ?
+	  }
 
-			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
-			if (cond == 20) { // Cloudy
-				dc.drawText(x2-1, y-1, WeatherFont, "I", Graphics.TEXT_JUSTIFY_RIGHT); // Cloudy
-				if (clockTime >= sunset or clockTime < sunrise) { 
-					mWeatherConditionName="Cloudy Night";
-				} else {
-					mWeatherConditionName="Cloudy Day";
-				}
-			} else if (cond == 0 or cond == 5) { // Clear or Windy
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2-2, y-1, WeatherFont, "f", Graphics.TEXT_JUSTIFY_RIGHT); // Clear Night	
-							mWeatherConditionName="Starry Night";
-						} else {
-							dc.drawText(x2, y-2, WeatherFont, "H", Graphics.TEXT_JUSTIFY_RIGHT); // Clear Day
-							mWeatherConditionName="Sunny Day";
-						}
-			} else if (cond == 1 or cond == 23 or cond == 40 or cond == 52) { // Partly Cloudy or Mostly Clear or fair or thin clouds
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2-1, y-2, WeatherFont, "g", Graphics.TEXT_JUSTIFY_RIGHT); // Partly Cloudy Night
-							mWeatherConditionName="Partly Cloudy";
-						} else {
-							dc.drawText(x2, y-2, WeatherFont, "G", Graphics.TEXT_JUSTIFY_RIGHT); // Partly Cloudy Day
-							mWeatherConditionName="Mostly Sunny";
-						}
-			} else if (cond == 2 or cond == 22) { // Mostly Cloudy or Partly Clear
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "h", Graphics.TEXT_JUSTIFY_RIGHT); // Mostly Cloudy Night
-							mWeatherConditionName="Overcast Night";
-						} else {
-							dc.drawText(x, y, WeatherFont, "B", Graphics.TEXT_JUSTIFY_RIGHT); // Mostly Cloudy Day
-							mWeatherConditionName="Mostly Cloudy";
-						}
-			} else if (cond == 3 or cond == 14 or cond == 15 or cond == 11 or cond == 13 or cond == 24 or cond == 25 or cond == 26 or cond == 27 or cond == 45) { // Rain or Light Rain or heavy rain or showers or unkown or chance  
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "c", Graphics.TEXT_JUSTIFY_RIGHT); // Rain Night
-							mWeatherConditionName="Rainy Night";
-						} else {
-							dc.drawText(x, y, WeatherFont, "D", Graphics.TEXT_JUSTIFY_RIGHT); // Rain Day
-							mWeatherConditionName="Rainy Day";
-						}
-			} else if (cond == 4 or cond == 10 or cond == 16 or cond == 17 or cond == 34 or cond == 43 or cond == 46 or cond == 48 or cond == 51) { // Snow or Hail or light or heavy snow or ice or chance or cloudy chance or flurries or ice snow
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "e", Graphics.TEXT_JUSTIFY_RIGHT); // Snow Night
-							mWeatherConditionName="Snowy Night";
-						} else {
-							dc.drawText(x, y, WeatherFont, "F", Graphics.TEXT_JUSTIFY_RIGHT); // Snow Day
-							mWeatherConditionName="Snowy Day";
-						}
-			} else if (cond == 6 or cond == 12 or cond == 28 or cond == 32 or cond == 36 or cond == 41 or cond == 42) { // Thunder or scattered or chance or tornado or squall or hurricane or tropical storm
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "b", Graphics.TEXT_JUSTIFY_RIGHT); // Thunder Night
-						} else {
-							dc.drawText(x, y, WeatherFont, "C", Graphics.TEXT_JUSTIFY_RIGHT); // Thunder Day
-						}
-						mWeatherConditionName="Thunderstorms";
-			} else if (cond == 7 or cond == 18 or cond == 19 or cond == 21 or cond == 44 or cond == 47 or cond == 49 or cond == 50) { // Wintry Mix (Snow and Rain) or chance or cloudy chance or freezing rain or sleet
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "d", Graphics.TEXT_JUSTIFY_RIGHT); // Snow+Rain Night
-							mWeatherConditionName="Wintry Mix Night";
-						} else {
-							dc.drawText(x, y, WeatherFont, "E", Graphics.TEXT_JUSTIFY_RIGHT); // Snow+Rain Day
-							mWeatherConditionName="Wintry Mix Day";
-						}
-			} else if (cond == 8 or cond == 9 or cond == 29 or cond == 30 or cond == 31 or cond == 33 or cond == 35 or cond == 37 or cond == 38 or cond == 39) { // Fog or Hazy or Mist or Dust or Drizzle or Smoke or Sand or sandstorm or ash or haze
-				if (clockTime >= sunset or clockTime < sunrise) { 
-							dc.drawText(x2, y, WeatherFont, "a", Graphics.TEXT_JUSTIFY_RIGHT); // Fog Night
-							mWeatherConditionName="Foggy Night";
-				} else {
-					dc.drawText(x, y, WeatherFont, "A", Graphics.TEXT_JUSTIFY_RIGHT); // Fog Day
-					mWeatherConditionName="Foggy Day";
-				}       		
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
+      if (position != null && today != null) {
+        var weatherSunset = Weather.getSunset(position, today);
+        if (weatherSunset != null) {
+          sunset = Time.Gregorian.info(weatherSunset, Time.FORMAT_SHORT).hour;
+        }
+
+        var weatherSunrise = Weather.getSunrise(position, today);
+        if (weatherSunrise != null) {
+          sunrise = Time.Gregorian.info(weatherSunrise, Time.FORMAT_SHORT).hour;
+        }
+      }
+    }
+
+    //TODO Magic numbers...
+    if (width <= 280) {
+      y = y - 2;
+      if (width == 218) {
+        y = y - 1;
+      }
+    }
+
+    var weatherFont = Application.loadResource(Rez.Fonts.WeatherFont);
+    var isNight = clockTime >= sunset || clockTime < sunrise;
+
+    var iconX = null,
+      iconY = null,
+      weatherChar = null;
+
+    dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
+    if (condition == 20) {
+      // Cloudy
+      iconX = x2 - 1;
+      iconY = y - 1;
+      weatherChar = "I"; // Cloudy
+
+      if (isNight) {
+        mWeatherConditionName = "Cloudy Night";
+      } else {
+        mWeatherConditionName = "Cloudy Day";
+      }
+    } else if (condition == 0 or condition == 5) {
+      // Clear or Windy
+      if (isNight) {
+        iconX = x2 - 2;
+        iconY = y - 1;
+        weatherChar = "f"; // Clear Night
+        mWeatherConditionName = "Starry Night";
+      } else {
+        iconX = x2;
+        iconY = y - 2;
+        weatherChar = "H"; // Clear Day
+        mWeatherConditionName = "Sunny Day";
+      }
+    } else if (condition == 1 or condition == 23 or condition == 40 or condition == 52) {
+      // Partly Cloudy or Mostly Clear or fair or thin clouds
+      if (isNight) {
+        iconX = x2 - 1;
+        iconY = y - 2;
+        weatherChar = "g"; // Partly Cloudy Night
+        mWeatherConditionName = "Partly Cloudy";
+      } else {
+        iconX = x2;
+        iconY = y - 2;
+        weatherChar = "G"; // Partly Cloudy Day
+        mWeatherConditionName = "Mostly Sunny";
+      }
+    } else if (condition == 2 or condition == 22) {
+      // Mostly Cloudy or Partly Clear
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "h"; // Mostly Cloudy Night
+        mWeatherConditionName = "Overcast Night";
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "B"; // Mostly Cloudy Day
+        mWeatherConditionName = "Mostly Cloudy";
+      }
+    } else if (
+      condition == 3 or
+      condition == 14 or
+      condition == 15 or
+      condition == 11 or
+      condition == 13 or
+      condition == 24 or
+      condition == 25 or
+      condition == 26 or
+      condition == 27 or
+      condition == 45
+    ) {
+      // Rain or Light Rain or heavy rain or showers or unkown or chance
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "c"; // Rain Night
+        mWeatherConditionName = "Rainy Night";
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "D"; // Rain Day
+        mWeatherConditionName = "Rainy Day";
+      }
+    } else if (
+      condition == 4 or
+      condition == 10 or
+      condition == 16 or
+      condition == 17 or
+      condition == 34 or
+      condition == 43 or
+      condition == 46 or
+      condition == 48 or
+      condition == 51
+    ) {
+      // Snow or Hail or light or heavy snow or ice or chance or cloudy chance or flurries or ice snow
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "e"; // Snow Night
+        mWeatherConditionName = "Snowy Night";
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "F"; // Snow Day
+        mWeatherConditionName = "Snowy Day";
+      }
+    } else if (
+      condition == 6 or
+      condition == 12 or
+      condition == 28 or
+      condition == 32 or
+      condition == 36 or
+      condition == 41 or
+      condition == 42
+    ) {
+      // Thunder or scattered or chance or tornado or squall or hurricane or tropical storm
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "b"; // Thunder Night
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "C"; // Thunder Day
+      }
+      mWeatherConditionName = "Thunderstorms";
+    } else if (
+      condition == 7 or
+      condition == 18 or
+      condition == 19 or
+      condition == 21 or
+      condition == 44 or
+      condition == 47 or
+      condition == 49 or
+      condition == 50
+    ) {
+      // Wintry Mix (Snow and Rain) or chance or cloudy chance or freezing rain or sleet
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "d"; // Snow+Rain Night
+        mWeatherConditionName = "Wintry Mix Night";
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "E"; // Snow+Rain Day
+        mWeatherConditionName = "Wintry Mix Day";
+      }
+    } else if (
+      condition == 8 or
+      condition == 9 or
+      condition == 29 or
+      condition == 30 or
+      condition == 31 or
+      condition == 33 or
+      condition == 35 or
+      condition == 37 or
+      condition == 38 or
+      condition == 39
+    ) {
+      // Fog or Hazy or Mist or Dust or Drizzle or Smoke or Sand or sandstorm or ash or haze
+      if (isNight) {
+        iconX = x2;
+        iconY = y;
+        weatherChar = "a"; // Fog Night
+        mWeatherConditionName = "Foggy Night";
+      } else {
+        iconX = x;
+        iconY = y;
+        weatherChar = "A"; // Fog Day
+        mWeatherConditionName = "Foggy Day";
+      }
+    }
+
+    if (iconX != null && iconY != null && weatherChar != null) {
+      dc.drawText(iconX, iconY, weatherFont, weatherChar, Graphics.TEXT_JUSTIFY_RIGHT);
+    }
+  }
 	
 	/* ------------------------ */
 	
@@ -1808,17 +1891,17 @@ function drawWeatherIcon(dc, x, y, x2, width, cond, clockTime) {
 						var oneHour = new Time.Duration(3600); // 1 hour
 						var info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
 						var x2Icon = xIcon + 1;
-						drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, forecast[0].condition, info.hour);
+						drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, null, forecast[0].condition, info.hour);
 						if (forecast.size()>=2 and forecast[1].condition!=null){
 						var adj = xIcon + dc.getTextWidthInPixels("000", 0) + 1;
 						oneHour = new Time.Duration(3600*2); // 2 hours
 						info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
-						drawWeatherIcon(dc, adj, yIcon, adj, width, forecast[1].condition, info.hour);
+						drawWeatherIcon(dc, adj, yIcon, adj, width, null, forecast[1].condition, info.hour);
 						if (size==3 and width>208 and forecast.size()>=3 and forecast[2].condition!=null) { // don't go in if FR55 (not enough space/resolution for 3 hour forecast)
 							adj = adj + dc.getTextWidthInPixels("000", 0) + 1;
 							oneHour = new Time.Duration(3600*3); // 3 hours
 							info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
-							drawWeatherIcon(dc, adj, yIcon, adj, width, forecast[2].condition, info.hour);
+							drawWeatherIcon(dc, adj, yIcon, adj, width, null, forecast[2].condition, info.hour);
 						}					
 					}
 				}
