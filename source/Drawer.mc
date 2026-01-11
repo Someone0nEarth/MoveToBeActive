@@ -56,109 +56,64 @@ class Drawer {
     /* ------------------------ */
 	
 	// Draws the clock tick marks around the outside edges of the screen.
-(:round) function drawHashMarks(dc, width, aod, colorFlag, showHoursLabels) { // 2, 5
+(:round) function drawHashMarks(dc, width, drawSettings as DrawSettings) { // 2, 5
 			var sX, sY;
 			var eX, eY;
-			var outerRad = width / 2;
-			var innerRad = outerRad - 10;
-            var accentColor= Config.getAccentColor();
-            var AODColor= Config.getAodUseAccentColor();
-			//var showBoolean = hourLabel;		
+			var outerRad = width / 2;  //TODO This could be calculated once on onLayout callback
+			var innerRad = outerRad - 10; //TODO This could be calculated once on onLayout callback
 
-      
-			// Draw hashmarks differently depending on screen geometry.
-			if (System.SCREEN_SHAPE_ROUND == mScreenShape) { //check if round display		//TODO is this redundant with :round tag? (also retangle)			
-				var increment = (aod==true) ? 5 : 1;
+            var tickLengthExtension;
+            var tickThickness;
+            var angle;
+					
+			// Loop through each minute and draw tick marks
+            var tick;
+			for (tick = 0; tick <= 59; tick += drawSettings.tickIncrement) {
+				angle = tick * Math.PI / 30;
+                
+                tickThickness = 3;
 
-				// Loop through each minute and draw tick marks
-				for (var i = 0; i <= 59; i += increment) {
-					var angle = i * Math.PI / 30;
-					if (aod==true) { // AOD mode is ON
-						if (i % 5 == 0){
-							if (colorFlag == true and AODColor){ // Tickmark color is ON and AOD Colors is ON
-								dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-							} else if (i == 15 or i == 45) {
-									//dc.setColor(accentColor, Graphics.COLOR_BLACK);
-									//dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
-									dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-							} else {
-									//dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-									dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-							}
-						}
-					} else{ // AOD mode is OFF or MIP
-						if ((i == 15) or (i == 45)) {
-							dc.setColor(accentColor, accentColor);
-						} else {
-							if (colorFlag == true and (i % 5 == 0)){
-								dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-							} else{
-								if ((!showHoursLabels) and (i == 0 or i == 30)) {
-										dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
-								} else {
-						          if (Config.getLightTheme()){
-                                    dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-								  }	else {
-                                  	if (width < 360){ //TODO magic number
-										dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT); // Using lighter tone for MIP displays
-									} else {
-										dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT); // Darker tone for AMOLED
-									}
-								  }
-								}
-							}       
-						}   
-					}  	
+                if (tick == 15 or tick == 45) {
+					dc.setColor(drawSettings.verticalCardinalTicksColor, Graphics.COLOR_TRANSPARENT); //TODO was accentColor, accentColor for non-AoD: Dont know if transparent is okay
 
-					// thicker lines at 5 min intervals
-					if( (i % 5) == 0) {
-							dc.setPenWidth(3);
-					} else {
-							dc.setPenWidth(1);            
-					}
-					if(aod) { // AOD for AMOLED is ON, so only small hashmarks are going to be displayed at each 15 min
-						sY = innerRad * Math.sin(angle);
-						eY = outerRad * Math.sin(angle);
-						sX = innerRad * Math.cos(angle);
-						eX = outerRad * Math.cos(angle);							
-					} else if (!showHoursLabels) { // AOD for AMOLED is OFF and NOT showing hour labels, then all 5 minute marks will have same length
-						// longer lines at intermediate 5 min marks
-						if ((i % 5) == 0) {               		
-							sY = (innerRad-10) * Math.sin(angle);
-							eY = outerRad * Math.sin(angle);
-							sX = (innerRad-10) * Math.cos(angle);
-							eX = outerRad * Math.cos(angle);
-						}
-						else {
-							sY = innerRad * Math.sin(angle);
-							eY = outerRad * Math.sin(angle);
-							sX = innerRad * Math.cos(angle);
-							eX = outerRad * Math.cos(angle);
-						}
-					} else if( (i % 5) == 0 && !((i % 15) == 0)) { // AOD for AMOLED is OFF and showing hour labels, then marks at each 15 min will be smaller to accomodate labels
-							sY = (innerRad-10) * Math.sin(angle);
-							eY = outerRad * Math.sin(angle);
-							sX = (innerRad-10) * Math.cos(angle);
-							eX = outerRad * Math.cos(angle);
-					} else {
-						sY = innerRad * Math.sin(angle);
-						eY = outerRad * Math.sin(angle);
-						sX = innerRad * Math.cos(angle);
-						eX = outerRad * Math.cos(angle);
-					}
+                    tickLengthExtension = drawSettings.additionalPixelLenghtOfCardinalTicks;
 
-					sX += outerRad; sY += outerRad;
-					eX += outerRad; eY += outerRad;
-					dc.drawLine(sX, sY, eX, eY);
-				}
-				return true;
-			} else { // rectangle display
-				return false;
-			}	
+				} else if (tick == 0 or tick == 30) {
+					dc.setColor(drawSettings.horizontalCardinalTicksColor , Graphics.COLOR_TRANSPARENT);
 
+                    tickLengthExtension = drawSettings.additionalPixelLenghtOfCardinalTicks;
+
+				} else if (tick % 5 == 0){
+					dc.setColor(drawSettings.majorTicksColor, Graphics.COLOR_TRANSPARENT);
+
+                    tickLengthExtension = drawSettings.additionalPixelLenghtOfMajorTicks;;
+
+				} else {
+                    dc.setColor(drawSettings.minorTicksColor, Graphics.COLOR_TRANSPARENT); //TODO was Black, Black for non-AoD light theme: Dont know if transparent is okay
+
+                    tickLengthExtension = 0;
+
+                    // thinner lines for minor ticks
+                    tickThickness = 1;
+                }
+
+                sY = (innerRad-tickLengthExtension) * Math.sin(angle);
+				eY = outerRad * Math.sin(angle);
+				sX = (innerRad-tickLengthExtension) * Math.cos(angle);
+				eX = outerRad * Math.cos(angle);
+
+                sY += outerRad;
+                eY += outerRad;
+				sX += outerRad;
+				eX += outerRad;
+
+                dc.setPenWidth(tickThickness);
+
+				dc.drawLine(sX, sY, eX, eY);
+			}
     }
 
-(:square) function drawHashMarks(dc, width, aod, colorFlag, accIndex, showBoolean) {
+(:square) function drawHashMarks(dc, width, aod, colorFlag, accIndex, showBoolean, drawSettings as DrawSettings) {
 			var sX, sY;
 			var eX, eY;
 			var outerRad = width / 2;

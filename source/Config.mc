@@ -416,7 +416,7 @@ class Config {
     }
   }
 
-  private static function isAMOLEDDisplay() as Boolean {
+  public static function isAMOLEDDisplay() as Boolean {
     return System.getDeviceSettings().screenWidth >= 360; //TODO get rid of magic number here and use a proper method to detect AMOLED displays (also reeplace it in the rest of the code)
   }
 }

@@ -21,17 +21,40 @@ import Toybox.Lang;
 // var upTop=true;
 // var MtbA = null;
 
+
+class DrawSettings{
+    public var backgroundColor as Number?;
+    public var accentColor as Number?;
+    public var arborColor as Number?;
+    public var borderColor as Number?;
+    public var minorTicksColor as Number?;
+    public var majorTicksColor as Number?;
+    public var verticalCardinalTicksColor as Number?;
+    public var horizontalCardinalTicksColor as Number?;
+    public var tickIncrement as Number?;
+
+    public var additionalPixelLenghtOfCardinalTicks as Number?;
+    public var additionalPixelLenghtOfMajorTicks as Number?;
+
+    public var width as Number?;
+    public var height as Number?;
+
+    
+
+}
+
+
 // This implements an analog watch face
 // Original design by Austen Harbour
 class AnalogView extends WatchUi.WatchFace {
     //var offscreenBuffer;
-    private var mOffscreenBuffer as BufferedBitmap?;
+    private var mOffscreenBuffer as BufferedBitmap?;  //TODO Review the usage of offscreenBuffer and maybe do a redesign of buffer usages
     //private var _fullScreenRefresh as Boolean;
     //private var _partialUpdatesAllowed as Boolean;
 
     private var mInLowPower as Boolean = false;
     //var canBurnIn=false;
-    private var mUpTop=true;
+    private var mUpTop=true; //TODO Figure out the purpose of upTop variable
     private var mDrawer as Drawer;
     private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
     
@@ -108,7 +131,7 @@ class AnalogView extends WatchUi.WatchFace {
     // Handle the update event
     public function onUpdate(dc as Dc) as Void {
         mDrawer.setFontColor(Config.getFontColor()); //TODO do this only, when config (light / dark theme) changes
-        var targetDc = null;        
+        var bufferDc = null;        
         //var MtbA = new MtbA_functions();
         //var check = Storage.getValue(21);
         
@@ -120,52 +143,98 @@ class AnalogView extends WatchUi.WatchFace {
         if (null != mOffscreenBuffer) {
             // If we have an offscreen buffer that we are using to draw the background,
             // set the draw context of that buffer as our target.
-            targetDc = mOffscreenBuffer.getDc();
+            bufferDc = mOffscreenBuffer.getDc();
             dc.clearClip();
         } else {
-            targetDc = dc;
+            bufferDc = dc;
         }
 
-        var width = targetDc.getWidth();
-        var height = targetDc.getHeight();
+        var drawSettings = new DrawSettings();
+
+        var width = bufferDc.getWidth();
+        var height = bufferDc.getHeight();
         var screenCenterPoint = [width/2, height/2];
 
-        var accentColor;
-        var tickmarkColor = Config.getTickmarkAccentColor();
+        var useAccentColorForTickmarks = Config.getTickmarkAccentColor();
         var arborColor;
         var showSecondHand;
         var borderColor=Graphics.COLOR_BLACK;
 
         if(mInLowPower and mCanBurnIn) { // aod on
-           drawAOD(dc, targetDc, width, tickmarkColor);
+           drawSettings.tickIncrement = 5;
+           drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
+           drawSettings.additionalPixelLenghtOfMajorTicks = 0;
+           
            showSecondHand = false;
            if(Config.getAodUseAccentColor()) {
-                accentColor = Config.getAccentColor();      
+                drawSettings.accentColor = Config.getAccentColor();
+                drawSettings.minorTicksColor = drawSettings.accentColor;
+                drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
+                drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
+                drawSettings.majorTicksColor = drawSettings.accentColor;
                 arborColor=Graphics.COLOR_WHITE;
             } else {
-                accentColor=Graphics.COLOR_LT_GRAY;
+                drawSettings.accentColor = Graphics.COLOR_LT_GRAY;
+                drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
+                drawSettings.verticalCardinalTicksColor = Graphics.COLOR_WHITE;
+                drawSettings.horizontalCardinalTicksColor = Graphics.COLOR_LT_GRAY;
+                drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
                 arborColor=Graphics.COLOR_LT_GRAY;
             } 
+            drawAOD(dc, bufferDc, width, useAccentColorForTickmarks, drawSettings);
           
         } else {
+            drawSettings.accentColor = Config.getAccentColor();
+            drawSettings.tickIncrement = 1;
+            drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
+
+            if(Config.getLightTheme()){
+              drawSettings.majorTicksColor = Graphics.COLOR_BLACK;
+              drawSettings.minorTicksColor = Graphics.COLOR_BLACK;
+
+            } else {
+
+              if(Config.isAMOLEDDisplay()) {
+                drawSettings.majorTicksColor = Graphics.COLOR_DK_GRAY;
+                drawSettings.minorTicksColor = Graphics.COLOR_DK_GRAY;
+
+              } else {
+                drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
+                drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
+              }
+            }
+
+            if (useAccentColorForTickmarks){
+              drawSettings.majorTicksColor = drawSettings.accentColor;
+            }
+
+            if(Config.getHourLabels()){
+                drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
+                drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
+                drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+            } else {
+                drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
+                drawSettings.additionalPixelLenghtOfCardinalTicks = 10;
+                drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+            }
+
             if((!mInLowPower && Config.getSecondsHand())){
               showSecondHand = true;
-
             } else {
               showSecondHand = false;
             }
-          accentColor = Config.getAccentColor();
+
           if(Config.getLightTheme()){
               arborColor=Graphics.COLOR_LT_GRAY;
           } else {
               arborColor=Graphics.COLOR_WHITE;
           }
-          drawNormal(dc, targetDc, width, height, tickmarkColor, accentColor);
+          drawNormal(dc, bufferDc, width, height, drawSettings);
         }
 
         var clockTime = System.getClockTime();
         
-		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), accentColor, arborColor, borderColor, clockTime);
+		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, arborColor, borderColor, clockTime);
 
        if (mInLowPower and mCanBurnIn)  {
             //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
@@ -173,44 +242,46 @@ class AnalogView extends WatchUi.WatchFace {
         }
 
         if(showSecondHand){
-            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), accentColor, arborColor, borderColor, clockTime);
+            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, arborColor, borderColor, clockTime);
         }
     }
 
-    private function drawAOD(dc as Dc, targetDc as Dc, width as Number, tickmarkColor as Boolean) as Void {
+    private function drawAOD(dc as Dc, bufferDc as Dc, width as Number, useAccentColorForTickmarks as Boolean, drawSettings as DrawSettings) as Void {
       if (dc has :setAntiAlias) {
         dc.setAntiAlias(false);
         }
             
       mUpTop=!mUpTop;
       //targetDc.clearClip();
-      targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
-      targetDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height   
-      if(tickmarkColor){ //tickmark color toggle
+      bufferDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
+      bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height
+
+      //TODO Figuring out what the purpose of all of this is...
+      if(useAccentColorForTickmarks){ //tickmark color toggle
           drawBackground(dc);
-          mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+          mDrawer.drawHashMarks(dc, width, drawSettings); //dc
       } else {
-          mDrawer.drawHashMarks(targetDc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc
+          mDrawer.drawHashMarks(bufferDc, width, drawSettings); //dc
           drawBackground(dc);
       }
 
     }
 
-    private function drawNormal(dc as Dc, targetDc as Dc, width as Number, height as Number, tickmarkColor as Boolean, accentColor as Boolean) as Void {
+    private function drawNormal(dc as Dc, bufferDc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
      // Fill the entire background
             if (Config.getLightTheme()){ // Light Theme
-                targetDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+                bufferDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
             } else { // Dark Theme
-                targetDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+                bufferDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
             }
-            targetDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
+            bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
 
             // Output the offscreen buffers to the main display if required.
             drawBackground(dc);
 
             // Draw the tick marks around the edges of the screen
             if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc        
+                mDrawer.drawHashMarks(dc, width, drawSettings); //dc        
             }
 
             if (dc has :setAntiAlias) {
@@ -219,7 +290,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the tick marks around the edges of the screen
             if(width<360){ // With anti-alias for MIP displays
-                mDrawer.drawHashMarks(dc, width, mInLowPower and mCanBurnIn, tickmarkColor, Config.getHourLabels()); //dc         
+                mDrawer.drawHashMarks(dc, width, drawSettings); //dc         
             }
 
             // Garmin Logo check
@@ -231,7 +302,7 @@ class AnalogView extends WatchUi.WatchFace {
 
             // Draw the 3, 6, 9, and 12 hour labels.
             if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape and Config.getHourLabels() != false) {
-                mDrawer.drawHourLabels(dc, width, height, accentColor, Config.getHourLabelAccentColor()); 
+                mDrawer.drawHourLabels(dc, width, height, drawSettings.accentColor, Config.getHourLabelAccentColor()); 
             }
 
             if (Config.showWeather()) {
@@ -280,7 +351,7 @@ class AnalogView extends WatchUi.WatchFace {
             
             // Draw Battery
             if (Config.getBatteryIcon()!=false){ // Show Battery Icon
-                mDrawer.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, accentColor, Config.getConditionalBatteryIconColor());
+                mDrawer.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, drawSettings.accentColor, Config.getConditionalBatteryIconColor());
                 mDrawer.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.getBatteryEstFlag());
             }
 
@@ -316,22 +387,22 @@ class AnalogView extends WatchUi.WatchFace {
 
             // (dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset, dataPoint)            
             var dataPoint = Config.getRightBottomDF(); //right bottom
-            mDrawer.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, accentColor, width, dataPoint, 4);
+            mDrawer.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, drawSettings.accentColor, width, dataPoint, 4);
             //MtbA.drawRightPoints(dc, position[8], position[14], position[10], position[15], accentColor, width, 0, dataPoint);
 
             dataPoint = Config.getRightTopDF(); //right top
-            mDrawer.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, accentColor, width, dataPoint, 4); 
+            mDrawer.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, drawSettings.accentColor, width, dataPoint, 4); 
 
             //(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
             dataPoint = Config.getLeftTopDF(); // left top
-            mDrawer.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, accentColor, width, dataPoint, 1);
+            mDrawer.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, drawSettings.accentColor, width, dataPoint, 1);
 
             dataPoint = Config.getLeftMiddleDF(); // left middle
-            mDrawer.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, accentColor, width, dataPoint, 2);	
+            mDrawer.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, drawSettings.accentColor, width, dataPoint, 2);	
             //MtbA.drawLeftMiddle(dc, position[12], position[16], position[13], position[17], accentColor, width, dataPoint);	
 
             dataPoint = Config.getLeftBottomDF(); // left bottom
-            mDrawer.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, accentColor, width, dataPoint, 3);
+            mDrawer.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, drawSettings.accentColor, width, dataPoint, 3);
 
             var iconSize = 0;
 
@@ -356,7 +427,7 @@ class AnalogView extends WatchUi.WatchFace {
                     // Draw the Do Not Disturb Icon in the middle
                     mDrawer.drawDndIcon(dc, position[0], position[1], width);
                     // Draw alarm icon on the right
-                    mDrawer.drawAlarmIcon(dc, position[3], position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, position[3], position[1], drawSettings.accentColor, width);
                     //Draw bluetooth icon on the left
                     mDrawer.drawBluetoothIcon(dc, position[2], position[1]);
                 } else if(alarm == false and (blue == true)) { // alarm icon is hidden
@@ -368,7 +439,7 @@ class AnalogView extends WatchUi.WatchFace {
                     // Draw the Do Not Disturb Icon on the left
                     mDrawer.drawDndIcon(dc, (position[3]+position[0])/2, position[1], width);
                     // Draw alarm icon on the right
-                    mDrawer.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], accentColor, width);                    
+                    mDrawer.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], drawSettings.accentColor, width);                    
                 } else{ // only Dnd
                     // Draw the Do Not Disturb Icon in the middle
                     mDrawer.drawDndIcon(dc, position[0], position[1], width);
@@ -377,13 +448,13 @@ class AnalogView extends WatchUi.WatchFace {
                 if ((alarm == true or alarm == null) and (blue == true or blue == null)){ // all 2 icons
                     // Draw alarm icon on the right
                     //MtbA.drawAlarmIcon(dc, (position[3]+(position[3]+position[0])/2)/2, position[1], accentColor, width);
-                    mDrawer.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], drawSettings.accentColor, width);
                     //Draw bluetooth icon on the left
                     mDrawer.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
                 } else if(alarm == false and (blue == true)){ // alarm icon is hidden
                     mDrawer.drawBluetoothIcon(dc, (width/2)-1, position[1]);
                 } else if(alarm == true){
-                    mDrawer.drawAlarmIcon(dc, width/2, position[1], accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, width/2, position[1], drawSettings.accentColor, width);
                 }
             }
 
@@ -479,3 +550,5 @@ class AnalogDelegate extends WatchUi.WatchFaceDelegate {
         //partialUpdatesAllowed = false;
     }
 }
+
+
