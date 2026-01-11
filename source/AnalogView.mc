@@ -334,9 +334,9 @@ class AnalogView extends WatchUi.WatchFace {
             if (Config.showWeather()) {
                 var weatherConditions= Weather.getCurrentConditions();
                 if(weatherConditions != null) {
-                    var xIcon, x2Icon, yIcon;
-                    var xTemp, yTemp;
-                    var xName, yName;
+                    var yIcon;
+                    var yTemp;
+                    var yName;
                     
                     if (showGarminLogo) {
                         yIcon=position[20];
@@ -353,16 +353,16 @@ class AnalogView extends WatchUi.WatchFace {
                     }
 
                     if (Config.showWeatherCondition()){
-                        xIcon=position[18];
-                        x2Icon=position[19];
-                        xTemp=position[21];
+                        var xIcon=position[18];
+                        var x2Icon=position[19];
+                        var xTemp=position[21];
 
                         mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
                         mDrawer.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
                     }
                     
                     if(Config.showWeatherConditionName()){
-                        xName=width/2;
+                        var xName=width/2;
 
                         mDrawer.drawLocation(dc, xName, yName);
                     }
