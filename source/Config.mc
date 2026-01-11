@@ -5,7 +5,7 @@ import Toybox.Graphics;
 
 class Config {
   private static const CURRENT_APP_VERSION = 534;
-  private static const SCREEN_IS_ROUND_SHAPED = System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape;
+  public static const SCREEN_IS_ROUND_SHAPED = System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape;
 
   private static const COLOR_BRIGHT_LIME_GREEN = 0x55ff00;
   private static const COLOR_SATURATEDLIME_GREEN = 0xaaff000;
@@ -68,7 +68,7 @@ class Config {
     mWindSpeedUnit = loadOrSetDefault(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, WindSpeedUnitSettings.KPH_OR_MPH);
     mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
     // prettier-ignore
-    mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true);
+    mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true); //TODO find better solution to set default when screen is rounded?
     mConditionalBatteryIconColor = loadOrSetDefault(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, true);
     mDateFontSize = loadOrSetDefault(AppStorage.KEY_21_CFG_DATE_FONT_SIZE, true);
     mSecondsHand = loadOrSetDefault(AppStorage.KEY_33_CFG_SECONDS_HAND, SCREEN_IS_ROUND_SHAPED ? false : true);
@@ -83,6 +83,8 @@ class Config {
     adjustAccentColorForThemesLegacy();
 
     migrateStoredConfigIfNeeded();
+
+    adjustStoredConfigIfNeeded();
 
     updateAppVersionNumberIfNeeded();
   }
@@ -380,6 +382,14 @@ class Config {
       Storage.deleteValue(AppStorage.KEY_21_CFG_DATE_FONT_SIZE);
       setDateFontSize(true);
     }
+  }
+
+  private static function adjustStoredConfigIfNeeded() as Void {
+    if(!SCREEN_IS_ROUND_SHAPED){
+        if(getHourLabels()){
+            setHourLabels(false);
+        }
+    }    
   }
 
   private static function updateAppVersionNumberIfNeeded() as Void {

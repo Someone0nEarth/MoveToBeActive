@@ -31,10 +31,13 @@ class DrawSettings{
     public var majorTicksColor as Number?;
     public var verticalCardinalTicksColor as Number?;
     public var horizontalCardinalTicksColor as Number?;
+    public var cardinalHourLabelsColor as Number?;
     public var tickIncrement as Number?;
 
     public var additionalPixelLenghtOfCardinalTicks as Number?;
     public var additionalPixelLenghtOfMajorTicks as Number?;
+
+    public var garminLogoIcon as Lang.Object?;
 
     public var width as Number?;
     public var height as Number?;
@@ -164,12 +167,14 @@ class AnalogView extends WatchUi.WatchFace {
            drawSettings.tickIncrement = 5;
            drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
            drawSettings.additionalPixelLenghtOfMajorTicks = 0;
+           drawSettings.backgroundColor = Graphics.COLOR_BLACK;
+           drawSettings.garminLogoIcon = null;
            
            showSecondHand = false;
            if(Config.getAodUseAccentColor()) {
                 drawSettings.accentColor = Config.getAccentColor();
                 drawSettings.minorTicksColor = drawSettings.accentColor;
-                drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
+                drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;  //TODO there is a bug: they are painted grey and not in accentcolor. Maybe becaus of drawAOD() tickmarks color toggle?!?
                 drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
                 drawSettings.majorTicksColor = drawSettings.accentColor;
                 arborColor=Graphics.COLOR_WHITE;
@@ -212,6 +217,20 @@ class AnalogView extends WatchUi.WatchFace {
                 drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
                 drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
                 drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+
+                if(Config.getHourLabelAccentColor()){
+                    drawSettings.cardinalHourLabelsColor = drawSettings.accentColor;
+                } else {
+                    if(Config.isAMOLEDDisplay()) {
+                        drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
+                    } else {
+                        if (Config.getLightTheme()) {
+                          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_LT_GRAY;
+                        } else {
+                          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
+                        }
+                    }
+                }
             } else {
                 drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
                 drawSettings.additionalPixelLenghtOfCardinalTicks = 10;
@@ -226,8 +245,16 @@ class AnalogView extends WatchUi.WatchFace {
 
           if(Config.getLightTheme()){
               arborColor=Graphics.COLOR_LT_GRAY;
+              drawSettings.backgroundColor = Graphics.COLOR_WHITE;
+              if(Config.getGarminlogo()){
+                drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
+              }
           } else {
               arborColor=Graphics.COLOR_WHITE;
+              drawSettings.backgroundColor = Graphics.COLOR_BLACK;
+              if(Config.getGarminlogo()){
+                drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogo);
+              }
           }
           drawNormal(dc, bufferDc, width, height, drawSettings);
         }
@@ -249,11 +276,11 @@ class AnalogView extends WatchUi.WatchFace {
     private function drawAOD(dc as Dc, bufferDc as Dc, width as Number, useAccentColorForTickmarks as Boolean, drawSettings as DrawSettings) as Void {
       if (dc has :setAntiAlias) {
         dc.setAntiAlias(false);
-        }
+      }
             
       mUpTop=!mUpTop;
       //targetDc.clearClip();
-      bufferDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
+      bufferDc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
       bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height
 
       //TODO Figuring out what the purpose of all of this is...
@@ -268,41 +295,40 @@ class AnalogView extends WatchUi.WatchFace {
     }
 
     private function drawNormal(dc as Dc, bufferDc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
-     // Fill the entire background
-            if (Config.getLightTheme()){ // Light Theme
-                bufferDc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
-            } else { // Dark Theme
-                bufferDc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            }
+            // Fill the entire background
+            bufferDc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor);
             bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
 
             // Output the offscreen buffers to the main display if required.
             drawBackground(dc);
 
-            // Draw the tick marks around the edges of the screen
-            if(width>=360){ // No need for anti-alias on hashmarks of AMOLED screens
-                mDrawer.drawHashMarks(dc, width, drawSettings); //dc        
+            if(Config.isAMOLEDDisplay()){ // No need for anti-alias on hashmarks of AMOLED screens
+                if (dc has :setAntiAlias) {
+                  dc.setAntiAlias(false);
+                }
+            } else {
+                if (dc has :setAntiAlias) {
+                  dc.setAntiAlias(true);
+                }
             }
+
+            mDrawer.drawHashMarks(dc, width, drawSettings);
 
             if (dc has :setAntiAlias) {
                 dc.setAntiAlias(true);
             }
 
-            // Draw the tick marks around the edges of the screen
-            if(width<360){ // With anti-alias for MIP displays
-                mDrawer.drawHashMarks(dc, width, drawSettings); //dc         
-            }
+            var position = Application.loadResource(Rez.JsonData.mPosition) as Array; //TODO load it once on onLoadout (if any positions are used. if not, not loading)
 
             // Garmin Logo check
             var showGarminLogo=Config.getGarminlogo();
-            var position = Application.loadResource(Rez.JsonData.mPosition) as Array;
-            if (showGarminLogo == null or showGarminLogo == true) {
-                mDrawer.drawGarminLogo(dc, position[4], position[5], Config.getLightTheme()); 
+            if (drawSettings.garminLogoIcon!=null) {
+                mDrawer.drawGarminLogo(dc, position[4], position[5], drawSettings.garminLogoIcon); 
             }
 
             // Draw the 3, 6, 9, and 12 hour labels.
-            if (System.SCREEN_SHAPE_ROUND == System.getDeviceSettings().screenShape and Config.getHourLabels() != false) {
-                mDrawer.drawHourLabels(dc, width, height, drawSettings.accentColor, Config.getHourLabelAccentColor()); 
+            if (Config.getHourLabels()) {
+                mDrawer.drawCardinalHourLabels(dc, width, height, drawSettings); 
             }
 
             if (Config.showWeather()) {
@@ -313,37 +339,31 @@ class AnalogView extends WatchUi.WatchFace {
                     var xName, yName;
                     
                     if (showGarminLogo) {
-                        xIcon=position[18];
-                        x2Icon=position[19];
                         yIcon=position[20];
-
-                        xTemp=position[21];
-                        yTemp=(System.SCREEN_SHAPE_ROUND==System.getDeviceSettings().screenShape)? (width==208 ? position[23] : position[15]) : position[20]; //TODO make it understandable
-
-                        xName=width/2;
+                        yTemp=Config.SCREEN_IS_ROUND_SHAPED ? (width==208 ? position[23] : position[15]) : position[20]; //TODO make it understandable
                         yName=position[23];
 
                         if(width==260){ //TODO Figuring out what the meaning of the magic number "260" is
                           yName = yName+6;
                         }
                     } else {
-                        xIcon=position[18];
-                        x2Icon=position[19];
                         yIcon=position[22];
-
-                        xTemp=position[21];
                         yTemp=position[7];
-
-                        xName=width/2;
                         yName=position[6];
                     }
 
                     if (Config.showWeatherCondition()){
+                        xIcon=position[18];
+                        x2Icon=position[19];
+                        xTemp=position[21];
+
                         mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions.condition, System.getClockTime().hour);
                         mDrawer.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
                     }
                     
                     if(Config.showWeatherConditionName()){
+                        xName=width/2;
+
                         mDrawer.drawLocation(dc, xName, yName);
                     }
                 }

@@ -12,6 +12,7 @@ using Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.Application;
 import Toybox.Time;
+import Toybox.Graphics;
 
 class Drawer {
 	
@@ -288,29 +289,21 @@ class Drawer {
         dc.drawText( x - offset - LEDoffset, y - offset, mIconsFont, ":", Graphics.TEXT_JUSTIFY_CENTER); 
     }
 	
-	/* ------------------------ */	
-	
 	// Draw the 3, 6, 9, and 12 hour labels.
-    function drawHourLabels(dc, width, height, accent, hourLabel) {
-    	// Load the custom fonts: used for drawing the 3, 6, 9, and 12 on the watchface
-        var font = Application.loadResource(Rez.Fonts.id_font_black_diamond); 
-				
-				if (hourLabel) {
-					dc.setColor(accent, Graphics.COLOR_TRANSPARENT);  
-				} else if (width < 360){ // Using lighter tone for MIP displays 
-						dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);  
-				} else { // Darker tone for AMOLED
-	    		dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);  
-				}
+    function drawCardinalHourLabels(dc, width, height, drawSettings as DrawSettings) {
 
-        dc.drawText((width / 2), 14 + (width==208 ? -1 : 0), font, "12", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(width - 13 + (width==208 ? 1 : 0), (height / 2) - 15, font, "3", Graphics.TEXT_JUSTIFY_RIGHT);
-        dc.drawText(width / 2, height - 41 + (width==208 ? 1 : 0), font, "6", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(13 + (width==208 ? -1 : 0), (height / 2) - 15, font, "9", Graphics.TEXT_JUSTIFY_LEFT);
+    	// Load the custom fonts: used for drawing the 3, 6, 9, and 12 on the watchface
+        var font = Application.loadResource(Rez.Fonts.id_font_black_diamond);
+        dc.setColor(drawSettings.cardinalHourLabelsColor, Graphics.COLOR_TRANSPARENT);
+         
+        //TODO Find purpose of width==208 and remove magic numbers 
+        var width208=width==208;
+        dc.drawText((width / 2), 14 + (width208 ? -1 : 0), font, "12", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(width - 13 + (width208 ? 1 : 0), (height / 2) - 15, font, "3", Graphics.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(width / 2, height - 41 + (width208 ? 1 : 0), font, "6", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(13 + (width208 ? -1 : 0), (height / 2) - 15, font, "9", Graphics.TEXT_JUSTIFY_LEFT);
     }
     
-	/* ------------------------ */
-	
 	/**
 	 * Draws the weather icon on the display.
 	 * 
@@ -323,7 +316,7 @@ class Drawer {
 	 * @param clockTime The current clock time in hours.
 	 * @return Boolean indicating if the icon was drawn successfully.
 	 */
-	function drawWeatherIcon(dc, x, y, x2, width, cond, clockTime) {
+function drawWeatherIcon(dc, x, y, x2, width, cond, clockTime) {
 		
 		//var cond = Toybox.Weather.getCurrentConditions().condition;
 		var sunset, sunrise;
@@ -1405,22 +1398,10 @@ class Drawer {
 			dc.fillRectangle( 0, 0 , width, 1); // Using Font
     }
     
-	/* ------------------------ */
-	
-	// Draw Garmin Logo
-	function drawGarminLogo(dc, x as Number, y as Number, theme) {	    
-    	var garminIcon = null;
-			
-			if (theme){ // light theme
-				garminIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
-			} else { // dark theme
-				garminIcon = Application.loadResource(Rez.Drawables.GarminLogo);
-			}
-
-			dc.drawBitmap( x, y , garminIcon);
+    //TODO maybe inline methode?
+	function drawGarminLogo(dc as Dc, x as Number, y as Number, garminLogoIcon) {	    
+		dc.drawBitmap( x, y , garminLogoIcon);
     }
-
-	/* ------------------------ */
 	
 	// Draw Calories Burned
 	private function drawCalories(dc, xIcon, yIcon, xText, yText, width, type) {	
@@ -2601,7 +2582,7 @@ class Drawer {
 
 		if (width>=390) { // Venu 1 & 2
 			offset390=1;
-		} else if (System.SCREEN_SHAPE_ROUND != screenShape) { //check if rectangle display
+		} else if (System.SCREEN_SHAPE_ROUND != mScreenShape) { //check if rectangle display
 			offset390=1;
 		}
 		
