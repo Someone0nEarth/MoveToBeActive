@@ -294,7 +294,7 @@ class Drawer {
     function drawCardinalHourLabels(dc, width, height, drawSettings as DrawSettings) {
 
     	// Load the custom fonts: used for drawing the 3, 6, 9, and 12 on the watchface
-        var font = Application.loadResource(Rez.Fonts.id_font_black_diamond);
+        var font = Application.loadResource(Rez.Fonts.id_font_black_diamond); //TODO Should be loaded only one time?
         dc.setColor(drawSettings.cardinalHourLabelsColor, Graphics.COLOR_TRANSPARENT);
          
         //TODO Find purpose of width==208 and remove magic numbers 
@@ -538,75 +538,51 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 	
 	/* ------------------------ */
 	
-	function drawTemperature(dc, x, y, showBoolean, width, unit) {
-		
-		var TempMetric = System.getDeviceSettings().temperatureUnits;
-		var temp=null, units = "", minTemp=null, maxTemp=null;
-		var weather = Weather.getCurrentConditions();
+	function drawTemperature(dc, x, y, weatherConditions as Weather.CurrentConditions, realTemperatureType, width, alwaysCelsius, drawSettings as DrawSettings) {
+		var temperature=null;
 
-		if ((weather.lowTemperature!=null) and (weather.highTemperature!=null)){ // and weather.lowTemperature instanceof Number ;  and weather.highTemperature instanceof Number
-			minTemp = weather.lowTemperature;
-			maxTemp = weather.highTemperature;
-		}
+		if(realTemperatureType && weatherConditions.temperature!=null) {  // real temperature
+			temperature = weatherConditions.temperature;
+		} else if ( weatherConditions.feelsLikeTemperature!=null) { //feels like 
+			temperature = weatherConditions.feelsLikeTemperature;
+        } else {
+            return; //No temperature value.. so leave
+        }
 
-		var offset=0;
-
-		if(width==390){ // venu
-			offset=-1;
-		}
-			
-		if (showBoolean == false and weather!=null and (weather.feelsLikeTemperature!=null)) { //feels like ;  and weather.feelsLikeTemperature instanceof Number
-			if (TempMetric == System.UNIT_METRIC or unit) { //Celsius
-				units = "°C";
-				temp = weather.feelsLikeTemperature;
-			}	else {
-				temp = (weather.feelsLikeTemperature * 9/5) + 32; 
-				if (minTemp!=null and maxTemp!=null){
-					minTemp = (minTemp* 9/5) + 32;
-					maxTemp = (maxTemp* 9/5) + 32;
-				}
-				//temp = Lang.format("$1$", [temp.format("%d")] );
-				units = "°F";
-			}				
-		} else if(weather!=null and (weather.temperature!=null)) {  // real temperature ;  and weather.temperature instanceof Number
-				if (TempMetric == System.UNIT_METRIC or unit) { //Celsius
-					units = "°C";
-					temp = weather.temperature;
-				}	else {
-					temp = (weather.temperature * 9/5) + 32; 
-					if (minTemp!=null and maxTemp!=null){
-						minTemp = (minTemp* 9/5) + 32;
-						maxTemp = (maxTemp* 9/5) + 32;
-					}
-					//temp = Lang.format("$1$", [temp.format("%d")] );
-					units = "°F";
-				}
-		}
-		
-		if (temp != null){ // and temp instanceof Number
+		if (temperature != null){
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
-			if ((minTemp != null) and (maxTemp != null)) { //  and minTemp instanceof Number ;  and maxTemp instanceof Number
-				if (temp<=minTemp){
-					if (!Config.getLightTheme()){ // Dark Theme
-						dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT); // Light Blue 0x55AAFF
-					} else { // Light Theme
-						dc.setColor(0x0055AA, Graphics.COLOR_TRANSPARENT); 
-					}
-				} else if (temp>=maxTemp){
-					if (!Config.getLightTheme()){ // Dark Theme
-						dc.setColor(0xFFAA00, Graphics.COLOR_TRANSPARENT); // Light Orange
-					} else { // Light Theme
-						dc.setColor(0xFF5500, Graphics.COLOR_TRANSPARENT);
-					}
+
+            var minTemperature = weatherConditions.lowTemperature;
+		    var maxTemperature = weatherConditions.highTemperature;
+
+			if (minTemperature != null && maxTemperature != null) {
+				if (temperature<=minTemperature){
+						dc.setColor(drawSettings.lowTemperatureColor, Graphics.COLOR_TRANSPARENT);
+				} else if (temperature>=maxTemperature){
+						dc.setColor(drawSettings.highTemperatureColor, Graphics.COLOR_TRANSPARENT);
 				}				
 			}
 
-			// correcting a bug introduced by System 7 SDK
-			temp=temp.format("%d");
+            var units = "";
+            if (alwaysCelsius || System.getDeviceSettings().temperatureUnits == System.UNIT_METRIC) {
+				units = "°C";
+			} else {
+				temperature = (weatherConditions.temperature * 9/5) + 32; 
+				units = "°F";
+            }
 
-			dc.drawText(x, y+offset, Graphics.FONT_XTINY, temp, Graphics.TEXT_JUSTIFY_LEFT); // + units
+			// correcting a bug introduced by System 7 SDK
+			temperature=temperature.format("%d");
+
+            var offset=0;
+            //TODO magic number
+	    	if(width==390){ // venu
+		    	offset=-1;
+		    }
+
+			dc.drawText(x, y+offset, Graphics.FONT_XTINY, temperature, Graphics.TEXT_JUSTIFY_LEFT);
 			dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
-			dc.drawText(x + dc.getTextWidthInPixels(temp,Graphics.FONT_XTINY), y+offset , Graphics.FONT_XTINY, units, Graphics.TEXT_JUSTIFY_LEFT); 
+			dc.drawText(x + dc.getTextWidthInPixels(temperature,Graphics.FONT_XTINY), y+offset , Graphics.FONT_XTINY, units, Graphics.TEXT_JUSTIFY_LEFT); 
 		}
 	}
 	

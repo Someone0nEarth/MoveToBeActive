@@ -245,7 +245,7 @@ class AnalogView extends WatchUi.WatchFace {
                         var xTemp=position[21];
 
                         mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
-                        mDrawer.drawTemperature(dc, xTemp, yTemp,  Config.getTemperatureType(), width, Config.getTemperatureUnit());
+                        mDrawer.drawTemperature(dc, xTemp, yTemp, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius(), mDrawSettings);
                     }
                     
                     if(Config.showWeatherConditionName()){
@@ -485,11 +485,14 @@ class DrawSettings {
   public var accentColor as Number?;
   public var arborColor as Number?;
   public var borderColor as Number = Graphics.COLOR_BLACK;
+  public var lowTemperatureColor as Number?;
+  public var highTemperatureColor as Number?;
   public var minorTicksColor as Number?;
   public var majorTicksColor as Number?;
   public var verticalCardinalTicksColor as Number?;
   public var horizontalCardinalTicksColor as Number?;
   public var cardinalHourLabelsColor as Number?;
+
   public var tickIncrement as Number?;
 
   public var additionalPixelLenghtOfCardinalTicks as Number?;
@@ -536,6 +539,9 @@ class DrawSettings {
 
     drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
     drawSettings.backgroundColor = Graphics.COLOR_WHITE;
+    drawSettings.lowTemperatureColor = 0x0055AA;
+    drawSettings.highTemperatureColor = 0xFF5500;
+
     if (Config.getGarminlogo()) {
       drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
     }
@@ -580,6 +586,9 @@ class DrawSettings {
 
     drawSettings.arborColor = Graphics.COLOR_WHITE;
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
+    drawSettings.lowTemperatureColor = Graphics.COLOR_BLUE;
+    drawSettings.highTemperatureColor = 0xFFAA00;
+
     if (Config.getGarminlogo()) {
       drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogo);
     }

@@ -17,7 +17,7 @@ class Config {
   private static var mGarminlogo;
   private static var mHourLabels;
   private static var mWeatherCondition;
-  private static var mTemperatureType;
+  private static var mRealTemperatureType;
   private static var mShowWeatherConditionName;
   private static var mBatteryIcon;
   private static var mFontSize;
@@ -34,7 +34,7 @@ class Config {
   private static var mAodUseAccentColor;
   private static var mDateFormat;
   private static var mWindSpeedUnit;
-  private static var mTemperatureUnit;
+  private static var mTemperatureAlwaysCelsius;
   private static var mHourLabelAccentColor;
   private static var mConditionalBatteryIconColor;
   private static var mDateFontSize;
@@ -49,7 +49,7 @@ class Config {
     mGarminlogo = loadOrSetDefault(AppStorage.KEY_3_CFG_GARMINLOGO, true);
     mHourLabels = loadOrSetDefault(AppStorage.KEY_5_CFG_HOUR_LABELS, SCREEN_IS_ROUND_SHAPED ? true : false);
     mWeatherCondition = loadOrSetDefault(AppStorage.KEY_25_CFG_WEATHER_CONDITION, true);
-    mTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, true);
+    mRealTemperatureType = loadOrSetDefault(AppStorage.KEY_6_CFG_REAL_TEMPERATURE_TYPE, true);
     mShowWeatherConditionName = loadOrSetDefault(AppStorage.KEY_7_CFG_WEATHER_CONDITION_NAME, true);
     mBatteryIcon = loadOrSetDefault(AppStorage.KEY_26_CFG_BATTERY_ICON, true);
     mFontSize = loadOrSetDefault(AppStorage.KEY_14_CFG_FONT_SIZE, SCREEN_IS_ROUND_SHAPED ? false : true);
@@ -66,7 +66,7 @@ class Config {
     mAodUseAccentColor = loadOrSetDefault(AppStorage.KEY_22_CFG_AOD_USE_ACCENT_COLOR, false);
     mDateFormat = loadOrSetDefault(AppStorage.KEY_24_CFG_DATE_FORMAT, false);
     mWindSpeedUnit = loadOrSetDefault(AppStorage.KEY_15_CFG_WINDSPEED_UNIT, WindSpeedUnitSettings.KPH_OR_MPH);
-    mTemperatureUnit = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, false);
+    mTemperatureAlwaysCelsius = loadOrSetDefault(AppStorage.KEY_16_CFG_TEMPERATURE_ALWAYS_CELSIUS, false);
     // prettier-ignore
     mHourLabelAccentColor = loadOrSetDefault(AppStorage.KEY_27_CFG_HOUR_LABELS_ACCENT_COLOR, SCREEN_IS_ROUND_SHAPED ? false : true); //TODO find better solution to set default when screen is rounded?
     mConditionalBatteryIconColor = loadOrSetDefault(AppStorage.KEY_28_CFG_CONDITIONAL_BATTERY_ICON_COLOR, true);
@@ -125,9 +125,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_25_CFG_WEATHER_CONDITION, value);
   }
 
-  public static function setTemperatureType(value) {
-    mTemperatureType = value;
-    AppStorage.persist(AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, value);
+  public static function setRealTemperatureType(value) {
+    mRealTemperatureType = value;
+    AppStorage.persist(AppStorage.KEY_6_CFG_REAL_TEMPERATURE_TYPE, value);
   }
 
   public static function setShowWeatherConditionName(value as Boolean) {
@@ -200,9 +200,9 @@ class Config {
     AppStorage.persist(AppStorage.KEY_24_CFG_DATE_FORMAT, value);
   }
 
-  public static function setTemperatureUnit(value) {
-    mTemperatureUnit = value;
-    AppStorage.persist(AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, value);
+  public static function setTemperatureAlwaysCelsius(value) {
+    mTemperatureAlwaysCelsius = value;
+    AppStorage.persist(AppStorage.KEY_16_CFG_TEMPERATURE_ALWAYS_CELSIUS, value);
   }
 
   public static function setHourLabelAccentColor(value) {
@@ -263,8 +263,8 @@ class Config {
     return mWeatherCondition;
   }
 
-  public static function getTemperatureType() {
-    return mTemperatureType;
+  public static function getRealTemperatureType() {
+    return mRealTemperatureType;
   }
 
   public static function showWeatherConditionName() {
@@ -323,8 +323,8 @@ class Config {
     return mDateFormat;
   }
 
-  public static function getTemperatureUnit() {
-    return mTemperatureUnit;
+  public static function getTemperatureAlwaysCelsius() {
+    return mTemperatureAlwaysCelsius;
   }
 
   public static function getHourLabelAccentColor() {
