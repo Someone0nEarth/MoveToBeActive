@@ -21,32 +21,6 @@ import Toybox.Lang;
 // var upTop=true;
 // var MtbA = null;
 
-
-class DrawSettings{
-    public var backgroundColor as Number?;
-    public var accentColor as Number?;
-    public var arborColor as Number?;
-    public var borderColor as Number?;
-    public var minorTicksColor as Number?;
-    public var majorTicksColor as Number?;
-    public var verticalCardinalTicksColor as Number?;
-    public var horizontalCardinalTicksColor as Number?;
-    public var cardinalHourLabelsColor as Number?;
-    public var tickIncrement as Number?;
-
-    public var additionalPixelLenghtOfCardinalTicks as Number?;
-    public var additionalPixelLenghtOfMajorTicks as Number?;
-
-    public var garminLogoIcon as Lang.Object?;
-
-    public var width as Number?;
-    public var height as Number?;
-
-    
-
-}
-
-
 // This implements an analog watch face
 // Original design by Austen Harbour
 class AnalogView extends WatchUi.WatchFace {
@@ -152,89 +126,26 @@ class AnalogView extends WatchUi.WatchFace {
             bufferDc = dc;
         }
 
-        var drawSettings = new DrawSettings();
-
         var width = bufferDc.getWidth();
         var height = bufferDc.getHeight();
         var screenCenterPoint = [width/2, height/2];
 
         var useAccentColorForTickmarks = Config.getTickmarkAccentColor();
-        var arborColor;
         var showSecondHand;
-        var borderColor=Graphics.COLOR_BLACK;
-
+        
+        var drawSettings;
         if(mInLowPower and mCanBurnIn) { // aod on
-           drawSettings.tickIncrement = 5;
-           drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
-           drawSettings.additionalPixelLenghtOfMajorTicks = 0;
-           drawSettings.backgroundColor = Graphics.COLOR_BLACK;
-           drawSettings.garminLogoIcon = null;
-           
-           showSecondHand = false;
-           if(Config.getAodUseAccentColor()) {
-                drawSettings.accentColor = Config.getAccentColor();
-                drawSettings.minorTicksColor = drawSettings.accentColor;
-                drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;  //TODO there is a bug: they are painted grey and not in accentcolor. Maybe becaus of drawAOD() tickmarks color toggle?!?
-                drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
-                drawSettings.majorTicksColor = drawSettings.accentColor;
-                arborColor=Graphics.COLOR_WHITE;
-            } else {
-                drawSettings.accentColor = Graphics.COLOR_LT_GRAY;
-                drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
-                drawSettings.verticalCardinalTicksColor = Graphics.COLOR_WHITE;
-                drawSettings.horizontalCardinalTicksColor = Graphics.COLOR_LT_GRAY;
-                drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
-                arborColor=Graphics.COLOR_LT_GRAY;
-            } 
+            drawSettings=DrawSettings.aodTheme();
+
+            showSecondHand = false;
             drawAOD(dc, bufferDc, width, useAccentColorForTickmarks, drawSettings);
           
         } else {
-            drawSettings.accentColor = Config.getAccentColor();
-            drawSettings.tickIncrement = 1;
-            drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
 
             if(Config.getLightTheme()){
-              drawSettings.majorTicksColor = Graphics.COLOR_BLACK;
-              drawSettings.minorTicksColor = Graphics.COLOR_BLACK;
-
+              drawSettings=DrawSettings.lightTheme();
             } else {
-
-              if(Config.isAMOLEDDisplay()) {
-                drawSettings.majorTicksColor = Graphics.COLOR_DK_GRAY;
-                drawSettings.minorTicksColor = Graphics.COLOR_DK_GRAY;
-
-              } else {
-                drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
-                drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
-              }
-            }
-
-            if (useAccentColorForTickmarks){
-              drawSettings.majorTicksColor = drawSettings.accentColor;
-            }
-
-            if(Config.getHourLabels()){
-                drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
-                drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
-                drawSettings.additionalPixelLenghtOfMajorTicks = 10;
-
-                if(Config.getHourLabelAccentColor()){
-                    drawSettings.cardinalHourLabelsColor = drawSettings.accentColor;
-                } else {
-                    if(Config.isAMOLEDDisplay()) {
-                        drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
-                    } else {
-                        if (Config.getLightTheme()) {
-                          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_LT_GRAY;
-                        } else {
-                          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
-                        }
-                    }
-                }
-            } else {
-                drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
-                drawSettings.additionalPixelLenghtOfCardinalTicks = 10;
-                drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+              drawSettings=DrawSettings.darkTheme();
             }
 
             if((!mInLowPower && Config.getSecondsHand())){
@@ -243,25 +154,12 @@ class AnalogView extends WatchUi.WatchFace {
               showSecondHand = false;
             }
 
-          if(Config.getLightTheme()){
-              arborColor=Graphics.COLOR_LT_GRAY;
-              drawSettings.backgroundColor = Graphics.COLOR_WHITE;
-              if(Config.getGarminlogo()){
-                drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
-              }
-          } else {
-              arborColor=Graphics.COLOR_WHITE;
-              drawSettings.backgroundColor = Graphics.COLOR_BLACK;
-              if(Config.getGarminlogo()){
-                drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogo);
-              }
-          }
           drawNormal(dc, bufferDc, width, height, drawSettings);
         }
 
         var clockTime = System.getClockTime();
         
-		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, arborColor, borderColor, clockTime);
+		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, drawSettings.arborColor, drawSettings.borderColor, clockTime);
 
        if (mInLowPower and mCanBurnIn)  {
             //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
@@ -269,7 +167,7 @@ class AnalogView extends WatchUi.WatchFace {
         }
 
         if(showSecondHand){
-            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, arborColor, borderColor, clockTime);
+            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, drawSettings.arborColor, drawSettings.borderColor, clockTime);
         }
     }
 
@@ -569,6 +467,142 @@ class AnalogDelegate extends WatchUi.WatchFaceDelegate {
         //System.println( "Allowed execution time: " + powerInfo.executionTimeLimit );
         //partialUpdatesAllowed = false;
     }
+}
+
+class DrawSettings {
+  public var backgroundColor as Number?;
+  public var accentColor as Number?;
+  public var arborColor as Number?;
+  public var borderColor as Number = Graphics.COLOR_BLACK;
+  public var minorTicksColor as Number?;
+  public var majorTicksColor as Number?;
+  public var verticalCardinalTicksColor as Number?;
+  public var horizontalCardinalTicksColor as Number?;
+  public var cardinalHourLabelsColor as Number?;
+  public var tickIncrement as Number?;
+
+  public var additionalPixelLenghtOfCardinalTicks as Number?;
+  public var additionalPixelLenghtOfMajorTicks as Number?;
+
+  public var garminLogoIcon as Lang.Object?;
+
+  public var width as Number?;
+  public var height as Number?;
+
+  public static function lightTheme() as DrawSettings {
+    var drawSettings = new DrawSettings();
+
+    drawSettings.accentColor = Config.getAccentColor();
+    drawSettings.tickIncrement = 1;
+    drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
+
+    if (Config.getTickmarkAccentColor()) {
+      drawSettings.majorTicksColor = drawSettings.accentColor;
+    } else {
+      drawSettings.majorTicksColor = Graphics.COLOR_BLACK;
+      drawSettings.minorTicksColor = Graphics.COLOR_BLACK;
+    }
+
+    if (Config.getHourLabels()) {
+      drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
+      drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
+      drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+
+      if (Config.getHourLabelAccentColor()) {
+        drawSettings.cardinalHourLabelsColor = drawSettings.accentColor;
+      } else {
+        if (Config.isAMOLEDDisplay()) {
+          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
+        } else {
+          drawSettings.cardinalHourLabelsColor = Graphics.COLOR_LT_GRAY;
+        }
+      }
+    } else {
+      drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
+      drawSettings.additionalPixelLenghtOfCardinalTicks = 10;
+      drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+    }
+
+    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
+    drawSettings.backgroundColor = Graphics.COLOR_WHITE;
+    if (Config.getGarminlogo()) {
+      drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
+    }
+
+    return drawSettings;
+  }
+
+  public static function darkTheme() as DrawSettings {
+    var drawSettings = new DrawSettings();
+
+    drawSettings.accentColor = Config.getAccentColor();
+    drawSettings.tickIncrement = 1;
+    drawSettings.verticalCardinalTicksColor = drawSettings.accentColor;
+
+    if (Config.getTickmarkAccentColor()) {
+      drawSettings.majorTicksColor = drawSettings.accentColor;
+    } else {
+      if (Config.isAMOLEDDisplay()) {
+        drawSettings.majorTicksColor = Graphics.COLOR_DK_GRAY;
+        drawSettings.minorTicksColor = Graphics.COLOR_DK_GRAY;
+      } else {
+        drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
+        drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
+      }
+    }
+
+    if (Config.getHourLabels()) {
+      drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
+      drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
+      drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+
+      if (Config.getHourLabelAccentColor()) {
+        drawSettings.cardinalHourLabelsColor = drawSettings.accentColor;
+      } else {
+        drawSettings.cardinalHourLabelsColor = Graphics.COLOR_DK_GRAY;
+      }
+    } else {
+      drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
+      drawSettings.additionalPixelLenghtOfCardinalTicks = 10;
+      drawSettings.additionalPixelLenghtOfMajorTicks = 10;
+    }
+
+    drawSettings.arborColor = Graphics.COLOR_WHITE;
+    drawSettings.backgroundColor = Graphics.COLOR_BLACK;
+    if (Config.getGarminlogo()) {
+      drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogo);
+    }
+
+    return drawSettings;
+  }
+
+  public static function aodTheme() as DrawSettings {
+    var drawSettings = new DrawSettings();
+
+    drawSettings.tickIncrement = 5;
+    drawSettings.additionalPixelLenghtOfCardinalTicks = 0;
+    drawSettings.additionalPixelLenghtOfMajorTicks = 0;
+    drawSettings.backgroundColor = Graphics.COLOR_BLACK;
+    drawSettings.garminLogoIcon = null;
+
+    if (Config.getAodUseAccentColor()) {
+      drawSettings.accentColor = Config.getAccentColor();
+      drawSettings.minorTicksColor = drawSettings.accentColor;
+      drawSettings.verticalCardinalTicksColor = drawSettings.accentColor; //TODO there is a bug: they are painted grey and not in accentcolor. Maybe becaus of drawAOD() tickmarks color toggle?!?
+      drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
+      drawSettings.majorTicksColor = drawSettings.accentColor;
+      drawSettings.arborColor = Graphics.COLOR_WHITE;
+    } else {
+      drawSettings.accentColor = Graphics.COLOR_LT_GRAY;
+      drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
+      drawSettings.verticalCardinalTicksColor = Graphics.COLOR_WHITE;
+      drawSettings.horizontalCardinalTicksColor = Graphics.COLOR_LT_GRAY;
+      drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
+      drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
+    }
+
+    return drawSettings;
+  }
 }
 
 
