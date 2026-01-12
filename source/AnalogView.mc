@@ -32,7 +32,8 @@ class AnalogView extends WatchUi.WatchFace {
     private var mInLowPower as Boolean = false;
     //var canBurnIn=false;
     private var mUpTop=true; //TODO Figure out the purpose of upTop variable
-    private var mDrawer as Drawer;
+    private var mDrawer as Drawer?;
+    private var mDrawSettings as DrawSettings?;
     private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
     
 
@@ -43,8 +44,6 @@ class AnalogView extends WatchUi.WatchFace {
         //_partialUpdatesAllowed = (WatchUi.WatchFace has :onPartialUpdate);
 
         Config.load();
-
-        mDrawer= new Drawer(mInLowPower, Config.getFontColor());   
     }
 
     // Configure the layout of the watchface for this device
@@ -73,7 +72,6 @@ class AnalogView extends WatchUi.WatchFace {
         } else {
             mOffscreenBuffer = null;
         }
-
     }
 
     // Configure the layout of the watchface for this device
@@ -133,20 +131,11 @@ class AnalogView extends WatchUi.WatchFace {
         var useAccentColorForTickmarks = Config.getTickmarkAccentColor();
         var showSecondHand;
         
-        var drawSettings;
         if(mInLowPower and mCanBurnIn) { // aod on
-            drawSettings=DrawSettings.aodTheme();
-
             showSecondHand = false;
-            drawAOD(dc, bufferDc, width, useAccentColorForTickmarks, drawSettings);
-          
-        } else {
+            drawAOD(dc, bufferDc, width, useAccentColorForTickmarks, mDrawSettings);
 
-            if(Config.getLightTheme()){
-              drawSettings=DrawSettings.lightTheme();
-            } else {
-              drawSettings=DrawSettings.darkTheme();
-            }
+        } else {
 
             if((!mInLowPower && Config.getSecondsHand())){
               showSecondHand = true;
@@ -154,12 +143,12 @@ class AnalogView extends WatchUi.WatchFace {
               showSecondHand = false;
             }
 
-          drawNormal(dc, bufferDc, width, height, drawSettings);
+            drawNormal(dc, bufferDc, width, height, mDrawSettings);
         }
 
         var clockTime = System.getClockTime();
         
-		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, drawSettings.arborColor, drawSettings.borderColor, clockTime);
+		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
 
        if (mInLowPower and mCanBurnIn)  {
             //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
@@ -167,7 +156,7 @@ class AnalogView extends WatchUi.WatchFace {
         }
 
         if(showSecondHand){
-            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), drawSettings.accentColor, drawSettings.arborColor, drawSettings.borderColor, clockTime);
+            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
         }
     }
 
@@ -420,6 +409,26 @@ class AnalogView extends WatchUi.WatchFace {
     // state of this View here. This includes freeing resources from
     // memory.
     function onHide() as Void {
+        mDrawer=null;
+        mDrawSettings=null;
+    }
+
+    function onShow() as Void {
+        mDrawer= new Drawer(mInLowPower, Config.getFontColor());
+        refreshDrawSettings();
+    }
+
+    private function refreshDrawSettings() as Void{
+        Config.load();
+
+        if(mInLowPower && mCanBurnIn) { // aod on
+            mDrawSettings=DrawSettings.aodTheme();
+        } else if (Config.getLightTheme()){
+            mDrawSettings=DrawSettings.lightTheme();
+        } else {
+            mDrawSettings=DrawSettings.darkTheme();
+        }
+
     }
 
     //! This method is called when the device re-enters sleep mode.
@@ -428,7 +437,8 @@ class AnalogView extends WatchUi.WatchFace {
         //_isAwake = false;
         mInLowPower=true;            
         mDrawer.enterSleep(mInLowPower);
-        WatchUi.requestUpdate();
+        refreshDrawSettings();
+        WatchUi.requestUpdate(); //TODO should not be necessary, because onUpdate should be triggered by the system itself?
     }
 
     //! This method is called when the device exits sleep mode.
@@ -437,6 +447,7 @@ class AnalogView extends WatchUi.WatchFace {
         //_isAwake = true;
         mInLowPower=false;
         mDrawer.exitSleep(mInLowPower);
+        refreshDrawSettings();
         //WatchUi.requestUpdate();
     }
 
