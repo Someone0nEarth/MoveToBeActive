@@ -24,9 +24,9 @@ class SettingsUnitsMenu extends WatchUi.Menu2 {
                 }
 
                 // prettier-ignore
-                SettingsMainMenu.toggleItem(self, "Temp. Type", "Real Temperature", "Feels Like", AppStorage.KEY_6_CFG_TEMPERATURE_TYPE, Config.getTemperatureType());
+                SettingsMainMenu.toggleItem(self, "Temp. Type", "Real Temperature", "Feels Like", AppStorage.KEY_6_CFG_REAL_TEMPERATURE_TYPE, Config.getRealTemperatureType());
                 // prettier-ignore
-                SettingsMainMenu.toggleItem(self, "Temp. Unit", "Always Celsius", "User Settings", AppStorage.KEY_16_CFG_TEMPERATURE_UNIT, Config.getTemperatureUnit());
+                SettingsMainMenu.toggleItem(self, "Temp. Unit", "Always Celsius", "User Settings", AppStorage.KEY_16_CFG_TEMPERATURE_ALWAYS_CELSIUS, Config.getTemperatureAlwaysCelsius());
 
                 SettingsMainMenu.iconMenuItem(self, "Wind Speed Unit", new WindSpeedUnitSettings());
             }
