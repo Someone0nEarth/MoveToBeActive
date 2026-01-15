@@ -541,7 +541,7 @@ class DrawSettings {
       drawSettings.additionalPixelLenghtOfMajorTicks = 10;
     }
 
-    drawSettings.arborColor = Graphics.COLOR_WHITE;
+    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
     drawSettings.lowTemperatureColor = Graphics.COLOR_BLUE;
     drawSettings.highTemperatureColor = 0xFFAA00;
@@ -561,6 +561,7 @@ class DrawSettings {
     drawSettings.additionalPixelLenghtOfMajorTicks = 0;
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
     drawSettings.garminLogoIcon = null;
+    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
 
     if (Config.getAodUseAccentColor()) {
       drawSettings.accentColor = Config.getAccentColor();
@@ -568,14 +569,12 @@ class DrawSettings {
       drawSettings.verticalCardinalTicksColor = drawSettings.accentColor; //TODO there is a bug: they are painted grey and not in accentcolor. Maybe becaus of drawAOD() tickmarks color toggle?!?
       drawSettings.horizontalCardinalTicksColor = drawSettings.accentColor;
       drawSettings.majorTicksColor = drawSettings.accentColor;
-      drawSettings.arborColor = Graphics.COLOR_WHITE;
     } else {
       drawSettings.accentColor = Graphics.COLOR_LT_GRAY;
       drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
       drawSettings.verticalCardinalTicksColor = Graphics.COLOR_WHITE;
       drawSettings.horizontalCardinalTicksColor = Graphics.COLOR_LT_GRAY;
       drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
-      drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
     }
 
     return drawSettings;
