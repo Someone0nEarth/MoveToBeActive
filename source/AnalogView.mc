@@ -25,16 +25,17 @@ import Toybox.Lang;
 // Original design by Austen Harbour
 class AnalogView extends WatchUi.WatchFace {
     //var offscreenBuffer;
-    private var mOffscreenBuffer as BufferedBitmap?;  //TODO Review the usage of offscreenBuffer and maybe do a redesign of buffer usages
+    private var mBackgroundBuffer as BufferedBitmap?;
     //private var _fullScreenRefresh as Boolean;
     //private var _partialUpdatesAllowed as Boolean;
 
     private var mInLowPower as Boolean = false;
     //var canBurnIn=false;
-    private var mUpTop=true; //TODO Figure out the purpose of upTop variable
+    //private var mUpTop=true; //TODO Figure out the purpose of upTop variable
     private var mDrawer as Drawer?;
     private var mDrawSettings as DrawSettings?;
     private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
+    private var mInitBackgroundBuffer = true;
     
 
     // Initialize variables for this view
@@ -46,95 +47,78 @@ class AnalogView extends WatchUi.WatchFace {
         Config.load();
     }
 
-    // Configure the layout of the watchface for this device
-(:allColors) public function onLayout(dc as Dc) as Void {
-		
-        var offscreenBufferOptions = {
+    public function onLayout(dc as Dc) as Void {
+        if (Graphics has :createBufferedBitmap) {
+            // get() used to return resource as Graphics.BufferedBitmap
+            mBackgroundBuffer = Graphics.createBufferedBitmap(getBufferedBitmapOptions(dc)).get() as BufferedBitmap;
+
+        } else if (Graphics has :BufferedBitmap) { // If this device supports BufferedBitmap, allocate the buffers we use for drawing
+            // Allocate a full screen size buffer with a palette of only 4 colors to draw
+            // the background image of the watchface.  This is used to facilitate blanking
+            // the second hand during partial updates of the display
+            mBackgroundBuffer = new Graphics.BufferedBitmap(getBufferedBitmapOptions(dc));
+        } else {
+            mBackgroundBuffer = null;
+        }
+    }
+
+    (:lowColors) 
+    private function getBufferedBitmapOptions(dc as Dc) as { :width as Lang.Number, :height as Lang.Number, :palette as Lang.Array<Graphics.ColorType>}{
+      return {
+                :width=>dc.getWidth(),
+                :height=>dc.getHeight(),
+                :palette=> [
+                    Graphics.COLOR_BLACK,
+                    Graphics.COLOR_WHITE
+                ]
+            };
+    }
+
+    (:allColors)
+    private function getBufferedBitmapOptions(dc as Dc) as { :width as Lang.Number, :height as Lang.Number, :palette as Lang.Array<Graphics.ColorType>}{
+      return {
                 :width=>dc.getWidth(),
                 :height=>dc.getHeight(),
                 :palette=> [
                     Graphics.COLOR_DK_GRAY,
                     Graphics.COLOR_LT_GRAY,
                     Graphics.COLOR_BLACK,
-                    Graphics.COLOR_WHITE
+                    Graphics.COLOR_WHITE,
+                    5635840, 11206400, 16776960, 43775, 65535, 11163135, 16755200, 16711680, 16733695, 16777215, //Accent colors dark theme //TODO use xml resource jsonData id="mColors"
+                    43520, 21845, 11184640, 21930, 11141120, 11141375, 16733440, 16711680, 16711850, 5592405 //Accent colors light theme //TODO use xml resource jsonData id="mColorsWhite"
                 ]
             };
-
-        if (Graphics has :createBufferedBitmap) {
-            // get() used to return resource as Graphics.BufferedBitmap
-            mOffscreenBuffer = Graphics.createBufferedBitmap(offscreenBufferOptions).get() as BufferedBitmap;
-
-        } else if (Graphics has :BufferedBitmap) { // If this device supports BufferedBitmap, allocate the buffers we use for drawing
-            // Allocate a full screen size buffer with a palette of only 4 colors to draw
-            // the background image of the watchface.  This is used to facilitate blanking
-            // the second hand during partial updates of the display
-            mOffscreenBuffer = new Graphics.BufferedBitmap(offscreenBufferOptions);
-        } else {
-            mOffscreenBuffer = null;
-        }
     }
-
-    // Configure the layout of the watchface for this device
-(:lowColors) public function onLayout(dc as Dc) as Void {
-		
-        var offscreenBufferOptions = {
-                :width=>dc.getWidth(),
-                :height=>dc.getHeight(),
-                :palette=> [
-                    Graphics.COLOR_BLACK,
-                    Graphics.COLOR_WHITE
-                ]
-            };
-
-        if (Graphics has :createBufferedBitmap) {
-            // get() used to return resource as Graphics.BufferedBitmap
-            mOffscreenBuffer = Graphics.createBufferedBitmap(offscreenBufferOptions).get() as BufferedBitmap;
-
-        } else if (Graphics has :BufferedBitmap) { // If this device supports BufferedBitmap, allocate the buffers we use for drawing
-            // Allocate a full screen size buffer with a palette of only 4 colors to draw
-            // the background image of the watchface.  This is used to facilitate blanking
-            // the second hand during partial updates of the display
-            mOffscreenBuffer = new Graphics.BufferedBitmap(offscreenBufferOptions);
-        } else {
-            mOffscreenBuffer = null;
-        }
-
-        //MtbA = new MtbA_functions(inLowPower as Boolean);
-
-    }
-
     // Handle the update event
     public function onUpdate(dc as Dc) as Void {
         mDrawer.setFontColor(Config.getFontColor()); //TODO do this only, when config (light / dark theme) changes
-        var bufferDc = null;        
         //var MtbA = new MtbA_functions();
         //var check = Storage.getValue(21);
         
         //var accentColor = config[0];
         
-
-        // We always want to refresh the full screen when we get a regular onUpdate call.
-        //_fullScreenRefresh = true;
-        if (null != mOffscreenBuffer) {
-            // If we have an offscreen buffer that we are using to draw the background,
-            // set the draw context of that buffer as our target.
-            bufferDc = mOffscreenBuffer.getDc();
-            dc.clearClip();
-        } else {
-            bufferDc = dc;
-        }
-
-        var width = bufferDc.getWidth();
-        var height = bufferDc.getHeight();
+        var width = dc.getWidth();
+        var height = dc.getHeight();
         var screenCenterPoint = [width/2, height/2];
 
-        var useAccentColorForTickmarks = Config.getTickmarkAccentColor();
         var showSecondHand;
         
-        if(mInLowPower and mCanBurnIn) { // aod on
+        if(mInLowPower and mCanBurnIn ) { // aod on
             showSecondHand = false;
-            drawAOD(dc, bufferDc, width, useAccentColorForTickmarks, mDrawSettings);
+            if(mBackgroundBuffer!=null){
+              if(mInitBackgroundBuffer){
+                if (mBackgroundBuffer.getDc() has :setAntiAlias) {
+                   dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
+                }
 
+                drawBackground(mBackgroundBuffer.getDc(), mDrawSettings); 
+                mInitBackgroundBuffer=false;
+              }
+              //dc.clearClip();
+              dc.drawBitmap(0, 0, mBackgroundBuffer);
+            } else {
+                drawBackground(dc, mDrawSettings);
+            }
         } else {
 
             if((!mInLowPower && Config.getSecondsHand())){
@@ -143,68 +127,57 @@ class AnalogView extends WatchUi.WatchFace {
               showSecondHand = false;
             }
 
-            drawNormal(dc, bufferDc, width, height, mDrawSettings);
+            if(mBackgroundBuffer!=null){
+              if(mInitBackgroundBuffer){
+                if (mBackgroundBuffer.getDc() has :setAntiAlias) {
+                   dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
+                }
+
+                drawBackground(mBackgroundBuffer.getDc(), mDrawSettings);
+                mInitBackgroundBuffer=false;
+              }
+              //dc.clearClip();
+              dc.drawBitmap(0, 0, mBackgroundBuffer);
+
+            } else {
+                if(Config.isAMOLEDDisplay() && dc has :setAntiAlias){ // No need for anti-alias on hashmarks of AMOLED screens
+                    dc.setAntiAlias(false);
+                } else if (dc has :setAntiAlias) {
+                    dc.setAntiAlias(true);
+                }
+
+                drawBackground(dc, mDrawSettings);
+            }
+
+            if (dc has :setAntiAlias) {
+                dc.setAntiAlias(true);
+            }
+
+            drawNormal(dc, width, height, mDrawSettings);
         }
 
         var clockTime = System.getClockTime();
         
 		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
 
-       if (mInLowPower and mCanBurnIn)  {
-            //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
-            mDrawer.drawCheckboard(dc, width, height, mUpTop);
-        }
+    //    if (mInLowPower and mCanBurnIn)  {
+    //        mUpTop=!mUpTop;
+    //         //TODO really need to figuring out what this checkboard is doing. Dont see any difference in AOD mode with it or without it.
+    //         mDrawer.drawCheckboard(dc, width, height, mUpTop);
+    //     }
 
         if(showSecondHand){
             mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
         }
     }
 
-    private function drawAOD(dc as Dc, bufferDc as Dc, width as Number, useAccentColorForTickmarks as Boolean, drawSettings as DrawSettings) as Void {
-      if (dc has :setAntiAlias) {
-        dc.setAntiAlias(false);
-      }
-            
-      mUpTop=!mUpTop;
-      //targetDc.clearClip();
-      bufferDc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor); // removing the background color and all the data points from the background, leaving just the hour hands and hashmarks
-      bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height
-
-      //TODO Figuring out what the purpose of all of this is...
-      if(useAccentColorForTickmarks){ //tickmark color toggle
-          drawBackground(dc);
-          mDrawer.drawHashMarks(dc, width, drawSettings); //dc
-      } else {
-          mDrawer.drawHashMarks(bufferDc, width, drawSettings); //dc
-          drawBackground(dc);
-      }
-
+    private function drawBackground(dc as Dc, drawSettings as DrawSettings) as Void{
+      dc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor); 
+      dc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight());
+      mDrawer.drawHashMarks(dc, dc.getWidth(), drawSettings);
     }
 
-    private function drawNormal(dc as Dc, bufferDc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
-            // Fill the entire background
-            bufferDc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor);
-            bufferDc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight()); //width & height?
-
-            // Output the offscreen buffers to the main display if required.
-            drawBackground(dc);
-
-            if(Config.isAMOLEDDisplay()){ // No need for anti-alias on hashmarks of AMOLED screens
-                if (dc has :setAntiAlias) {
-                  dc.setAntiAlias(false);
-                }
-            } else {
-                if (dc has :setAntiAlias) {
-                  dc.setAntiAlias(true);
-                }
-            }
-
-            mDrawer.drawHashMarks(dc, width, drawSettings);
-
-            if (dc has :setAntiAlias) {
-                dc.setAntiAlias(true);
-            }
-
+    private function drawNormal(dc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
             var position = Application.loadResource(Rez.JsonData.mPosition) as Array; //TODO load it once on onLoadout (if any positions are used. if not, not loading)
 
             // Garmin Logo check
@@ -387,23 +360,6 @@ class AnalogView extends WatchUi.WatchFace {
         //call the seconds hand here
     }
 
-
-    //! Draw the watch face background
-    //! onUpdate uses this method to transfer newly rendered Buffered Bitmaps
-    //! to the main display.
-    //! onPartialUpdate uses this to blank the second hand from the previous
-    //! second before outputting the new one.
-    //! @param dc Device context
-    private function drawBackground(dc as Dc) as Void {
-        // If we have an offscreen buffer that has been written to
-        // draw it to the screen.
-        if (mOffscreenBuffer != null) {
-            dc.drawBitmap(0, 0, mOffscreenBuffer);
-            //dc.setColor(Graphics.COLOR_TRANSPARENT, Graphics.COLOR_BLACK);
-            //dc.clear();
-        }
-
-    }
     
     // Called when this View is removed from the screen. Save the
     // state of this View here. This includes freeing resources from
@@ -420,6 +376,7 @@ class AnalogView extends WatchUi.WatchFace {
 
     private function refreshDrawSettings() as Void{
         Config.load();
+        mInitBackgroundBuffer=true;
 
         if(mInLowPower && mCanBurnIn) { // aod on
             mDrawSettings=DrawSettings.aodTheme();
@@ -514,8 +471,9 @@ class DrawSettings {
       drawSettings.majorTicksColor = drawSettings.accentColor;
     } else {
       drawSettings.majorTicksColor = Graphics.COLOR_BLACK;
-      drawSettings.minorTicksColor = Graphics.COLOR_BLACK;
     }
+
+    drawSettings.minorTicksColor = Graphics.COLOR_BLACK;
 
     if (Config.getHourLabels()) {
       drawSettings.horizontalCardinalTicksColor = drawSettings.majorTicksColor;
@@ -561,11 +519,15 @@ class DrawSettings {
     } else {
       if (Config.isAMOLEDDisplay()) {
         drawSettings.majorTicksColor = Graphics.COLOR_DK_GRAY;
-        drawSettings.minorTicksColor = Graphics.COLOR_DK_GRAY;
       } else {
         drawSettings.majorTicksColor = Graphics.COLOR_LT_GRAY;
-        drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
       }
+    }
+
+    if (Config.isAMOLEDDisplay()) {
+      drawSettings.minorTicksColor = Graphics.COLOR_DK_GRAY;
+    } else {
+      drawSettings.minorTicksColor = Graphics.COLOR_LT_GRAY;
     }
 
     if (Config.getHourLabels()) {
