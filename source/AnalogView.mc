@@ -104,40 +104,16 @@ class AnalogView extends WatchUi.WatchFace {
         var showSecondHand;
         
         if(mInLowPower and mCanBurnIn ) { // aod on
+            if(mBackgroundBuffer!=null){
+              drawBufferedBackground(dc);
+            } else {
+              drawBackground(dc);
+            }
+
             showSecondHand = false;
-            if(mBackgroundBuffer!=null){
-              if(mInitBackgroundBuffer){
-                if (mBackgroundBuffer.getDc() has :setAntiAlias) {
-                   dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
-                }
-
-                drawBackground(mBackgroundBuffer.getDc(), mDrawSettings); 
-                mInitBackgroundBuffer=false;
-              }
-              //dc.clearClip();
-              dc.drawBitmap(0, 0, mBackgroundBuffer);
-            } else {
-                drawBackground(dc, mDrawSettings);
-            }
         } else {
-
-            if((!mInLowPower && Config.getSecondsHand())){
-              showSecondHand = true;
-            } else {
-              showSecondHand = false;
-            }
-
             if(mBackgroundBuffer!=null){
-              if(mInitBackgroundBuffer){
-                if (mBackgroundBuffer.getDc() has :setAntiAlias) {
-                   dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
-                }
-
-                drawBackground(mBackgroundBuffer.getDc(), mDrawSettings);
-                mInitBackgroundBuffer=false;
-              }
-              //dc.clearClip();
-              dc.drawBitmap(0, 0, mBackgroundBuffer);
+              drawBufferedBackground(dc);
 
             } else {
                 if(Config.isAMOLEDDisplay() && dc has :setAntiAlias){ // No need for anti-alias on hashmarks of AMOLED screens
@@ -146,7 +122,7 @@ class AnalogView extends WatchUi.WatchFace {
                     dc.setAntiAlias(true);
                 }
 
-                drawBackground(dc, mDrawSettings);
+                drawBackground(dc);
             }
 
             if (dc has :setAntiAlias) {
@@ -154,6 +130,12 @@ class AnalogView extends WatchUi.WatchFace {
             }
 
             drawNormal(dc, width, height, mDrawSettings);
+
+            if((!mInLowPower && Config.getSecondsHand())){
+              showSecondHand = true;
+            } else {
+              showSecondHand = false;
+            }
         }
 
         var clockTime = System.getClockTime();
@@ -171,10 +153,23 @@ class AnalogView extends WatchUi.WatchFace {
         }
     }
 
-    private function drawBackground(dc as Dc, drawSettings as DrawSettings) as Void{
-      dc.setColor(drawSettings.backgroundColor, drawSettings.backgroundColor); 
+    private function drawBackground(dc as Dc) as Void{
+      dc.setColor(mDrawSettings.backgroundColor, mDrawSettings.backgroundColor); 
       dc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight());
-      mDrawer.drawHashMarks(dc, dc.getWidth(), drawSettings);
+      mDrawer.drawHashMarks(dc, dc.getWidth(), mDrawSettings);
+    }
+
+    private function drawBufferedBackground(dc as Dc){
+      if(mInitBackgroundBuffer){
+        if (mBackgroundBuffer.getDc() has :setAntiAlias) {
+          dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
+        }
+
+        drawBackground(mBackgroundBuffer.getDc()); 
+        mInitBackgroundBuffer=false;
+      }
+      //dc.clearClip();
+      dc.drawBitmap(0, 0, mBackgroundBuffer);
     }
 
     private function drawNormal(dc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
