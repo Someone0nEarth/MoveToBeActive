@@ -1429,6 +1429,7 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 		dc.fillCircle(width / 2, height / 2, handWidth*0.65-offsetInnerCircle); // -4
 	}
 
+    //TODO Understand the WHOLE tip color / drawing thingy
     public function drawSecondHand(dc, width, height, screenCenterPoint, handWidth, accentColor, arborColor, borderColor, clockTime) {
 		var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
 		dc.setColor(borderColor,Graphics.COLOR_BLACK);
@@ -1437,10 +1438,10 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
 		// tip in different color
 		if (!Config.getLightTheme()) { // Dark Theme
-			dc.setColor(borderColor,Graphics.COLOR_BLACK);
+			dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
 			dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, -(width/2.25), Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //rectangle
 		}
-		dc.setColor(arborColor, Graphics.COLOR_TRANSPARENT);
+		dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, -(width/2.23), Math.ceil(handWidth-(width*0.0035))/2.75, 1.0)); //rectangle
 
     }
