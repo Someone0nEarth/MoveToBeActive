@@ -435,7 +435,7 @@ class AnalogDelegate extends WatchUi.WatchFaceDelegate {
 class DrawSettings {
   public var backgroundColor as Number?;
   public var accentColor as Number?;
-  public var arborColor as Number?;
+  public var arborColor as Number = Graphics.COLOR_LT_GRAY;
   public var borderColor as Number = Graphics.COLOR_BLACK;
   public var lowTemperatureColor as Number?;
   public var highTemperatureColor as Number?;
@@ -490,7 +490,6 @@ class DrawSettings {
       drawSettings.additionalPixelLenghtOfMajorTicks = 10;
     }
 
-    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
     drawSettings.backgroundColor = Graphics.COLOR_WHITE;
     drawSettings.lowTemperatureColor = 0x0055AA;
     drawSettings.highTemperatureColor = 0xFF5500;
@@ -541,7 +540,6 @@ class DrawSettings {
       drawSettings.additionalPixelLenghtOfMajorTicks = 10;
     }
 
-    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
     drawSettings.lowTemperatureColor = Graphics.COLOR_BLUE;
     drawSettings.highTemperatureColor = 0xFFAA00;
@@ -561,7 +559,6 @@ class DrawSettings {
     drawSettings.additionalPixelLenghtOfMajorTicks = 0;
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
     drawSettings.garminLogoIcon = null;
-    drawSettings.arborColor = Graphics.COLOR_LT_GRAY;
 
     if (Config.getAodUseAccentColor()) {
       drawSettings.accentColor = Config.getAccentColor();
