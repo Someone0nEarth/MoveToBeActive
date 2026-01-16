@@ -586,7 +586,7 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 		}
 	}
 	
-	function drawLocation(dc, x, y) {
+	function drawWeatherConditionName(dc, x, y) {
 			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, y, Graphics.FONT_XTINY, mWeatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}

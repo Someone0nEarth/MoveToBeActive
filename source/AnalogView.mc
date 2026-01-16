@@ -190,36 +190,36 @@ class AnalogView extends WatchUi.WatchFace {
                 var weatherConditions= Weather.getCurrentConditions();
                 if(weatherConditions != null) {
                     var yIcon;
-                    var yTemp;
-                    var yName;
+                    var yTemperature;
+                    var yConditionName;
                     
                     if (showGarminLogo) {
                         yIcon=position[20];
-                        yTemp=Config.SCREEN_IS_ROUND_SHAPED ? (width==208 ? position[23] : position[15]) : position[20]; //TODO make it understandable
-                        yName=position[23];
+                        yTemperature=Config.SCREEN_IS_ROUND_SHAPED ? (width==208 ? position[23] : position[15]) : position[20]; //TODO make it understandable
+                        yConditionName=position[23];
 
                         if(width==260){ //TODO Figuring out what the meaning of the magic number "260" is
-                          yName = yName+6;
+                          yConditionName = yConditionName+6;
                         }
                     } else {
                         yIcon=position[22];
-                        yTemp=position[7];
-                        yName=position[6];
+                        yTemperature=position[7];
+                        yConditionName=position[6];
                     }
 
                     if (Config.showWeatherCondition()){
                         var xIcon=position[18];
                         var x2Icon=position[19];
-                        var xTemp=position[21];
+                        var xTemperature=position[21];
 
                         mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
-                        mDrawer.drawTemperature(dc, xTemp, yTemp, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius(), mDrawSettings);
+                        mDrawer.drawTemperature(dc, xTemperature, yTemperature, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius(), mDrawSettings);
                     }
                     
                     if(Config.showWeatherConditionName()){
-                        var xName=width/2;
+                        var xConditionName=width/2;
 
-                        mDrawer.drawLocation(dc, xName, yName);
+                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName);
                     }
                 }
             }
