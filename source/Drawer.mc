@@ -21,7 +21,6 @@ class Drawer {
 	private var mScreenShape = System.getDeviceSettings().screenShape;
 	private var mFontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
 	private var mFontColor;
-	private var mWeatherConditionName as String = "";
 	private var mLowPower as Boolean;
 
 	function initialize(inLowPower, fontColor) {
@@ -316,9 +315,11 @@ class Drawer {
 	 * @param cond The weather condition code.
 	 * @param clockTime The current clock time in hours.
 	 */
-function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.CurrentConditions?, condition, clockTime) as Void{
+function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherConditions as Weather.CurrentConditions?, condition, clockTime) as String{
     var sunset = 18;
     var sunrise = 6;
+
+	var weatherConditionName="";
 
     //TODO just to ensure weatherConditions is tried to set (helper while doing the refactoring)
     if (weatherConditions == null) {
@@ -373,9 +374,9 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
       weatherChar = "I"; // Cloudy
 
       if (isNight) {
-        mWeatherConditionName = "Cloudy Night";
+        weatherConditionName = "Cloudy Night";
       } else {
-        mWeatherConditionName = "Cloudy Day";
+        weatherConditionName = "Cloudy Day";
       }
     } else if (condition == 0 or condition == 5) {
       // Clear or Windy
@@ -383,12 +384,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2 - 2;
         iconY = y - 1;
         weatherChar = "f"; // Clear Night
-        mWeatherConditionName = "Starry Night";
+        weatherConditionName = "Starry Night";
       } else {
         iconX = x2;
         iconY = y - 2;
         weatherChar = "H"; // Clear Day
-        mWeatherConditionName = "Sunny Day";
+        weatherConditionName = "Sunny Day";
       }
     } else if (condition == 1 or condition == 23 or condition == 40 or condition == 52) {
       // Partly Cloudy or Mostly Clear or fair or thin clouds
@@ -396,12 +397,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2 - 1;
         iconY = y - 2;
         weatherChar = "g"; // Partly Cloudy Night
-        mWeatherConditionName = "Partly Cloudy";
+        weatherConditionName = "Partly Cloudy";
       } else {
         iconX = x2;
         iconY = y - 2;
         weatherChar = "G"; // Partly Cloudy Day
-        mWeatherConditionName = "Mostly Sunny";
+        weatherConditionName = "Mostly Sunny";
       }
     } else if (condition == 2 or condition == 22) {
       // Mostly Cloudy or Partly Clear
@@ -409,12 +410,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2;
         iconY = y;
         weatherChar = "h"; // Mostly Cloudy Night
-        mWeatherConditionName = "Overcast Night";
+        weatherConditionName = "Overcast Night";
       } else {
         iconX = x;
         iconY = y;
         weatherChar = "B"; // Mostly Cloudy Day
-        mWeatherConditionName = "Mostly Cloudy";
+        weatherConditionName = "Mostly Cloudy";
       }
     } else if (
       condition == 3 or
@@ -433,12 +434,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2;
         iconY = y;
         weatherChar = "c"; // Rain Night
-        mWeatherConditionName = "Rainy Night";
+        weatherConditionName = "Rainy Night";
       } else {
         iconX = x;
         iconY = y;
         weatherChar = "D"; // Rain Day
-        mWeatherConditionName = "Rainy Day";
+        weatherConditionName = "Rainy Day";
       }
     } else if (
       condition == 4 or
@@ -456,12 +457,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2;
         iconY = y;
         weatherChar = "e"; // Snow Night
-        mWeatherConditionName = "Snowy Night";
+        weatherConditionName = "Snowy Night";
       } else {
         iconX = x;
         iconY = y;
         weatherChar = "F"; // Snow Day
-        mWeatherConditionName = "Snowy Day";
+        weatherConditionName = "Snowy Day";
       }
     } else if (
       condition == 6 or
@@ -482,7 +483,7 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconY = y;
         weatherChar = "C"; // Thunder Day
       }
-      mWeatherConditionName = "Thunderstorms";
+      weatherConditionName = "Thunderstorms";
     } else if (
       condition == 7 or
       condition == 18 or
@@ -498,12 +499,12 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2;
         iconY = y;
         weatherChar = "d"; // Snow+Rain Night
-        mWeatherConditionName = "Wintry Mix Night";
+        weatherConditionName = "Wintry Mix Night";
       } else {
         iconX = x;
         iconY = y;
         weatherChar = "E"; // Snow+Rain Day
-        mWeatherConditionName = "Wintry Mix Day";
+        weatherConditionName = "Wintry Mix Day";
       }
     } else if (
       condition == 8 or
@@ -522,18 +523,20 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
         iconX = x2;
         iconY = y;
         weatherChar = "a"; // Fog Night
-        mWeatherConditionName = "Foggy Night";
+        weatherConditionName = "Foggy Night";
       } else {
         iconX = x;
         iconY = y;
         weatherChar = "A"; // Fog Day
-        mWeatherConditionName = "Foggy Day";
+        weatherConditionName = "Foggy Day";
       }
     }
 
     if (iconX != null && iconY != null && weatherChar != null) {
       dc.drawText(iconX, iconY, weatherFont, weatherChar, Graphics.TEXT_JUSTIFY_RIGHT);
     }
+
+	return weatherConditionName;
   }
 	
 	/* ------------------------ */
@@ -586,9 +589,9 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 		}
 	}
 	
-	function drawWeatherConditionName(dc, x, y) {
+	function drawWeatherConditionName(dc, x, y, weatherConditionName as String) as Void{
 			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
-			dc.drawText(x, y, Graphics.FONT_XTINY, mWeatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(x, y, Graphics.FONT_XTINY, weatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
 	// Notification Icon and Count
@@ -1868,17 +1871,17 @@ function drawWeatherIcon(dc, x, y, x2, width, weatherConditions as Weather.Curre
 						var oneHour = new Time.Duration(3600); // 1 hour
 						var info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
 						var x2Icon = xIcon + 1;
-						drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, null, forecast[0].condition, info.hour);
+						drawWeatherIconAndReturnConditionName(dc, xIcon, yIcon, x2Icon, width, null, forecast[0].condition, info.hour);
 						if (forecast.size()>=2 and forecast[1].condition!=null){
 						var adj = xIcon + dc.getTextWidthInPixels("000", 0) + 1;
 						oneHour = new Time.Duration(3600*2); // 2 hours
 						info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
-						drawWeatherIcon(dc, adj, yIcon, adj, width, null, forecast[1].condition, info.hour);
+						drawWeatherIconAndReturnConditionName(dc, adj, yIcon, adj, width, null, forecast[1].condition, info.hour);
 						if (size==3 and width>208 and forecast.size()>=3 and forecast[2].condition!=null) { // don't go in if FR55 (not enough space/resolution for 3 hour forecast)
 							adj = adj + dc.getTextWidthInPixels("000", 0) + 1;
 							oneHour = new Time.Duration(3600*3); // 3 hours
 							info = Time.Gregorian.info(Time.now().add(oneHour), Time.FORMAT_SHORT);
-							drawWeatherIcon(dc, adj, yIcon, adj, width, null, forecast[2].condition, info.hour);
+							drawWeatherIconAndReturnConditionName(dc, adj, yIcon, adj, width, null, forecast[2].condition, info.hour);
 						}					
 					}
 				}

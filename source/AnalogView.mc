@@ -189,6 +189,8 @@ class AnalogView extends WatchUi.WatchFace {
             if (Config.showWeather()) {
                 var weatherConditions= Weather.getCurrentConditions();
                 if(weatherConditions != null) {
+                    var weatherConditionName=null;
+
                     var yIcon;
                     var yTemperature;
                     var yConditionName;
@@ -212,14 +214,14 @@ class AnalogView extends WatchUi.WatchFace {
                         var x2Icon=position[19];
                         var xTemperature=position[21];
 
-                        mDrawer.drawWeatherIcon(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
+                        weatherConditionName=mDrawer.drawWeatherIconAndReturnConditionName(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
                         mDrawer.drawTemperature(dc, xTemperature, yTemperature, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius(), mDrawSettings);
                     }
                     
-                    if(Config.showWeatherConditionName()){
+                    if(Config.showWeatherConditionName() && weatherConditionName!=null && weatherConditionName!=""){
                         var xConditionName=width/2;
 
-                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName);
+                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName, weatherConditionName);
                     }
                 }
             }
