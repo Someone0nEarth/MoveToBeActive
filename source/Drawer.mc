@@ -21,15 +21,22 @@ class Drawer {
 	private var mScreenShape = System.getDeviceSettings().screenShape;
 	private var mFontSize = (Config.getFontSize() == true ? 1 : 0); //TODO
 	private var mFontColor;
-	private var mLowPower as Boolean;
+	private var mDrawSettings as DrawSettings;
 
-	function initialize(inLowPower, fontColor) {
-		mLowPower = inLowPower;
+	function initialize(fontColor, drawSettings as DrawSettings) {
         mFontColor = fontColor;
+		mDrawSettings = drawSettings;
+
 	}
 
     public function setFontColor(fontColor as Number) as Void {
         mFontColor = fontColor;
+    }
+
+	public function drawBackgroundWithHashMarks(dc as Dc) as Void{
+      dc.setColor(mDrawSettings.backgroundColor, mDrawSettings.backgroundColor); 
+      dc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight());
+      drawHashMarks(dc, dc.getWidth(), mDrawSettings);
     }
 
 	// This function is used to generate the coordinates of the 4 corners of the polygon
@@ -266,7 +273,7 @@ class Drawer {
     /* ------------------------ */	
     
     // Draw the Alarm Icon
-	function drawAlarmIcon(dc, x, y, accentColor, width) {
+	function drawAlarmIcon(dc, x, y, width) {
 		var offset = 0;
 		var LEDoffset = 0;
         if (width==218) { // Vivoactive 4S & Fenix 6S
@@ -278,7 +285,7 @@ class Drawer {
         
         var settings = System.getDeviceSettings().alarmCount;
         if (settings>0) {
-            dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
         } else {
 						if (width!=208){
 							dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
@@ -290,11 +297,11 @@ class Drawer {
     }
 	
 	// Draw the 3, 6, 9, and 12 hour labels.
-    function drawCardinalHourLabels(dc, width, height, drawSettings as DrawSettings) {
+    function drawCardinalHourLabels(dc, width, height) {
 
     	// Load the custom fonts: used for drawing the 3, 6, 9, and 12 on the watchface
         var font = Application.loadResource(Rez.Fonts.id_font_black_diamond); //TODO Should be loaded only one time?
-        dc.setColor(drawSettings.cardinalHourLabelsColor, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(mDrawSettings.cardinalHourLabelsColor, Graphics.COLOR_TRANSPARENT);
          
         //TODO Find purpose of width==208 and remove magic numbers 
         var width208=width==208;
@@ -541,7 +548,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	
 	/* ------------------------ */
 	
-	function drawTemperature(dc, x, y, weatherConditions as Weather.CurrentConditions, realTemperatureType, width, alwaysCelsius, drawSettings as DrawSettings) {
+	function drawTemperature(dc, x, y, weatherConditions as Weather.CurrentConditions, realTemperatureType, width, alwaysCelsius) {
 		var temperature=null;
 
 		if(realTemperatureType && weatherConditions.temperature!=null) {  // real temperature
@@ -560,9 +567,9 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 
 			if (minTemperature != null && maxTemperature != null) {
 				if (temperature<=minTemperature){
-						dc.setColor(drawSettings.lowTemperatureColor, Graphics.COLOR_TRANSPARENT);
+						dc.setColor(mDrawSettings.lowTemperatureColor, Graphics.COLOR_TRANSPARENT);
 				} else if (temperature>=maxTemperature){
-						dc.setColor(drawSettings.highTemperatureColor, Graphics.COLOR_TRANSPARENT);
+						dc.setColor(mDrawSettings.highTemperatureColor, Graphics.COLOR_TRANSPARENT);
 				}				
 			}
 
@@ -589,13 +596,13 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 	}
 	
-	function drawWeatherConditionName(dc, x, y, weatherConditionName as String, drawSettings as DrawSettings) as Void{
-			dc.setColor(drawSettings.weatherConditionNameColor, Graphics.COLOR_TRANSPARENT);
+	function drawWeatherConditionName(dc, x, y, weatherConditionName as String) as Void{
+			dc.setColor(mDrawSettings.weatherConditionNameColor, Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, y, Graphics.FONT_XTINY, weatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
 	// Notification Icon and Count
-	function drawNotification(dc, xIcon, yIcon, xText, yText, accentColor, width) {
+	function drawNotification(dc, xIcon, yIcon, xText, yText, width) {
 
 		var formattedNotificationAmount = "";
 		var notificationAmount;    
@@ -633,7 +640,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 //					dc.setColor( (accentColor==Graphics.COLOR_WHITE ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_WHITE), Graphics.COLOR_TRANSPARENT); // if accent color is white and notification is zero, then icon color is gray
 //				}
 			} else {
-				dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+				dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
 			}
 			dc.drawText( xIcon, yIcon, mIconsFont, "5", Graphics.TEXT_JUSTIFY_CENTER);
 		}
@@ -642,7 +649,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Get heart rate
-	function drawHeartRate(dc, xIcon, hrIconY, xText, width, accentColor) {
+	function drawHeartRate(dc, xIcon, hrIconY, xText, width) {
     	var heartRate;
     	if(Activity has :getActivityInfo) {
     		heartRate = Activity.getActivityInfo().currentHeartRate; 
@@ -718,7 +725,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 			} else if (heartRateZone == 2) { // Moderate Effort
 				heartRateIconColour = Graphics.COLOR_BLUE;
 			} else if (heartRateZone == 3) { // Weight Control
-				if (accentColor == 0xAAFF00) {
+				if (mDrawSettings.accentColor == 0xAAFF00) {
 					heartRateIconColour = 0xAAFF00; /* Vivomove GREEN */
 				} else {
 					heartRateIconColour = 0x55FF00; /* GREEN */
@@ -814,8 +821,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Battery Icon and Text	
-	function drawBatteryIcon(dc, xBattery, yBattery, xContact, yContact, width, accentColor, greyIcon) {
-	    
+	function drawBatteryIcon(dc, xBattery, yBattery, xContact, yContact, width, greyIcon) {
 		var battery = Math.ceil(System.getSystemStats().battery);
 		var batteryIconColour;
 		var height=dc.getHeight();
@@ -829,7 +835,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 				} else if (battery <= 40) {
 					batteryIconColour = 0xFFFF55 /* pastel yellow */;
 				} else {
-					if (accentColor == 0x55FF00 or System.getDeviceSettings().requiresBurnInProtection == false) {
+					if (mDrawSettings.accentColor == 0x55FF00 or System.getDeviceSettings().requiresBurnInProtection == false) {
 						batteryIconColour = 0x55FF00; /* GREEN */
 					} else {
 						batteryIconColour = 0xAAFF00; /* Vivomove GREEN */
@@ -1136,7 +1142,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Pulse Ox Icon and Text	
-	private function drawPulseOx(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawPulseOx(dc, xIcon, yIcon, xText, yText, width) {	
           
 		var pulseOx = null;
 		if (Activity has :getActivityInfo and Activity.getActivityInfo() has :currentOxygenSaturation) {
@@ -1154,7 +1160,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 			// Change the colour of the pulse Ox icon based on current value
 			if (!Config.getLightTheme()){ // Dark Theme
 				if (pulseOx >= 95) { // Normal
-					if (accentColor == 0xAAFF00) {
+					if (mDrawSettings.accentColor == 0xAAFF00) {
 						dc.setColor(0xAAFF00, Graphics.COLOR_TRANSPARENT); /* Vivomove GREEN */
 					} else {
 						dc.setColor(0x55FF00, Graphics.COLOR_TRANSPARENT); /* GREEN */
@@ -1195,7 +1201,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Floors Climbed Icon and Text
-	private function drawFloorsClimbed(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawFloorsClimbed(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 	  var floorsCount=0;
@@ -1210,7 +1216,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		if (goal == null) { goal = 0; }
 		
 		if (floorsCount>=goal) {
-			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
 				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
@@ -1237,7 +1243,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Steps
-	private function drawSteps(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawSteps(dc, xIcon, yIcon, xText, yText, width) {	
 
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var unit = "";
@@ -1260,7 +1266,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		if (goal == null) { goal = 0; }	
         
 		if (distStr>=goal) {
-			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
 				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
@@ -1279,7 +1285,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Distance Traveled
-	private function drawDistance(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawDistance(dc, xIcon, yIcon, xText, yText, width) {	
 
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var DistanceMetric = System.getDeviceSettings().distanceUnits;
@@ -1319,7 +1325,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		if (goal == null) { goal = 0; }	
 
 		if (ActivityMonitor.getInfo().steps!=null and ActivityMonitor.getInfo().steps>=goal) {
-			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width==360 or width==390 or width==416){ //AMOLED
 				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
@@ -1338,7 +1344,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Hour and Minute Hands
-	function drawHourAndMinuteHands(dc, width, height, screenCenterPoint, thickInd as HandsThicknessSettings.HandsThicknessLevel, accentColor, arborColor, borderColor, clockTime) {	
+	function drawHourAndMinuteHands(dc, width, height, screenCenterPoint, thickInd as HandsThicknessSettings.HandsThicknessLevel, clockTime) {	
 		var hourHandAngle = Math.PI/6*(1.0*clockTime.hour+clockTime.min/60.0);
 		
 		// Correct widths and lengths depending on resolution
@@ -1404,40 +1410,41 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 
         //TODO figuring this out
+		var accentColor = mDrawSettings.accentColor;
 		if (accentColor==5592405){ // Came from MtbA White
 			accentColor=Graphics.COLOR_LT_GRAY;
 		}		
 
 		//Use white to draw the hour hand, with a dark grey background
-		dc.setColor(borderColor, Graphics.COLOR_TRANSPARENT); //(centerPoint, angle, handLength, tailLength, width, triangle)
+		dc.setColor(mDrawSettings.borderColor, Graphics.COLOR_TRANSPARENT); //(centerPoint, angle, handLength, tailLength, width, triangle)
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.485, 0, Math.ceil(handWidth+(width*0.01)), triangle)); // hour hand border
 
-		dc.setColor(arborColor, Graphics.COLOR_TRANSPARENT); 
+		dc.setColor(mDrawSettings.arborColor, Graphics.COLOR_TRANSPARENT); 
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, hourHandAngle, width / 3.54 , 0, handWidth, triangle-0.01)); // hour hand
 		
 		// Draw the minute hand.
 		var minuteHandAngle = (clockTime.min / 30.0) * Math.PI;
 		
 		//generateHandCoordinates(centerPoint, angle, handLength, tailLength, width) -- width / (higher means smaller)
-		dc.setColor(borderColor, Graphics.COLOR_TRANSPARENT);
+		dc.setColor(mDrawSettings.borderColor, Graphics.COLOR_TRANSPARENT);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, minuteHandAngle, width / 2.225, 0, Math.ceil(handWidth+(width*0.01)), triangle)); // minute hand border
 		dc.setColor(accentColor, Graphics.COLOR_WHITE);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, minuteHandAngle, width / 2.25 , 0, handWidth, triangle-0.01)); // minute hand
 
 							
 		// Draw the arbor in the center of the screen.
-		dc.setColor(borderColor,Graphics.COLOR_BLACK);
+		dc.setColor(mDrawSettings.borderColor,Graphics.COLOR_BLACK);
 		dc.fillCircle(width / 2, height / 2, handWidth*0.65-offsetOuterCircle); // *0.65
-		dc.setColor(arborColor, Graphics.COLOR_WHITE);
+		dc.setColor(mDrawSettings.arborColor, Graphics.COLOR_WHITE);
 		dc.fillCircle(width / 2, height / 2, handWidth*0.65-offsetInnerCircle); // -4
 	}
 
     //TODO Understand the WHOLE tip color / drawing thingy
-    public function drawSecondHand(dc, width, height, screenCenterPoint, handWidth, accentColor, arborColor, borderColor, clockTime) {
+    public function drawSecondHand(dc, width, height, screenCenterPoint, handWidth, clockTime) {
 		var secondHandAngle = (clockTime.sec / 60.0) * Math.PI * 2;
-		dc.setColor(borderColor,Graphics.COLOR_BLACK);
+		dc.setColor(mDrawSettings.borderColor,Graphics.COLOR_BLACK);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.055, (width/15)+2, Math.ceil(handWidth+(width*0.0255))/2.75, 1.0)); //tip rectangle
-		dc.setColor(accentColor, Graphics.COLOR_WHITE);
+		dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_WHITE);
 		dc.fillPolygon(generateHandCoordinates(screenCenterPoint, secondHandAngle, width / 2.075, width / 15, handWidth/2.75, 1.0)); //rectangle
 		// tip in different color
 		if (!Config.getLightTheme()) { // Dark Theme
@@ -1462,8 +1469,8 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
     }
     
     //TODO maybe inline methode?
-	function drawGarminLogo(dc as Dc, x as Number, y as Number, garminLogoIcon) {	    
-		dc.drawBitmap( x, y , garminLogoIcon);
+	function drawGarminLogo(dc as Dc, x as Number, y as Number) {	    
+		dc.drawBitmap( x, y , mDrawSettings.garminLogoIcon);
     }
 	
 	// Draw Calories Burned
@@ -1795,7 +1802,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Humidity Percentage
-(:tempo) private function drawHumidity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+(:tempo) private function drawHumidity(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		//var IconsFont = Application.loadResource(Rez.Fonts.IconsFont);
 		var humidity=0;
@@ -1833,7 +1840,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 			} else if (humidity < 30 or humidity >= 60) { // Fair
 				dc.setColor(0xFFFF55, Graphics.COLOR_TRANSPARENT); // Yellow
 			} else { // Healthy
-				if (accentColor == 0xAAFF00) {
+				if (mDrawSettings.accentColor == 0xAAFF00) {
 					dc.setColor(0xAAFF00, Graphics.COLOR_TRANSPARENT); /* Vivomove GREEN */
 				} else {
 					dc.setColor(0x55FF00, Graphics.COLOR_TRANSPARENT); // Green
@@ -2042,7 +2049,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Solar Intensity
-	private function drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, accentColor) {	
+	private function drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width) {	
 	
 		var solarIntensity=0;
 		
@@ -2064,7 +2071,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 			} else if (solarIntensity >= 20) { // Moderate
 				solarIconColour = 0xFFFF55; 
 			} else if (solarIntensity > 0) { // Low
-				if (accentColor == 0xAAFF00) {
+				if (mDrawSettings.accentColor == 0xAAFF00) {
 					solarIconColour = 0xAAFF00; /* Vivomove GREEN */
 				} else {
 					solarIconColour = 0x55FF00; /* GREEN */
@@ -2105,7 +2112,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 
 	/* ------------------------ */
 	
-	private function drawSeconds(dc, xIcon, yIcon, xText, yText, width, type) {
+	private function drawSeconds(dc, xIcon, yIcon, xText, yText, width, type, lowPower as Boolean) {
 		var clockTime = System.getClockTime();
 		var seconds = clockTime.sec.format("%02d");
 		var am_pm="";
@@ -2160,7 +2167,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		dc.drawText( xIcon, yIcon, mIconsFont, "2", Graphics.TEXT_JUSTIFY_CENTER); // Using Font
 
 		dc.setColor(mFontColor, Graphics.COLOR_TRANSPARENT);
-		if (mLowPower==false) {
+		if (lowPower==false) {
 			dc.drawText(xText, yText,	mFontSize, seconds, Graphics.TEXT_JUSTIFY_LEFT);
 		}
 
@@ -2173,7 +2180,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 
 	/* ------------------------ */
 	
-	private function drawIntensityMin(dc, xIcon, yIcon, xText, yText, width, accentColor) {
+	private function drawIntensityMin(dc, xIcon, yIcon, xText, yText, width) {
 		var intensity=0;
 
 		if (ActivityMonitor.getInfo().activeMinutesWeek.total != null and ActivityMonitor.getInfo().activeMinutesWeekGoal!=null) {
@@ -2183,7 +2190,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 
 		if (intensity>=ActivityMonitor.getInfo().activeMinutesWeekGoal) {
-			dc.setColor(accentColor, Graphics.COLOR_TRANSPARENT);
+			dc.setColor(mDrawSettings.accentColor, Graphics.COLOR_TRANSPARENT);
 		} else {
 			if (width>=360){ //AMOLED
 				dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
@@ -2392,7 +2399,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 
 /* ------------------------ */
 	// Add respiration Rate (breaths per minute) - respirationRate from ActivityMonitor.getInfo()
-	private function drawRespiration(dc, xIcon, yIcon, xText, yText, accentColor, width) {
+	private function drawRespiration(dc, xIcon, yIcon, xText, yText, width) {
 
 		var text=null;    
        
@@ -2556,7 +2563,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Data Fields
-(:tempo) function drawPoints(dc, xIcon, yIcon, xText, yText, accentColor, width, dataPoint, side) {	// exclude for Fenix 5 plus
+(:tempo) function drawPoints(dc, xIcon, yIcon, xText, yText, width, dataPoint, side, lowPower) {	// exclude for Fenix 5 plus
 		// side 1 = left top
 		// side 2 = left middle
 		// side 3 = left bottom
@@ -2571,9 +2578,9 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 		
 		if (dataPoint == 0) { //Steps 
-			drawSteps(dc, xIcon-(xIcon*0.002), yIcon, xText, yText, width, accentColor);
+			drawSteps(dc, xIcon-(xIcon*0.002), yIcon, xText, yText, width);
 		} else if (Toybox has :Weather and ((side>2 and dataPoint == 1) or (side<=2 and dataPoint == 5))) { // Humidity(dc, xIcon, yIcon, xText, yText, width)
-			drawHumidity(dc, xIcon+(xIcon*0.005), yIcon, xText-(xText*0.002), yText, width, accentColor);
+			drawHumidity(dc, xIcon+(xIcon*0.005), yIcon, xText-(xText*0.002), yText, width);
 		} else if ((side>2 and dataPoint == 2) or (side<=2 and dataPoint == 6)) { // Precipitation(dc, xIcon, yIcon, xText, yText, width)
 			if (side<=3){ xText=xText+width*0.012; }
 			drawPrecipitation(dc, xIcon+(xIcon*0.0125)+offset390, yIcon-(xIcon*0.001)+(offset390*2), xText+(xText*0.025)-(offset390*2), yText, width);
@@ -2584,28 +2591,28 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		} else if ((side>2 and dataPoint == 5) or (side<=2 and dataPoint == 9)) { // Calories Active
 			drawCalories(dc, xIcon+(offset390*2), yIcon, xText, yText, width, 2);
 		} else if ((side>2 and dataPoint == 6) or (side<=2 and dataPoint == 10)) { // FloorsClimbed(dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawFloorsClimbed(dc, xIcon-(xIcon*0.002), yIcon-(xIcon*0.001), xText, yText, width, accentColor);
+			drawFloorsClimbed(dc, xIcon-(xIcon*0.002), yIcon-(xIcon*0.001), xText, yText, width);
 		} else if ((side>2 and dataPoint == 7) or (side<=2 and dataPoint == 11)) { // PulseOx(dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawPulseOx(dc, xIcon, yIcon, xText-offset390, yText, width, accentColor);
+			drawPulseOx(dc, xIcon, yIcon, xText-offset390, yText, width);
 		} else if ((side>2 and dataPoint == 8) or (side<=2 and dataPoint == 12)) { // HeartRate(dc, xIcon, hrIconY, xText, width, Xoffset, accentColor)
 			//drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(xIcon*0.03)-offset390, xText, width, accentColor);
-			drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(width*0.017)-offset390, xText, width, accentColor);
+			drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(width*0.017)-offset390, xText, width);
 		} else if ((side>2 and dataPoint == 9) or (side<=2 and dataPoint == 13)) { // Notification(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
-			drawNotification(dc, xIcon-(xIcon*0.002), yIcon+(width*0.002)+offset390, xText, yText, accentColor, width);
+			drawNotification(dc, xIcon-(xIcon*0.002), yIcon+(width*0.002)+offset390, xText, yText, width);
 		} else if ((side>2 and dataPoint == 10) or (side<=2 and dataPoint == 14)) { // SolarIntensity (dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, accentColor);
+			drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width);
 		} else if ((side>2 and dataPoint == 11) or (side<=2 and dataPoint == 15)) { // Seconds
-			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 1);
+			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 1, lowPower);
 		} else if ((side>2 and dataPoint == 12) or (side<=2 and dataPoint == 16)) { // Digital Clock
-			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 2);
+			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 2, lowPower);
 		} else if ((side>2 and dataPoint == 13) or (side<=2 and dataPoint == 17)) { // Intensity Minutes
-			drawIntensityMin(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.025)-(offset390*2), xText, yText, width, accentColor);
+			drawIntensityMin(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.025)-(offset390*2), xText, yText, width);
 		} else if ((side>2 and dataPoint == 14) or (side<=2 and dataPoint == 18)) { // SolarIntensity (dc, xIcon, yIcon, xText, yText, width, accentColor)
 			drawBodyBattery(dc, xIcon+2, yIcon-1, xText+(xText*0.01), yText, width);			
 		} else if ((side>2 and dataPoint == 15) or (side<=2 and dataPoint == 19)) { // Calories(dc, xIcon, yIcon, xText, yText, width)
 			drawStress(dc, xIcon-(xIcon*0.002), yIcon+4, xText, yText, width);
 		} else if ((side>2 and dataPoint == 16) or (side<=2 and dataPoint == 20)) { // Respiration Rate(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
-			drawRespiration(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.03)-offset390, xText, yText, accentColor, width);
+			drawRespiration(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.03)-offset390, xText, yText, width);
 		} else if ((side>2 and dataPoint == 17) or (side<=2 and dataPoint == 21)) { // Recovery Time(dc, xIcon, yIcon, xText, yText, width, accentColor)
 			drawRecoveryTime(dc, xIcon, yIcon+(xIcon*0.002), xText-offset390, yText, width);
 		} else if ((side>2 and dataPoint == 18) or (side<=2 and dataPoint == 22)) { // Vo2 Max Run(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
@@ -2620,7 +2627,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		} else if (side>2 and dataPoint == 22){
 			drawForecast(dc, xIcon+(width*0.06), yIcon+(width*0.01), width, 2);
 		} else if (side<=2 and dataPoint == 1) { 
-			drawDistance(dc, xIcon-offset390, yIcon, xText+(xText*0.015)-offset390, yText, width, accentColor);
+			drawDistance(dc, xIcon-offset390, yIcon, xText+(xText*0.015)-offset390, yText, width);
 		} else if (side<=2 and dataPoint == 2) { // elevationIcon(dc, xIcon, yIcon, xText, yText, width)
 			drawElevation(dc, xIcon-(xIcon*0.015), yIcon-(xIcon*0.01), xText+(xText*0.015)-offset390, yText, width, side);
 		} else if (side<=2 and dataPoint == 3) { // windIcon(dc, xIcon, yIcon, xText, yText, width)
@@ -2635,7 +2642,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 	/* ------------------------ */
 	
 	// Draw Data Fields
-(:noTempo)	function drawPoints(dc, xIcon, yIcon, xText, yText, accentColor, width, dataPoint, side) {	// exclude for Fenix 5 plus
+(:noTempo)	function drawPoints(dc, xIcon, yIcon, xText, yText, width, dataPoint, side, lowPower) {	// exclude for Fenix 5 plus
 		// side 1 = left top
 		// side 2 = left middle
 		// side 3 = left bottom
@@ -2650,7 +2657,7 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 		
 		if (dataPoint == 0) { //Steps 
-			drawSteps(dc, xIcon-(xIcon*0.002), yIcon, xText, yText, width, accentColor);
+			drawSteps(dc, xIcon-(xIcon*0.002), yIcon, xText, yText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 3) or (side<=2 and dataPoint == 7)) { // elevationIcon(dc, xIcon, yIcon, xText, yText, width)
 			drawPressure(dc, xIcon, yIcon, xText+(xText*0.01)-offset390, yText, width);
 		} else if ((side>2 and dataPoint == 4) or (side<=2 and dataPoint == 8)) { // Calories Total
@@ -2658,28 +2665,28 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		} else if ((side>2 and dataPoint == 5) or (side<=2 and dataPoint == 9)) { // Calories Active
 			drawCalories(dc, xIcon+(offset390*2), yIcon, xText, yText, width, 2);
 		} else if ((side>2 and dataPoint == 6) or (side<=2 and dataPoint == 10)) { // FloorsClimbed(dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawFloorsClimbed(dc, xIcon-(xIcon*0.002), yIcon-(xIcon*0.001), xText, yText, width, accentColor);
+			drawFloorsClimbed(dc, xIcon-(xIcon*0.002), yIcon-(xIcon*0.001), xText, yText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 7) or (side<=2 and dataPoint == 11)) { // PulseOx(dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawPulseOx(dc, xIcon, yIcon, xText-offset390, yText, width, accentColor);
+			drawPulseOx(dc, xIcon, yIcon, xText-offset390, yText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 8) or (side<=2 and dataPoint == 12)) { // HeartRate(dc, xIcon, hrIconY, xText, width, Xoffset, accentColor)
 			//drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(xIcon*0.03)-offset390, xText, width, accentColor);
-			drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(width*0.017)-offset390, xText, width, accentColor);
+			drawHeartRate(dc, xIcon-(xIcon*0.005), yIcon+(width*0.017)-offset390, xText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 9) or (side<=2 and dataPoint == 13)) { // Notification(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
-			drawNotification(dc, xIcon-(xIcon*0.002), yIcon+(width*0.002)-offset390, xText, yText, accentColor, width);
+			drawNotification(dc, xIcon-(xIcon*0.002), yIcon+(width*0.002)-offset390, xText, yText, mDrawSettings.accentColor, width);
 		} else if ((side>2 and dataPoint == 10) or (side<=2 and dataPoint == 14)) { // SolarIntensity (dc, xIcon, yIcon, xText, yText, width, accentColor)
-			drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, accentColor);
+			drawSolarIntensity(dc, xIcon, yIcon, xText, yText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 11) or (side<=2 and dataPoint == 15)) { // Seconds
-			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 1);
+			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 1, lowPower);
 		} else if ((side>2 and dataPoint == 12) or (side<=2 and dataPoint == 16)) { // Digital Clock
-			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 2);
+			drawSeconds(dc, xIcon, yIcon+(width*0.02)-(offset390*2), xText, yText, width, 2, lowPower);
 		} else if ((side>2 and dataPoint == 13) or (side<=2 and dataPoint == 17)) { // Intensity Minutes
-			drawIntensityMin(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.025)-(offset390*2), xText, yText, width, accentColor);
+			drawIntensityMin(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.025)-(offset390*2), xText, yText, width, mDrawSettings.accentColor);
 		} else if ((side>2 and dataPoint == 14) or (side<=2 and dataPoint == 18)) { // SolarIntensity (dc, xIcon, yIcon, xText, yText, width, accentColor)
 			drawBodyBattery(dc, xIcon+2, yIcon-1, xText+(xText*0.01), yText, width);			
 		} else if ((side>2 and dataPoint == 15) or (side<=2 and dataPoint == 19)) { // Calories(dc, xIcon, yIcon, xText, yText, width)
 			drawStress(dc, xIcon-(xIcon*0.002), yIcon+4, xText, yText, width);
 		} else if ((side>2 and dataPoint == 16) or (side<=2 and dataPoint == 20)) { // Respiration Rate(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
-			drawRespiration(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.03)-offset390, xText, yText, accentColor, width);
+			drawRespiration(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.03)-offset390, xText, yText, mDrawSettings.accentColor, width);
 		} else if ((side>2 and dataPoint == 17) or (side<=2 and dataPoint == 21)) { // Recovery Time(dc, xIcon, yIcon, xText, yText, width, accentColor)
 			drawRecoveryTime(dc, xIcon, yIcon+(xIcon*0.002), xText-offset390, yText, width);
 		} else if ((side>2 and dataPoint == 18) or (side<=2 and dataPoint == 22)) { // Vo2 Max Run(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
@@ -2690,24 +2697,9 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 			//drawBatteryConsumption(dc, xIcon-(xIcon*0.002), yIcon+(xIcon*0.035)-offset390, xText, yText, width);
 			drawBatteryConsumption(dc, xIcon-(xIcon*0.002), yIcon+(width*0.025)-offset390, xText, yText, width);
 		} else if (side<=2 and dataPoint == 1) { 
-			drawDistance(dc, xIcon-offset390, yIcon, xText+(xText*0.015)-offset390, yText, width, accentColor);
+			drawDistance(dc, xIcon-offset390, yIcon, xText+(xText*0.015)-offset390, yText, width, mDrawSettings.accentColor);
 		} else if (side<=2 and dataPoint == 2) { // elevationIcon(dc, xIcon, yIcon, xText, yText, width)
 			drawElevation(dc, xIcon-(xIcon*0.015), yIcon-(xIcon*0.01), xText+(xText*0.015)-offset390, yText, width, side);
 		}
 	}
-
-	public function enterSleep(inLowPower) as Void {
-			mLowPower=inLowPower;
-			//WatchUi.requestUpdate();
-	}
-
-	//! This method is called when the device exits sleep mode.
-	//! Set the isAwake flag to let onUpdate know it should render the second hand.
-	public function exitSleep(inLowPower) as Void {
-			//_isAwake = true;
-			mLowPower=inLowPower;
-			//WatchUi.requestUpdate();
-	}
-
-
 }

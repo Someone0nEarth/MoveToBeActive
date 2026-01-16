@@ -33,7 +33,6 @@ class AnalogView extends WatchUi.WatchFace {
     //var canBurnIn=false;
     //private var mUpTop=true; //TODO Figure out the purpose of upTop variable
     private var mDrawer as Drawer?;
-    private var mDrawSettings as DrawSettings?;
     private var mCanBurnIn as Boolean = System.getDeviceSettings().requiresBurnInProtection;
     private var mInitBackgroundBuffer = true;
     
@@ -107,7 +106,7 @@ class AnalogView extends WatchUi.WatchFace {
             if(mBackgroundBuffer!=null){
               drawBufferedBackground(dc);
             } else {
-              drawBackground(dc);
+              mDrawer.drawBackgroundWithHashMarks(dc);
             }
 
             showSecondHand = false;
@@ -122,14 +121,14 @@ class AnalogView extends WatchUi.WatchFace {
                     dc.setAntiAlias(true);
                 }
 
-                drawBackground(dc);
+                mDrawer.drawBackgroundWithHashMarks(dc);
             }
 
             if (dc has :setAntiAlias) {
                 dc.setAntiAlias(true);
             }
 
-            drawNormal(dc, width, height, mDrawSettings);
+            drawNormal(dc, width, height);
 
             if((!mInLowPower && Config.getSecondsHand())){
               showSecondHand = true;
@@ -140,7 +139,7 @@ class AnalogView extends WatchUi.WatchFace {
 
         var clockTime = System.getClockTime();
         
-		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
+		mDrawer.drawHourAndMinuteHands(dc, width, height, screenCenterPoint, Config.getHandsThickness(), clockTime);
 
     //    if (mInLowPower and mCanBurnIn)  {
     //        mUpTop=!mUpTop;
@@ -149,15 +148,11 @@ class AnalogView extends WatchUi.WatchFace {
     //     }
 
         if(showSecondHand){
-            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), mDrawSettings.accentColor, mDrawSettings.arborColor, mDrawSettings.borderColor, clockTime);
+            mDrawer.drawSecondHand(dc, width, height, screenCenterPoint, Config.getHandsThickness(), clockTime);
         }
     }
 
-    private function drawBackground(dc as Dc) as Void{
-      dc.setColor(mDrawSettings.backgroundColor, mDrawSettings.backgroundColor); 
-      dc.fillRectangle(0, 0, dc.getWidth(), dc.getHeight());
-      mDrawer.drawHashMarks(dc, dc.getWidth(), mDrawSettings);
-    }
+ 
 
     private function drawBufferedBackground(dc as Dc){
       if(mInitBackgroundBuffer){
@@ -165,25 +160,25 @@ class AnalogView extends WatchUi.WatchFace {
           dc.setAntiAlias(false); //TODO enhance BufferedBitmap palette with antialiases colors to use antialias for bufferedBackground?
         }
 
-        drawBackground(mBackgroundBuffer.getDc()); 
+        mDrawer.drawBackgroundWithHashMarks(mBackgroundBuffer.getDc()); 
         mInitBackgroundBuffer=false;
       }
       //dc.clearClip();
       dc.drawBitmap(0, 0, mBackgroundBuffer);
     }
 
-    private function drawNormal(dc as Dc, width as Number, height as Number, drawSettings as DrawSettings) as Void {
+    private function drawNormal(dc as Dc, width as Number, height as Number) as Void {
             var position = Application.loadResource(Rez.JsonData.mPosition) as Array; //TODO load it once on onLoadout (if any positions are used. if not, not loading)
 
             // Garmin Logo check
             var showGarminLogo=Config.getGarminlogo();
-            if (drawSettings.garminLogoIcon!=null) {
-                mDrawer.drawGarminLogo(dc, position[4], position[5], drawSettings.garminLogoIcon); 
+            if (showGarminLogo) {
+                mDrawer.drawGarminLogo(dc, position[4], position[5]); 
             }
 
             // Draw the 3, 6, 9, and 12 hour labels.
             if (Config.getHourLabels()) {
-                mDrawer.drawCardinalHourLabels(dc, width, height, drawSettings); 
+                mDrawer.drawCardinalHourLabels(dc, width, height); 
             }
 
             if (Config.showWeather()) {
@@ -215,20 +210,20 @@ class AnalogView extends WatchUi.WatchFace {
                         var xTemperature=position[21];
 
                         weatherConditionName=mDrawer.drawWeatherIconAndReturnConditionName(dc, xIcon, yIcon, x2Icon, width, weatherConditions, weatherConditions.condition, System.getClockTime().hour);
-                        mDrawer.drawTemperature(dc, xTemperature, yTemperature, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius(), mDrawSettings);
+                        mDrawer.drawTemperature(dc, xTemperature, yTemperature, weatherConditions, Config.getRealTemperatureType(), width, Config.getTemperatureAlwaysCelsius());
                     }
                     
                     if(Config.showWeatherConditionName() && weatherConditionName!=null && weatherConditionName!=""){
                         var xConditionName=width/2;
 
-                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName, weatherConditionName, mDrawSettings);
+                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName, weatherConditionName);
                     }
                 }
             }
             
             // Draw Battery
             if (Config.getBatteryIcon()!=false){ // Show Battery Icon
-                mDrawer.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, drawSettings.accentColor, Config.getConditionalBatteryIconColor());
+                mDrawer.drawBatteryIcon(dc, width*0.69, height / 2.11, width*0.82, height / 2.06+(width==218 ? 1 : 0), width, Config.getConditionalBatteryIconColor());
                 mDrawer.drawBatteryText(dc, width*0.76, height / 2.14 - 1, width, Config.getBatteryEstFlag());
             }
 
@@ -264,22 +259,22 @@ class AnalogView extends WatchUi.WatchFace {
 
             // (dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset, dataPoint)            
             var dataPoint = Config.getRightBottomDF(); //right bottom
-            mDrawer.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, drawSettings.accentColor, width, dataPoint, 4);
+            mDrawer.drawPoints(dc, position[8], position[14], position[10], position[15]-FontAdj, width, dataPoint, 4, mInLowPower);
             //MtbA.drawRightPoints(dc, position[8], position[14], position[10], position[15], accentColor, width, 0, dataPoint);
 
             dataPoint = Config.getRightTopDF(); //right top
-            mDrawer.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, drawSettings.accentColor, width, dataPoint, 4); 
+            mDrawer.drawPoints(dc, position[8], position[9], position[10], position[11]-FontAdj, width, dataPoint, 4, mInLowPower); 
 
             //(dc, xIcon, yIcon, xText, yText, accentColor, width, Xoffset)
             dataPoint = Config.getLeftTopDF(); // left top
-            mDrawer.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, drawSettings.accentColor, width, dataPoint, 1);
+            mDrawer.drawPoints(dc, position[12], position[9], position[13], position[11]-FontAdj, width, dataPoint, 1, mInLowPower);
 
             dataPoint = Config.getLeftMiddleDF(); // left middle
-            mDrawer.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, drawSettings.accentColor, width, dataPoint, 2);	
+            mDrawer.drawPoints(dc, position[12], position[16], position[13], position[17]-FontAdj, width, dataPoint, 2, mInLowPower);	
             //MtbA.drawLeftMiddle(dc, position[12], position[16], position[13], position[17], accentColor, width, dataPoint);	
 
             dataPoint = Config.getLeftBottomDF(); // left bottom
-            mDrawer.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, drawSettings.accentColor, width, dataPoint, 3);
+            mDrawer.drawPoints(dc, position[12], position[14], position[13], position[15]-FontAdj, width, dataPoint, 3, mInLowPower);
 
             var iconSize = 0;
 
@@ -304,7 +299,7 @@ class AnalogView extends WatchUi.WatchFace {
                     // Draw the Do Not Disturb Icon in the middle
                     mDrawer.drawDndIcon(dc, position[0], position[1], width);
                     // Draw alarm icon on the right
-                    mDrawer.drawAlarmIcon(dc, position[3], position[1], drawSettings.accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, position[3], position[1], width);
                     //Draw bluetooth icon on the left
                     mDrawer.drawBluetoothIcon(dc, position[2], position[1]);
                 } else if(alarm == false and (blue == true)) { // alarm icon is hidden
@@ -316,7 +311,7 @@ class AnalogView extends WatchUi.WatchFace {
                     // Draw the Do Not Disturb Icon on the left
                     mDrawer.drawDndIcon(dc, (position[3]+position[0])/2, position[1], width);
                     // Draw alarm icon on the right
-                    mDrawer.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], drawSettings.accentColor, width);                    
+                    mDrawer.drawAlarmIcon(dc, (position[0]+position[2])/2, position[1], width);                    
                 } else{ // only Dnd
                     // Draw the Do Not Disturb Icon in the middle
                     mDrawer.drawDndIcon(dc, position[0], position[1], width);
@@ -325,13 +320,13 @@ class AnalogView extends WatchUi.WatchFace {
                 if ((alarm == true or alarm == null) and (blue == true or blue == null)){ // all 2 icons
                     // Draw alarm icon on the right
                     //MtbA.drawAlarmIcon(dc, (position[3]+(position[3]+position[0])/2)/2, position[1], accentColor, width);
-                    mDrawer.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], drawSettings.accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, ((position[3]+position[0])/2)+iconSize, position[1], width);
                     //Draw bluetooth icon on the left
                     mDrawer.drawBluetoothIcon(dc, (position[2]+position[0])/2, position[1]);
                 } else if(alarm == false and (blue == true)){ // alarm icon is hidden
                     mDrawer.drawBluetoothIcon(dc, (width/2)-1, position[1]);
                 } else if(alarm == true){
-                    mDrawer.drawAlarmIcon(dc, width/2, position[1], drawSettings.accentColor, width);
+                    mDrawer.drawAlarmIcon(dc, width/2, position[1], width);
                 }
             }
 
@@ -363,35 +358,31 @@ class AnalogView extends WatchUi.WatchFace {
     // memory.
     function onHide() as Void {
         mDrawer=null;
-        mDrawSettings=null;
     }
 
     function onShow() as Void {
-        mDrawer= new Drawer(mInLowPower, Config.getFontColor());
-        refreshDrawSettings();
+        mDrawer= new Drawer(Config.getFontColor(), createDrawSettings());
     }
 
-    private function refreshDrawSettings() as Void{
+    private function createDrawSettings() as DrawSettings{
         Config.load();
         mInitBackgroundBuffer=true;
 
         if(mInLowPower && mCanBurnIn) { // aod on
-            mDrawSettings=DrawSettings.aodTheme();
+            return DrawSettings.aodTheme();
         } else if (Config.getLightTheme()){
-            mDrawSettings=DrawSettings.lightTheme();
+            return DrawSettings.lightTheme();
         } else {
-            mDrawSettings=DrawSettings.darkTheme();
+            return DrawSettings.darkTheme();
         }
-
     }
 
     //! This method is called when the device re-enters sleep mode.
     //! Set the isAwake flag to let onUpdate know it should stop rendering the second hand.
     public function onEnterSleep() as Void {
         //_isAwake = false;
-        mInLowPower=true;            
-        mDrawer.enterSleep(mInLowPower);
-        refreshDrawSettings();
+        mInLowPower=true;
+        mDrawer= new Drawer(Config.getFontColor(), createDrawSettings());
         WatchUi.requestUpdate(); //TODO should not be necessary, because onUpdate should be triggered by the system itself?
     }
 
@@ -400,8 +391,7 @@ class AnalogView extends WatchUi.WatchFace {
     public function onExitSleep() as Void {
         //_isAwake = true;
         mInLowPower=false;
-        mDrawer.exitSleep(mInLowPower);
-        refreshDrawSettings();
+        mDrawer= new Drawer(Config.getFontColor(), createDrawSettings());
         //WatchUi.requestUpdate();
     }
 
@@ -453,7 +443,7 @@ class DrawSettings {
   public var additionalPixelLenghtOfCardinalTicks as Number?;
   public var additionalPixelLenghtOfMajorTicks as Number?;
 
-  public var garminLogoIcon as Lang.Object?;
+  public var garminLogoIcon = null;
 
   public var width as Number?;
   public var height as Number?;
