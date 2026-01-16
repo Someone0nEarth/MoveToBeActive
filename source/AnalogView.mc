@@ -221,7 +221,7 @@ class AnalogView extends WatchUi.WatchFace {
                     if(Config.showWeatherConditionName() && weatherConditionName!=null && weatherConditionName!=""){
                         var xConditionName=width/2;
 
-                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName, weatherConditionName);
+                        mDrawer.drawWeatherConditionName(dc, xConditionName, yConditionName, weatherConditionName, mDrawSettings);
                     }
                 }
             }
@@ -441,6 +441,7 @@ class DrawSettings {
   public var borderColor as Number = Graphics.COLOR_BLACK;
   public var lowTemperatureColor as Number?;
   public var highTemperatureColor as Number?;
+  public var weatherConditionNameColor as Number?;
   public var minorTicksColor as Number?;
   public var majorTicksColor as Number?;
   public var verticalCardinalTicksColor as Number?;
@@ -495,6 +496,7 @@ class DrawSettings {
     drawSettings.backgroundColor = Graphics.COLOR_WHITE;
     drawSettings.lowTemperatureColor = 0x0055AA;
     drawSettings.highTemperatureColor = 0xFF5500;
+    drawSettings.weatherConditionNameColor = Graphics.COLOR_LT_GRAY;
 
     if (Config.getGarminlogo()) {
       drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogoWhite);
@@ -545,6 +547,7 @@ class DrawSettings {
     drawSettings.backgroundColor = Graphics.COLOR_BLACK;
     drawSettings.lowTemperatureColor = Graphics.COLOR_BLUE;
     drawSettings.highTemperatureColor = 0xFFAA00;
+    drawSettings.weatherConditionNameColor = Graphics.COLOR_DK_GRAY;
 
     if (Config.getGarminlogo()) {
       drawSettings.garminLogoIcon = Application.loadResource(Rez.Drawables.GarminLogo);

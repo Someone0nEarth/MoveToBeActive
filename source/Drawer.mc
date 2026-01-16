@@ -589,8 +589,8 @@ function drawWeatherIconAndReturnConditionName(dc, x, y, x2, width, weatherCondi
 		}
 	}
 	
-	function drawWeatherConditionName(dc, x, y, weatherConditionName as String) as Void{
-			dc.setColor((Config.getLightTheme() ? Graphics.COLOR_LT_GRAY : Graphics.COLOR_DK_GRAY), Graphics.COLOR_TRANSPARENT);
+	function drawWeatherConditionName(dc, x, y, weatherConditionName as String, drawSettings as DrawSettings) as Void{
+			dc.setColor(drawSettings.weatherConditionNameColor, Graphics.COLOR_TRANSPARENT);
 			dc.drawText(x, y, Graphics.FONT_XTINY, weatherConditionName, Graphics.TEXT_JUSTIFY_CENTER);
 	}
 	
